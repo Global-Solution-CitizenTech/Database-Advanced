@@ -1,0 +1,8 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="citizenTech" id="4C81A61D-775C-8FA1-3C02-64DDBD57A42C" version="3.5">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:03:32 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>4C81A61D-775C-8FA1-3C02-64DDBD57A42C</designId>
+</OSDM_Design>

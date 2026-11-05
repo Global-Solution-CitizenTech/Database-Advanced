@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="B141AF32-F00D-4281-FA9C-33DBF3CC35CA" name="cidade">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:06:30 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id_cidade" id="5E04AF2D-0AAE-04B2-6AA2-1E410E446BC0">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:06:37 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="nm_cidade" id="3E1337AE-F017-7801-48A4-A069DC521E0C">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:10:36 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_estado" id="12CAF250-39BD-8710-507B-B392120A2E30">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:17:11 UTC</createdTime>
+<generatorID>2AD5D0A9-CB78-B7DB-2185-FEFB0C41AA29</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<referedAttribute>96D9A87C-CDCF-E3E7-AD09-BDDAC2821D57</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="9D70A3E3-3632-4B38-7AD4-99970645D76A" name="cidade PK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:07:21 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>5E04AF2D-0AAE-04B2-6AA2-1E410E446BC0</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

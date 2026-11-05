@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="6BE66BD4-5AE3-F3A6-EA70-6165AF3EE780" name="bairro">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>3CC4F81E-4FD3-D1B5-AA82-CBDB2A67CB7F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_bairro" id="1BFFBE3D-BFB1-5CA7-0922-D17ED25C16CC">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>E783BAA5-C75A-9397-6328-5A71ACA49404</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="nm_bairro" id="DBDD6CE3-D9E4-86E3-E45C-4E9F0501BF76">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>2A4BFF51-2EDB-C973-A349-226EE0502100</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="cidade_id_cidade" id="AF8A048D-64CE-5BBE-2ABE-8CC96D38D74F">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>970E5C90-F09B-8CB5-957E-0058F3000220</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="F61297C6-B100-7180-6DD7-C73850AC8347" referredColumn="9193F2A3-7743-FC10-C2AD-83EDE84E043E"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="7DE8384A-A1EE-B697-6918-CFAB33F3F21B" name="bairro_PK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>99828B80-05E5-2A82-93D0-BC8F81C43871</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1BFFBE3D-BFB1-5CA7-0922-D17ED25C16CC"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="3C9F51E0-C491-6D16-5F87-D0A207DD0720" name="bairro_cidade_FK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>09EF7F2D-515E-D0BE-D30B-A05F4294593F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="AF8A048D-64CE-5BBE-2ABE-8CC96D38D74F"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

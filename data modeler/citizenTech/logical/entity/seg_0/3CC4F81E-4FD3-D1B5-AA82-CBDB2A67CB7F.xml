@@ -1,0 +1,74 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="3CC4F81E-4FD3-D1B5-AA82-CBDB2A67CB7F" name="bairro">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:04:48 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id_bairro" id="E783BAA5-C75A-9397-6328-5A71ACA49404">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:05:30 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="nm_bairro" id="2A4BFF51-2EDB-C973-A349-226EE0502100">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:10:19 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_cidade" id="970E5C90-F09B-8CB5-957E-0058F3000220">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:18:29 UTC</createdTime>
+<generatorID>09EF7F2D-515E-D0BE-D30B-A05F4294593F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<referedAttribute>5E04AF2D-0AAE-04B2-6AA2-1E410E446BC0</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="99828B80-05E5-2A82-93D0-BC8F81C43871" name="bairro PK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 15:07:31 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>E783BAA5-C75A-9397-6328-5A71ACA49404</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

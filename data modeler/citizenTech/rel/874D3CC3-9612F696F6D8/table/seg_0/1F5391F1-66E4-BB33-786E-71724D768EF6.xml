@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="1F5391F1-66E4-BB33-786E-71724D768EF6" name="telefone">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>E8134BCE-FE68-DC57-3247-8E3AC84F85B2</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_telefone" id="642D83A8-9542-12AE-7025-FE36C82804F8">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>22327192-E505-119B-4EEC-7A1B9AA40B08</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="num_ddd" id="813CE9B9-94EB-8450-151D-78A1D7F28C7F">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>F64B7FC3-DCE3-A0BF-52DB-F484A42F64B3</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<dataTypeSize>2</dataTypeSize>
+<ownDataTypeParameters>2,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="num_tel" id="1C3A04FC-DF36-94AF-94A0-120BB1B39121">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>3A95DD0D-562E-0C98-6DB8-A68E7DC9A04C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>9</dataTypeSize>
+<ownDataTypeParameters>9,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="usuario_id_usuario" id="A9F0CEE4-0712-A5B0-436F-E45FAF21117C">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>74C2CB1D-1AAF-9C69-53FC-600BB8C3032E</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="50732638-98EF-F1C6-0C50-707750EF5259" referredColumn="6BD0F004-C83B-0111-1373-A0E716E8DFFF"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="7800CC6D-B18B-F34E-E93A-756A52309906" name="telefone_PK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>90938B7E-DD1E-6874-2589-ED39AD5CB5D4</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="642D83A8-9542-12AE-7025-FE36C82804F8"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D1D7AC43-62F8-1D94-BE89-707DF072EF2C" name="telefone__IDX">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Unique Plain Index</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<relationGeneratorID>B70427CC-2A2A-E9B5-6E43-C2F0D6422F81</relationGeneratorID>
+<indexColumnUsage>
+<colUsage columnID="A9F0CEE4-0712-A5B0-436F-E45FAF21117C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="321B89A0-4383-FACD-407D-56007E445AC3" name="telefone_usuario_FK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>B70427CC-2A2A-E9B5-6E43-C2F0D6422F81</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A9F0CEE4-0712-A5B0-436F-E45FAF21117C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

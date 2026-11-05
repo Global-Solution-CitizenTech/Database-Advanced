@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="C2165EC1-3AD6-03C0-4B73-89E3CD5859C1" name="endereco">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>F30CD567-AC68-F94A-04E6-94BA0F3F1CEA</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_endereco" id="9A0EE97C-679B-7A2C-B0DB-65BA5A18237F">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>5EED2DF5-64BE-F823-9610-1FA0F64C551C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="CEP" id="0B7C210F-14A5-C27E-2416-8A99369C3345">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>5D7A0AF6-28B6-855D-EEDE-C36B2CA01AC8</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<dataTypeSize>8</dataTypeSize>
+<ownDataTypeParameters>8,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="complemento" id="CCA08083-40FC-C2B8-104B-3C911B5D82A6">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>DA30BD77-4D2D-B0AE-8449-128D8E21A6FD</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="numero" id="46811629-7B76-2F02-B763-0682A97CA792">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>21AEEFDD-1160-1C9E-A36C-24D1F387EC57</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>4</dataTypeSize>
+<ownDataTypeParameters>4,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="rua" id="E2FBD803-5976-9FC0-325A-F502578966B2">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>0EA035B5-D0F4-1EAB-9862-B81DC2E444DE</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="bairro_id_bairro" id="FCC2C3AD-2AD8-68FE-C160-A09D60606DB8">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>F39E8995-DFEA-09D0-F70A-B82A6445F691</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="745F7F4C-A954-A34A-091E-109C6B19AAF0" referredColumn="1BFFBE3D-BFB1-5CA7-0922-D17ED25C16CC"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F08E8B48-7BFD-FC7F-EDE0-C631AEC69477" name="endereco_PK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>4A0203DE-FA89-1EF4-6AA4-4A3BC292BBD0</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9A0EE97C-679B-7A2C-B0DB-65BA5A18237F"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="9DB66197-6528-1856-ACFF-0A858EB6E102" name="endereco_bairro_FK">
+<createdBy>lulz_user</createdBy>
+<createdTime>2026-11-05 16:26:20 UTC</createdTime>
+<generatorID>139B8D68-BEA8-5122-AFFB-3D6EEA47BAD6</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="FCC2C3AD-2AD8-68FE-C160-A09D60606DB8"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>
