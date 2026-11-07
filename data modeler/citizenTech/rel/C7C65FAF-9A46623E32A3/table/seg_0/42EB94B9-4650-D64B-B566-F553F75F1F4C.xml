@@ -1,17 +1,17 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="644DD9F0-BA4C-8F9A-E4E1-2536916746DD" name="cidade">
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="42EB94B9-4650-D64B-B566-F553F75F1F4C" name="bairro">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>B141AF32-F00D-4281-FA9C-33DBF3CC35CA</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>3CC4F81E-4FD3-D1B5-AA82-CBDB2A67CB7F</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <allowColumnReorder>false</allowColumnReorder>
 <existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
 <parsed>true</parsed>
 <columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
-<Column name="id_cidade" id="19FAF84A-5D20-9CDB-BA5D-0EAA9C4B4C06">
+<Column name="id_bairro" id="1273A700-74B5-A5A5-83C6-7F97483F5044">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>5E04AF2D-0AAE-04B2-6AA2-1E410E446BC0</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>E783BAA5-C75A-9397-6328-5A71ACA49404</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -20,10 +20,10 @@
 <ownDataTypeParameters>,5,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="nm_cidade" id="54C27DBA-4344-FCC3-6659-D0BD3445B8CB">
+<Column name="nm_bairro" id="A538A44F-F4C0-FBF8-175B-5B6EE9C084B9">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>3E1337AE-F017-7801-48A4-A069DC521E0C</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>2A4BFF51-2EDB-C973-A349-226EE0502100</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -32,10 +32,10 @@
 <ownDataTypeParameters>30,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="estado_id_estado" id="5C693C3F-D0EA-E969-5FCD-E06B11B18E2C">
+<Column name="cidade_id_cidade" id="6966517F-C485-3B5E-5745-9AB6C56135DC">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>12CAF250-39BD-8710-507B-B392120A2E30</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>970E5C90-F09B-8CB5-957E-0058F3000220</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -45,32 +45,32 @@
 <previousColumn>false</previousColumn>
 <autoIncrementCycle>false</autoIncrementCycle>
 <associations>
-<colAssociation fkAssociation="D5D60AA5-E262-05BC-3703-D68B19B5C862" referredColumn="C8896E85-E6BA-CDC2-299B-EABA187C48FD"/>
+<colAssociation fkAssociation="81C6A153-7C3E-0EA2-A6BA-163E3CA161B3" referredColumn="CF47C03E-7E5C-5FF8-E116-4CA0095F2D46"/>
 </associations>
 </Column>
 </columns>
 <indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
-<ind_PK_UK id="B0A5AA78-60A5-D770-2A28-63BCD588F7F4" name="cidade_PK">
+<ind_PK_UK id="335E9BBA-34A3-BFC8-8A31-B77C6D521043" name="bairro_PK">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>9D70A3E3-3632-4B38-7AD4-99970645D76A</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>99828B80-05E5-2A82-93D0-BC8F81C43871</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <pk>true</pk>
 <indexState>Primary Constraint</indexState>
 <isSurrogateKey>false</isSurrogateKey>
 <indexColumnUsage>
-<colUsage columnID="19FAF84A-5D20-9CDB-BA5D-0EAA9C4B4C06"/>
+<colUsage columnID="1273A700-74B5-A5A5-83C6-7F97483F5044"/>
 </indexColumnUsage>
 </ind_PK_UK>
-<ind_PK_UK id="CCA34579-22DB-28E5-BE9C-49502FA34062" name="cidade_estado_FK">
+<ind_PK_UK id="756163A1-5583-EF16-F608-A36A30874B91" name="bairro_cidade_FK">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>2AD5D0A9-CB78-B7DB-2185-FEFB0C41AA29</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>09EF7F2D-515E-D0BE-D30B-A05F4294593F</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <indexState>Foreign Key</indexState>
 <isSurrogateKey>false</isSurrogateKey>
 <indexColumnUsage>
-<colUsage columnID="5C693C3F-D0EA-E969-5FCD-E06B11B18E2C"/>
+<colUsage columnID="6966517F-C485-3B5E-5745-9AB6C56135DC"/>
 </indexColumnUsage>
 </ind_PK_UK>
 </indexes>

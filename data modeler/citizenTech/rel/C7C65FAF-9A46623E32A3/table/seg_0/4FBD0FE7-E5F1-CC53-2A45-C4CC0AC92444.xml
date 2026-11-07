@@ -1,17 +1,17 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="38A7B180-B22E-D1D8-87A2-BAD9F50F45AD" name="categoria">
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="4FBD0FE7-E5F1-CC53-2A45-C4CC0AC92444" name="estado">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>4D41B790-691F-96C1-B9F5-E0111EEDF36F</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>85788C89-B1CE-9B6F-96A3-B840D4EE3387</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <allowColumnReorder>false</allowColumnReorder>
 <existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
 <parsed>true</parsed>
 <columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
-<Column name="id_categoria" id="2E1223BD-A64B-9CF9-B630-1DAAB6FC196A">
+<Column name="id_estado" id="EB70FF73-903A-8EBE-08D5-365170F6DD8E">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>106A33D1-1691-0B32-7547-6201B5CAC3E5</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>96D9A87C-CDCF-E3E7-AD09-BDDAC2821D57</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -20,30 +20,30 @@
 <ownDataTypeParameters>,5,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="nm_categoria" id="B490A279-9B4A-7EAA-4AAB-14106E1CAC6A">
+<Column name="nm_estado" id="E5943320-1925-96C2-5159-BB848AECBE73">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>68A9AAB7-2581-DE51-5636-C39D1E43134A</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>07EF8057-BAFC-B7A2-E874-3B7A41F98AE7</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT024</logicalDatatype>
-<dataTypeSize>50</dataTypeSize>
-<ownDataTypeParameters>50,,</ownDataTypeParameters>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
 </columns>
 <indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
-<ind_PK_UK id="02A3DDEC-98DA-F53E-85F8-12F88F61B27A" name="categoria_PK">
+<ind_PK_UK id="242CA048-61F1-0AAA-838F-372E41845A21" name="estado_PK">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
-<generatorID>85EEFBDF-043C-E81B-3F82-3F98F49E1C0F</generatorID>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>F3B5BF8A-0BD6-DD21-F8A8-2D9A1544AB63</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <pk>true</pk>
 <indexState>Primary Constraint</indexState>
 <isSurrogateKey>false</isSurrogateKey>
 <indexColumnUsage>
-<colUsage columnID="2E1223BD-A64B-9CF9-B630-1DAAB6FC196A"/>
+<colUsage columnID="EB70FF73-903A-8EBE-08D5-365170F6DD8E"/>
 </indexColumnUsage>
 </ind_PK_UK>
 </indexes>

@@ -1,16 +1,16 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="940A0120-8C07-5A49-64E0-9AEA841609B7" name="usuario">
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="34867706-C4A8-ADE3-0F8C-7D91D762301A" name="usuario">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>E5940B13-451D-BF35-FFC7-4EEBFD59D73F</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <allowColumnReorder>false</allowColumnReorder>
 <existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
 <parsed>true</parsed>
 <columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
-<Column name="id_usuario" id="A7B81A6C-D202-03FD-FFB6-C767A5AC3F6D">
+<Column name="id_usuario" id="EF1137B8-E9B7-81D7-200A-4EB52FBB6FC5">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -20,9 +20,21 @@
 <ownDataTypeParameters>,5,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="email" id="C3D2362E-BEC1-F0C1-5D99-8C39129F9EFD">
+<Column name="nm_usuario" id="C25EC5C7-8723-A3F8-5B6D-9773C570E40A">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
+<generatorID>D334DCE1-D870-7D4B-4008-6574279E4B17</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100</dataTypeSize>
+<ownDataTypeParameters>100,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="email" id="B747CB65-C370-C540-050E-B0A0175C03A9">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>440ABE28-9C14-4912-084C-B94BDD076335</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -32,9 +44,9 @@
 <ownDataTypeParameters>50,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="senha" id="724FCE34-558A-6DF5-5FB0-2A42ADA22F18">
+<Column name="senha" id="4577281E-26DB-87F6-090D-835547C1DCF8">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>F12B3343-A20E-BEB2-9375-78CDDF7F8A40</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -44,9 +56,9 @@
 <ownDataTypeParameters>30,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="endereco_id_endereco" id="601BD35E-6731-EE15-5719-343B658A83FB">
+<Column name="endereco_id_endereco" id="80C7D6A6-69EB-1B8D-01BE-2943E4E8B252">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>BF48A862-82E0-BF49-476E-D87E3694AA53</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -57,12 +69,12 @@
 <previousColumn>false</previousColumn>
 <autoIncrementCycle>false</autoIncrementCycle>
 <associations>
-<colAssociation fkAssociation="5E7F2C16-E4CA-21B2-578A-A7946F675137" referredColumn="D76D867C-D468-50DE-330E-47F7A5C64480"/>
+<colAssociation fkAssociation="DC8F917A-7E15-82BF-B1BA-81C2143CDB0E" referredColumn="4F87A17D-963E-16E8-8F6F-622585AA0CA2"/>
 </associations>
 </Column>
-<Column name="cargo" id="4ECEC6A1-0208-C1B3-0B4B-8293429D02A3">
+<Column name="cargo" id="6496105F-9326-E2B2-293B-EE5AF38B1654">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>2185301C-1750-2039-F36F-390D20442C1F</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -76,9 +88,9 @@
 <ownDataTypeParameters>10,,</ownDataTypeParameters>
 <autoIncrementCycle>false</autoIncrementCycle>
 </Column>
-<Column name="dt_cadastro" id="30165F03-329B-BE12-B6C3-D844335D5755">
+<Column name="dt_cadastro" id="E56BA254-DB7A-2330-7DD8-891220523FC3">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>109847BA-6524-EA03-FB40-7E3B2782C57B</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <useDomainConstraints>false</useDomainConstraints>
@@ -89,27 +101,27 @@
 </Column>
 </columns>
 <indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
-<ind_PK_UK id="BB0B0D72-89B4-11CC-7206-41EDCAD53B8E" name="usuario_PK">
+<ind_PK_UK id="EB6DDCB8-1ADA-6B8A-9C40-856E157A76AD" name="usuario_PK">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>3894DA74-6428-BB29-96D4-34D7873D2719</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <pk>true</pk>
 <indexState>Primary Constraint</indexState>
 <isSurrogateKey>false</isSurrogateKey>
 <indexColumnUsage>
-<colUsage columnID="A7B81A6C-D202-03FD-FFB6-C767A5AC3F6D"/>
+<colUsage columnID="EF1137B8-E9B7-81D7-200A-4EB52FBB6FC5"/>
 </indexColumnUsage>
 </ind_PK_UK>
-<ind_PK_UK id="B497E35E-70DD-FF4B-0A09-C0C677A3D672" name="usuario_endereco_FK">
+<ind_PK_UK id="5999B75E-C320-3962-0372-AC528638CCC4" name="usuario_endereco_FK">
 <createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<createdTime>2026-11-07 17:26:25 UTC</createdTime>
 <generatorID>3E3E7439-4796-2959-1673-89812CF6D369</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <indexState>Foreign Key</indexState>
 <isSurrogateKey>false</isSurrogateKey>
 <indexColumnUsage>
-<colUsage columnID="601BD35E-6731-EE15-5719-343B658A83FB"/>
+<colUsage columnID="80C7D6A6-69EB-1B8D-01BE-2943E4E8B252"/>
 </indexColumnUsage>
 </ind_PK_UK>
 </indexes>

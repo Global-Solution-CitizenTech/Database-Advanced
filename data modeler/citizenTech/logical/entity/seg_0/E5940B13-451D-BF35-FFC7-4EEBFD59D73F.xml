@@ -4,7 +4,7 @@
 <createdTime>2026-11-05 15:08:25 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <adequatelyNormalized>NO</adequatelyNormalized>
 <expectedVolumes>0</expectedVolumes>
@@ -20,7 +20,7 @@
 <createdTime>2026-11-05 15:08:31 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -28,12 +28,25 @@
 <dataTypePrecision>5</dataTypePrecision>
 <ownDataTypeParameters>,5,</ownDataTypeParameters>
 </Attribute>
+<Attribute name="nm_usuario" id="D334DCE1-D870-7D4B-4008-6574279E4B17">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:21:45 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100</dataTypeSize>
+<ownDataTypeParameters>100,,</ownDataTypeParameters>
+</Attribute>
 <Attribute name="email" id="440ABE28-9C14-4912-084C-B94BDD076335">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:08:55 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -46,7 +59,7 @@
 <createdTime>2026-11-05 15:09:06 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -60,21 +73,21 @@
 <generatorID>3E3E7439-4796-2959-1673-89812CF6D369</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <referedAttribute>5EED2DF5-64BE-F823-9610-1FA0F64C551C</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
-<ownDataTypeParameters>,,</ownDataTypeParameters>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
 </Attribute>
 <Attribute name="cargo" id="2185301C-1750-2039-F36F-390D20442C1F">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:25:43 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -91,7 +104,7 @@
 <createdTime>2026-11-05 15:33:47 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -105,7 +118,7 @@
 <createdTime>2026-11-05 15:08:40 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="C7C65FAF-B516-603E-3496-9A46623E32A3" value="true"/>
 </engineerTo>
 <pk>true</pk>
 <usedAttributes>
