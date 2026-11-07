@@ -54,32 +54,6 @@
 <dataTypeSize>1000</dataTypeSize>
 <ownDataTypeParameters>1000,,</ownDataTypeParameters>
 </Attribute>
-<Attribute name="endereco_ref" id="009D7B23-EED5-624D-1A4A-EEE3B5CE9EF4">
-<createdBy>lulz_user</createdBy>
-<createdTime>2026-11-05 15:42:48 UTC</createdTime>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
-</engineerTo>
-<useDomainConstraints>false</useDomainConstraints>
-<use>1</use>
-<logicalDatatype>LOGDT024</logicalDatatype>
-<dataTypeSize>255</dataTypeSize>
-<ownDataTypeParameters>255,,</ownDataTypeParameters>
-</Attribute>
-<Attribute name="coordenadas" id="98D701D1-460D-CC16-BCAA-3E8392EA6A6C">
-<createdBy>lulz_user</createdBy>
-<createdTime>2026-11-05 16:14:48 UTC</createdTime>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
-</engineerTo>
-<nullsAllowed>true</nullsAllowed>
-<useDomainConstraints>false</useDomainConstraints>
-<use>3</use>
-<structuredType>47E390DE-0671-C4B1-8428-0F45CBEE18F8</structuredType>
-<ownDataTypeParameters>,,</ownDataTypeParameters>
-</Attribute>
 <Attribute name="foto_url" id="157B5295-7E26-E726-50EF-BA5BFE712B18">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:43:56 UTC</createdTime>
@@ -93,26 +67,6 @@
 <dataTypeSize>255</dataTypeSize>
 <ownDataTypeParameters>255,,</ownDataTypeParameters>
 </Attribute>
-<Attribute name="status" id="E1123269-3134-A761-96BF-AE6792ABC10F">
-<createdBy>lulz_user</createdBy>
-<createdTime>2026-11-05 15:51:17 UTC</createdTime>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
-</engineerTo>
-<useDomainConstraints>false</useDomainConstraints>
-<use>1</use>
-<logicalDatatype>LOGDT024</logicalDatatype>
-<dataTypeSize>30</dataTypeSize>
-<listOfValues>
-<valueDef value="ABERTO" description=""/>
-<valueDef value="CONCLUIDO" description=""/>
-<valueDef value="EM_ANALISE" description=""/>
-<valueDef value="EM_EXECUCAO" description=""/>
-<valueDef value="REJEITADO" description=""/>
-</listOfValues>
-<ownDataTypeParameters>30,,</ownDataTypeParameters>
-</Attribute>
 <Attribute name="dt_abertura" id="FC107A8E-AAE6-9FCE-1591-3B9F9586350C">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:52:42 UTC</createdTime>
@@ -120,19 +74,6 @@
 <engineerTo>
 <item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
 </engineerTo>
-<useDomainConstraints>false</useDomainConstraints>
-<use>1</use>
-<logicalDatatype>LOGDT008</logicalDatatype>
-<ownDataTypeParameters>,,</ownDataTypeParameters>
-</Attribute>
-<Attribute name="dt_previsao" id="0ED7E0B0-E824-2990-5C31-EDFD439F5691">
-<createdBy>lulz_user</createdBy>
-<createdTime>2026-11-05 15:53:03 UTC</createdTime>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
-</engineerTo>
-<nullsAllowed>true</nullsAllowed>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT008</logicalDatatype>
@@ -179,6 +120,36 @@
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_endereco" id="362E9A1D-1BFA-84F6-C8E1-9471E29DD8CD">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:00:58 UTC</createdTime>
+<generatorID>8301853D-1B78-DD3E-637E-AE06FC78E027</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<referedAttribute>5EED2DF5-64BE-F823-9610-1FA0F64C551C</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_status" id="05C98607-287D-F434-2578-42E7CD07FAA0">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:08:30 UTC</createdTime>
+<generatorID>F6ABD6B9-F777-864B-DC37-EBB7C37362CD</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+</engineerTo>
+<referedAttribute>48BAE655-1EC9-FC9D-EF3D-8A48BD73A2A5</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
 <ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 </attributes>

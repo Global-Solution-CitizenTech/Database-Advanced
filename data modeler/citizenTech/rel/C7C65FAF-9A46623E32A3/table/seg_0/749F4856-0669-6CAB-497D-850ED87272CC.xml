@@ -1,0 +1,100 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="749F4856-0669-6CAB-497D-850ED87272CC" name="telefone">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>E8134BCE-FE68-DC57-3247-8E3AC84F85B2</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_telefone" id="4F066DC4-5F2A-84B5-19B3-E6A79EE2CE8D">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>22327192-E505-119B-4EEC-7A1B9AA40B08</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="num_ddd" id="6FD07019-0E35-5043-84EB-8FC12F6A30A5">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>F64B7FC3-DCE3-A0BF-52DB-F484A42F64B3</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT025</logicalDatatype>
+<dataTypeSize>2</dataTypeSize>
+<ownDataTypeParameters>2,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="num_tel" id="1F387BC3-BF49-ABA1-B129-796931868C6E">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>3A95DD0D-562E-0C98-6DB8-A68E7DC9A04C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>9</dataTypeSize>
+<ownDataTypeParameters>9,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="usuario_id_usuario" id="6016B459-A9A5-F448-0B32-DC52B7C00145">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>74C2CB1D-1AAF-9C69-53FC-600BB8C3032E</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="BDF3F8C7-54FC-82BB-612C-E532D01B7943" referredColumn="A7B81A6C-D202-03FD-FFB6-C767A5AC3F6D"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4F97EE34-E0D9-4EB9-D772-86830B450840" name="telefone_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>90938B7E-DD1E-6874-2589-ED39AD5CB5D4</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="4F066DC4-5F2A-84B5-19B3-E6A79EE2CE8D"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="89DC8384-8961-DFFC-B9FF-2773DC6F35A8" name="telefone__IDX">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Unique Plain Index</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<relationGeneratorID>B70427CC-2A2A-E9B5-6E43-C2F0D6422F81</relationGeneratorID>
+<indexColumnUsage>
+<colUsage columnID="6016B459-A9A5-F448-0B32-DC52B7C00145"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="DDCADA4F-78CC-9DC6-0575-6CD846C79C53" name="telefone_usuario_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:11:50 UTC</createdTime>
+<generatorID>B70427CC-2A2A-E9B5-6E43-C2F0D6422F81</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="6016B459-A9A5-F448-0B32-DC52B7C00145"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>
