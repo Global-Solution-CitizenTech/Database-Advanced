@@ -1,0 +1,115 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="42321096-C64F-7028-D42F-8710FC658E3A" name="comentario">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>0D109064-2053-FA6B-334A-1BC13421D9ED</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_comentario" id="DCBCED4E-37FD-A282-CD50-A92DD65E1FB9">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>4098C4CA-C586-96AD-1CEE-AF1A8A14D6B6</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="conteudo" id="55B74597-3E57-359C-B0F5-5F653C41C835">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>DD5F524A-EA1A-93B1-9094-27CF4AD0009C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>500</dataTypeSize>
+<ownDataTypeParameters>500,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="dt_comentario" id="DE0C2AB5-31BF-2FBD-A47A-1F15F6880459">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>3CE2184D-4462-50FE-643B-D7E20D55EB4B</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT008</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="usuario_id_usuario" id="F16DB3E9-6C99-4430-8EA9-2A5DDE6BBB39">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>B38862C6-FE5D-A1BE-8E5B-D2C1F556D3AD</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="759B9370-267B-D74F-0528-1A25D9AF91F8" referredColumn="F858335A-E14E-645A-85D8-9955F17DAD45"/>
+</associations>
+</Column>
+<Column name="chamado_id_chamado" id="0A9D971A-9557-EFE1-2DFA-E147C480664A">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>6642E287-2936-5BBE-EA0F-1573F4EBC4F1</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="ADD33A83-34AE-3841-17DF-C9DCBB5664A3" referredColumn="4EB49FFA-9A12-B47F-92F1-02913FA9C9D1"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="4D265344-45F6-5198-7DD4-12ED6BDF7E8C" name="comentario_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>4F5B7363-9D96-F0DE-3F6D-837266268381</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="DCBCED4E-37FD-A282-CD50-A92DD65E1FB9"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="75A07BC7-61C3-FF1E-7FF0-FB6858664CC6" name="comentario_usuario_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>DA16A313-6C75-05A0-9129-3D9940AD4C20</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="F16DB3E9-6C99-4430-8EA9-2A5DDE6BBB39"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="D45D3E86-A08F-EBED-2FBC-28E8B6C9FD71" name="comentario_chamado_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:02:38 UTC</createdTime>
+<generatorID>759B94A2-B5DB-7939-26E7-A55EF030638F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="0A9D971A-9557-EFE1-2DFA-E147C480664A"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

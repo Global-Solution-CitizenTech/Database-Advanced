@@ -1,0 +1,101 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="0D109064-2053-FA6B-334A-1BC13421D9ED" name="comentario">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:56:23 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id_comentario" id="4098C4CA-C586-96AD-1CEE-AF1A8A14D6B6">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:56:31 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="conteudo" id="DD5F524A-EA1A-93B1-9094-27CF4AD0009C">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:59:01 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>500</dataTypeSize>
+<ownDataTypeParameters>500,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="dt_comentario" id="3CE2184D-4462-50FE-643B-D7E20D55EB4B">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:59:17 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT008</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_usuario" id="B38862C6-FE5D-A1BE-8E5B-D2C1F556D3AD">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:00:55 UTC</createdTime>
+<generatorID>DA16A313-6C75-05A0-9129-3D9940AD4C20</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<referedAttribute>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="id_chamado" id="6642E287-2936-5BBE-EA0F-1573F4EBC4F1">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 18:01:23 UTC</createdTime>
+<generatorID>759B94A2-B5DB-7939-26E7-A55EF030638F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<referedAttribute>DC53BC60-D032-9D04-2DDA-1B72B85BB4EF</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="4F5B7363-9D96-F0DE-3F6D-837266268381" name="comentario PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-07 17:59:41 UTC</createdTime>
+<ownerDesignName>citizenTech</ownerDesignName>
+<engineerTo>
+<item key="6F6A9AF7-87AF-4406-957F-5687B0D530E2" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>4098C4CA-C586-96AD-1CEE-AF1A8A14D6B6</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>
