@@ -1,0 +1,103 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="0A830807-B1CB-8D52-7BD7-30ADC7A87284" name="voto_chamado">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>1F189DD5-0AF6-64CD-69BF-86C37EEE7783</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_voto" id="A0E36D39-4AA6-E9A5-8AA8-C4FFA382BD3C">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>1E56A701-89DD-9D77-C27A-EA6048E03024</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="dt_voto" id="8C50CE25-8EBB-0805-8225-C36954B176C6">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>C0004DB7-19DD-5827-812B-D095A12CAA81</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT008</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="chamado_id_chamado" id="B37C58A4-A78D-07BF-CB26-EE802C6714C7">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>1F1FA0B3-2030-A0CE-7EE1-D078759F2217</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="6659BC1D-461E-57BA-B62D-38FC5392973E" referredColumn="D37996D4-291F-F917-D94B-63052C17A50C"/>
+</associations>
+</Column>
+<Column name="usuario_id_usuario" id="33602BD1-F18F-EE8E-2401-FB4749A0CBD5">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>EFA1F8EE-E3E1-E17A-2CBF-FD628FB5153C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="3D107D4E-67C4-6C3A-43A7-11D60A9C7D3E" referredColumn="36A3F9CF-651A-2BCC-5236-4FB78CB99969"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="9934DAA9-D412-FB51-407E-FF8BF41B84F7" name="voto_chamado_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>F67B4B1E-45CA-7503-7294-469BA4B1E513</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="A0E36D39-4AA6-E9A5-8AA8-C4FFA382BD3C"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="62A32BAC-42B8-D4A1-504B-A87E7E0CFBFD" name="voto_chamado_chamado_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>4D3F5C50-AFAF-D109-3E58-4FCA2EBC444C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="B37C58A4-A78D-07BF-CB26-EE802C6714C7"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="C434EFDA-AF7E-8EBA-A1ED-E7C429074694" name="voto_chamado_usuario_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 14:18:52 UTC</createdTime>
+<generatorID>4863B74F-3F9D-70F0-7D17-ADBDBF662645</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="33602BD1-F18F-EE8E-2401-FB4749A0CBD5"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

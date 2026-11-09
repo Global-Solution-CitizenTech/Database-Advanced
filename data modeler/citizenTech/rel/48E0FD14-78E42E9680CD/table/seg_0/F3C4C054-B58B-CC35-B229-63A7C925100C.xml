@@ -1,0 +1,77 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="F3C4C054-B58B-CC35-B229-63A7C925100C" name="cidade">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>B141AF32-F00D-4281-FA9C-33DBF3CC35CA</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_cidade" id="39C468EA-41DB-9D81-E4D4-93DA4AC262FB">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>5E04AF2D-0AAE-04B2-6AA2-1E410E446BC0</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="nm_cidade" id="8D0A1955-2DE1-363B-88B0-27315B53C2BE">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>3E1337AE-F017-7801-48A4-A069DC521E0C</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>30</dataTypeSize>
+<ownDataTypeParameters>30,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="estado_id_estado" id="1F940A66-1796-4335-B5CE-4E90BA7EA325">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>12CAF250-39BD-8710-507B-B392120A2E30</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="226D16DE-5060-7578-E9CC-A98AEE9AEE12" referredColumn="CAE4A918-ED49-10BB-A2F5-96ACF79AFC37"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="F18D900F-845E-7F20-57CB-E291A27F7A6D" name="cidade_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>9D70A3E3-3632-4B38-7AD4-99970645D76A</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="39C468EA-41DB-9D81-E4D4-93DA4AC262FB"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="C5C24168-56DD-6010-C708-78B3365C51C1" name="cidade_estado_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 13:22:21 UTC</createdTime>
+<generatorID>2AD5D0A9-CB78-B7DB-2185-FEFB0C41AA29</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="1F940A66-1796-4335-B5CE-4E90BA7EA325"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

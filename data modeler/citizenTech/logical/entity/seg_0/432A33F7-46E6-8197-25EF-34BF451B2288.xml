@@ -4,7 +4,7 @@
 <createdTime>2026-11-05 15:40:47 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <adequatelyNormalized>NO</adequatelyNormalized>
 <expectedVolumes>0</expectedVolumes>
@@ -20,7 +20,7 @@
 <createdTime>2026-11-05 15:41:20 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -33,7 +33,7 @@
 <createdTime>2026-11-05 15:41:30 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -46,7 +46,7 @@
 <createdTime>2026-11-05 15:42:09 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -54,39 +54,25 @@
 <dataTypeSize>1000</dataTypeSize>
 <ownDataTypeParameters>1000,,</ownDataTypeParameters>
 </Attribute>
-<Attribute name="foto_url" id="157B5295-7E26-E726-50EF-BA5BFE712B18">
+<Attribute name="foto" id="157B5295-7E26-E726-50EF-BA5BFE712B18">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:43:56 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
-<logicalDatatype>LOGDT024</logicalDatatype>
-<dataTypeSize>255</dataTypeSize>
-<ownDataTypeParameters>255,,</ownDataTypeParameters>
+<logicalDatatype>LOGDT029</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 <Attribute name="dt_abertura" id="FC107A8E-AAE6-9FCE-1591-3B9F9586350C">
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:52:42 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
-<useDomainConstraints>false</useDomainConstraints>
-<use>1</use>
-<logicalDatatype>LOGDT008</logicalDatatype>
-<ownDataTypeParameters>,,</ownDataTypeParameters>
-</Attribute>
-<Attribute name="dt_conclusao" id="EF96DB00-962E-F59C-4F80-B2E53993A3D6">
-<createdBy>lulz_user</createdBy>
-<createdTime>2026-11-05 15:53:14 UTC</createdTime>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
-</engineerTo>
-<nullsAllowed>true</nullsAllowed>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT008</logicalDatatype>
@@ -98,7 +84,7 @@
 <generatorID>D1811EB3-FD3F-51CB-5EAC-056F4BCD09E0</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <referedAttribute>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
@@ -113,29 +99,14 @@
 <generatorID>8301853D-1B78-DD3E-637E-AE06FC78E027</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <referedAttribute>5EED2DF5-64BE-F823-9610-1FA0F64C551C</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
-<ownDataTypeParameters>,5,</ownDataTypeParameters>
-</Attribute>
-<Attribute name="id_status" id="05C98607-287D-F434-2578-42E7CD07FAA0">
-<createdBy>Enzo</createdBy>
-<createdTime>2026-11-07 17:08:30 UTC</createdTime>
-<generatorID>F6ABD6B9-F777-864B-DC37-EBB7C37362CD</generatorID>
-<ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
-</engineerTo>
-<referedAttribute>48BAE655-1EC9-FC9D-EF3D-8A48BD73A2A5</referedAttribute>
-<useDomainConstraints>false</useDomainConstraints>
-<use>1</use>
-<logicalDatatype>LOGDT019</logicalDatatype>
-<dataTypePrecision>3</dataTypePrecision>
-<ownDataTypeParameters>,3,</ownDataTypeParameters>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 <Attribute name="id_categoria" id="07BEE22C-F5AC-0DB8-B541-8B3BD211A8A9">
 <createdBy>Enzo</createdBy>
@@ -143,14 +114,14 @@
 <generatorID>38834067-BAA8-2BE9-5C87-1CB373B18FCF</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <referedAttribute>106A33D1-1691-0B32-7547-6201B5CAC3E5</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
-<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 </attributes>
 <identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
@@ -159,7 +130,7 @@
 <createdTime>2026-11-05 15:41:28 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="D886413A-9A55-CE23-5822-F1D23C91D1DF" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <pk>true</pk>
 <usedAttributes>

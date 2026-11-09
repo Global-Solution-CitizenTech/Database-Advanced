@@ -4,7 +4,7 @@
 <createdTime>2026-11-05 15:06:30 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <adequatelyNormalized>NO</adequatelyNormalized>
 <expectedVolumes>0</expectedVolumes>
@@ -20,7 +20,7 @@
 <createdTime>2026-11-05 15:06:37 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -33,13 +33,13 @@
 <createdTime>2026-11-05 15:10:36 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT024</logicalDatatype>
-<dataTypeSize>30</dataTypeSize>
-<ownDataTypeParameters>30,,</ownDataTypeParameters>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
 </Attribute>
 <Attribute name="id_estado" id="12CAF250-39BD-8710-507B-B392120A2E30">
 <createdBy>lulz_user</createdBy>
@@ -47,14 +47,14 @@
 <generatorID>2AD5D0A9-CB78-B7DB-2185-FEFB0C41AA29</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <referedAttribute>96D9A87C-CDCF-E3E7-AD09-BDDAC2821D57</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
-<ownDataTypeParameters>,,</ownDataTypeParameters>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
 </Attribute>
 </attributes>
 <identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
@@ -63,7 +63,7 @@
 <createdTime>2026-11-05 15:07:21 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
 <engineerTo>
-<item key="874D3CC3-11F4-16A1-CD32-9612F696F6D8" value="true"/>
+<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
 </engineerTo>
 <pk>true</pk>
 <usedAttributes>
