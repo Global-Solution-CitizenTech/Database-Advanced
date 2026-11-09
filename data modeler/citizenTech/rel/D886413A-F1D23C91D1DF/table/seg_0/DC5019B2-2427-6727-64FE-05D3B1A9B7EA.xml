@@ -1,0 +1,117 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="DC5019B2-2427-6727-64FE-05D3B1A9B7EA" name="usuario">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>E5940B13-451D-BF35-FFC7-4EEBFD59D73F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_usuario" id="98DC0E1F-593C-B5E8-408B-903ECBD66550">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="nm_usuario" id="1D9E0404-D1D2-C505-D62B-6E6694347392">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>D334DCE1-D870-7D4B-4008-6574279E4B17</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>100</dataTypeSize>
+<ownDataTypeParameters>100,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="email" id="4D44E2AD-7F1C-2DD3-A35A-996F0BA2AE1A">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>440ABE28-9C14-4912-084C-B94BDD076335</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50</dataTypeSize>
+<ownDataTypeParameters>50,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="senha" id="AC63E251-5B5E-0FB2-9F5E-8AC97C7EB8E6">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>F12B3343-A20E-BEB2-9375-78CDDF7F8A40</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>60</dataTypeSize>
+<ownDataTypeParameters>60,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="cargo" id="5B2D7662-6DBB-ABCE-55B9-4B405AB549EA">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>2185301C-1750-2039-F36F-390D20442C1F</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10</dataTypeSize>
+<listOfValues>
+<valueDef value="CIDADAO" description="usuário base da aplicação"/>
+<valueDef value="GESTOR" description="usuário que resolve problemas da aplicação"/>
+</listOfValues>
+<ownDataTypeParameters>10,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="endereco_id_endereco" id="9AFB13F0-28A5-E36F-6C15-025DF37C4EE6">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>BF48A862-82E0-BF49-476E-D87E3694AA53</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+<previousColumn>false</previousColumn>
+<autoIncrementCycle>false</autoIncrementCycle>
+<associations>
+<colAssociation fkAssociation="7258B07E-9085-1BFA-7367-1D46E3977A3A" referredColumn="BD8196BD-B1F1-1721-5E73-4EA1A5E50CCC"/>
+</associations>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="DAADD0B8-5CBD-EF9C-CB07-7D17F7D8BB9B" name="usuario_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>3894DA74-6428-BB29-96D4-34D7873D2719</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="98DC0E1F-593C-B5E8-408B-903ECBD66550"/>
+</indexColumnUsage>
+</ind_PK_UK>
+<ind_PK_UK id="CFEF9810-0AAD-6054-710C-28AAB26424ED" name="usuario_endereco_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-09 11:18:16 UTC</createdTime>
+<generatorID>3E3E7439-4796-2959-1673-89812CF6D369</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<indexState>Foreign Key</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="9AFB13F0-28A5-E36F-6C15-025DF37C4EE6"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>
