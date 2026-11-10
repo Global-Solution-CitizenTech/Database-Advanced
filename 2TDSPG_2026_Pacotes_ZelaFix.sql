@@ -220,6 +220,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
     FUNCTION fn_obter_status_atual (
         p_id_chamado IN NUMBER
     ) RETURN VARCHAR2 IS
+        PRAGMA UDF; -- Otimização nativa Oracle 12c+ (elimina context-switch SQL/PLSQL)
         v_nm_status VARCHAR2(20);
     BEGIN
         IF p_id_chamado IS NULL OR p_id_chamado <= 0 THEN
@@ -395,6 +396,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
     FUNCTION fn_calcular_total_votos (
         p_id_chamado IN NUMBER
     ) RETURN NUMBER IS
+        PRAGMA UDF; -- Aceleração direta no motor SQL (elimina overhead de troca de contexto)
         v_total NUMBER := 0;
     BEGIN
         IF p_id_chamado IS NULL OR p_id_chamado <= 0 THEN
@@ -411,9 +413,11 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
 
 
     -- 2.3 Implementação da Classificação de Criticidade do Bairro
+    -- Otimizado para realizar a apuração territorial em passagem única com agregação analítica
     FUNCTION fn_classificar_criticidade_bairro (
         p_id_bairro IN NUMBER
     ) RETURN VARCHAR2 IS
+        PRAGMA UDF;
         v_chamados_abertos NUMBER := 0;
         v_total_votos      NUMBER := 0;
     BEGIN
@@ -421,23 +425,15 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
             RETURN 'DESCONHECIDO';
         END IF;
 
-        -- Contabiliza chamados ativos no bairro (status atual <> CONCLUIDO e <> REJEITADO)
-        SELECT COUNT(c.id_chamado)
-          INTO v_chamados_abertos
+        -- Varredura única agregada por território: apura pendências e apoios acumulados
+        SELECT NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) NOT IN ('CONCLUIDO', 'REJEITADO') THEN 1 ELSE 0 END), 0),
+               NVL(SUM(pkg_engajamento_cidadao.fn_calcular_total_votos(c.id_chamado)), 0)
+          INTO v_chamados_abertos, v_total_votos
           FROM chamado c
-          JOIN endereco e ON e.id_endereco = c.endereco_id_endereco
-         WHERE e.bairro_id_bairro = p_id_bairro
-           AND pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) NOT IN ('CONCLUIDO', 'REJEITADO');
-
-        -- Contabiliza volume de apoios populares no bairro
-        SELECT COUNT(v.id_voto)
-          INTO v_total_votos
-          FROM voto_chamado v
-          JOIN chamado c ON c.id_chamado = v.chamado_id_chamado
           JOIN endereco e ON e.id_endereco = c.endereco_id_endereco
          WHERE e.bairro_id_bairro = p_id_bairro;
 
-        -- Regra de decisão analítica
+        -- Regra de decisão analítica de governança urbana
         IF v_chamados_abertos >= 3 OR v_total_votos >= 5 THEN
             RETURN 'CRITICO';
         ELSIF v_chamados_abertos >= 1 OR v_total_votos >= 2 THEN
