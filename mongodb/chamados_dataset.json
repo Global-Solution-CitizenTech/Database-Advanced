@@ -1,0 +1,406 @@
+[
+  {
+    "id_chamado": 1,
+    "titulo": "Poste com lâmpada apagada em via principal",
+    "descricao": "Poste de iluminação pública em frente ao número 1106 apagado há 4 noites consecutivas, gerando sensação de insegurança aos pedestres.",
+    "categoria": "Iluminação Pública",
+    "status_atual": "EM_EXECUCAO",
+    "dt_abertura": "2026-10-28T19:40:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Paulista",
+      "numero": "1106",
+      "referencia": "Próximo ao MASP",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01311000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-28T19:40:00Z",
+        "status": "ABERTO",
+        "observacao": "Chamado aberto pelo cidadão via aplicativo ZelaFix.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-29T10:00:00Z",
+        "status": "EM_EXECUCAO",
+        "observacao": "Ordem de serviço nº 4022 emitida e encaminhada à concessionária de energia.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-10-29T09:00:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-10-29T18:45:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "ALTA",
+      "parecer": "Risco de segurança noturna identificado pela triagem inteligente.",
+      "orgao_sugerido": "ILUME - Departamento de Iluminação Pública"
+    }
+  },
+  {
+    "id_chamado": 2,
+    "titulo": "Buraco profundo na faixa da direita da via",
+    "descricao": "Cratera aberta no asfalto com risco iminente de acidente com motociclistas e danos a veículos.",
+    "categoria": "Vias e Pavimentação",
+    "status_atual": "EM_ANALISE",
+    "dt_abertura": "2026-10-30T08:15:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 2,
+      "nome": "Mariana Oliveira Souza",
+      "email": "mariana.souza@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua dos Pinheiros",
+      "numero": "450",
+      "referencia": "Esquina com Rua Fradique Coutinho",
+      "bairro": "Pinheiros",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "05422000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-30T08:15:00Z",
+        "status": "ABERTO",
+        "observacao": "Chamado registrado aguardando vistoria da equipe de tapa-buraco.",
+        "responsavel": "Mariana Oliveira Souza"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-31T14:30:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Vistoria técnica presencial realizada; incluído na programação do recapeamento semanal.",
+        "responsavel": "Coordenador Lucas Mendes"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 1,
+        "nome": "Carlos Alberto Silva",
+        "dt_voto": "2026-10-30T09:30:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-10-30T14:15:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "CRITICA",
+      "parecer": "Risco elevado de sinistro de trânsito em via arterial.",
+      "orgao_sugerido": "Subprefeitura Pinheiros - Setor de Vias Públicas"
+    }
+  },
+  {
+    "id_chamado": 3,
+    "titulo": "Bueiro entupido com transbordamento de águas pluviais",
+    "descricao": "Boca de lobo completamente obstruída por folhas e lixo acumulado. Em dias de chuva média ocorre alagamento da calçada.",
+    "categoria": "Drenagem e Esgoto",
+    "status_atual": "CONCLUIDO",
+    "dt_abertura": "2026-10-25T14:10:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Praça da Sé",
+      "numero": "100",
+      "referencia": "Em frente à Catedral da Sé",
+      "bairro": "Sé",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01001000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-25T14:10:00Z",
+        "status": "ABERTO",
+        "observacao": "Abertura de chamado de galeria pluvial.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-26T09:00:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Vistoria identificou acúmulo de detritos.",
+        "responsavel": "Eng. Roberto Santos"
+      },
+      {
+        "ordem": 3,
+        "data": "2026-10-27T16:30:00Z",
+        "status": "CONCLUIDO",
+        "observacao": "Equipe de hidrojateamento concluiu a desobstrução e remoção de sedimentos da galeria.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "MEDIA",
+      "parecer": "Obstrução de galeria pluvial com risco de alagamento local.",
+      "orgao_sugerido": "SABESP / Secretaria de Infraestrutura Urbana"
+    }
+  },
+  {
+    "id_chamado": 4,
+    "titulo": "Descarte irregular de entulho e móveis velhos",
+    "descricao": "Grande volume de entulho de construção civil e sofás descartados irregularmente bloqueando passagem de pedestres e cadeirantes.",
+    "categoria": "Limpeza Urbana",
+    "status_atual": "ABERTO",
+    "dt_abertura": "2026-11-01T10:20:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 4,
+      "nome": "Fernanda Costa Lima",
+      "email": "fernanda.costa@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua da Mooca",
+      "numero": "1500",
+      "referencia": "Ao lado da estação Mooca",
+      "bairro": "Mooca",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "03104001"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-01T10:20:00Z",
+        "status": "ABERTO",
+        "observacao": "Registro de descarte irregular de entulho na calçada.",
+        "responsavel": "Fernanda Costa Lima"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 1,
+        "nome": "Carlos Alberto Silva",
+        "dt_voto": "2026-11-01T11:00:00Z"
+      },
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-11-01T14:20:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "MEDIA",
+      "parecer": "Obstrução de calçada e proliferação de vetores.",
+      "orgao_sugerido": "Autoridade Municipal de Limpeza Urbana (AMLURB)"
+    }
+  },
+  {
+    "id_chamado": 5,
+    "titulo": "Galho de grande porte com risco de queda sobre fiação elétrica",
+    "descricao": "Galho seco de árvore centenária encostando diretamente nos cabos da rede elétrica com estalos em dias de vento forte.",
+    "categoria": "Árvores e Parques",
+    "status_atual": "EM_ANALISE",
+    "dt_abertura": "2026-11-02T11:45:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Cruzeiro do Sul",
+      "numero": "2500",
+      "referencia": "Em frente ao Metrô Santana",
+      "bairro": "Santana",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "02030000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-02T11:45:00Z",
+        "status": "ABERTO",
+        "observacao": "Abertura de chamado de arborização com risco em fiação.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-02T14:00:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Equipe técnica encaminhou protocolo urgente para Enel.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-11-02T12:00:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-11-02T13:10:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "ALTA",
+      "parecer": "Interferência de arborização em rede de média tensão.",
+      "orgao_sugerido": "Enel Distribuição São Paulo / Subprefeitura Santana"
+    }
+  },
+  {
+    "id_chamado": 6,
+    "titulo": "Semáforo de pedestres apagado em cruzamento escolar",
+    "descricao": "Sinalização semafórica piscando em amarelo intermitente no cruzamento de fluxo de estudantes da escola local.",
+    "categoria": "Sinalização e Trânsito",
+    "status_atual": "CONCLUIDO",
+    "dt_abertura": "2026-10-26T07:30:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 2,
+      "nome": "Mariana Oliveira Souza",
+      "email": "mariana.souza@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Paulista",
+      "numero": "1106",
+      "referencia": "Próximo ao MASP",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01311000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-26T07:30:00Z",
+        "status": "ABERTO",
+        "observacao": "Semáforo com defeito comunicado por munícipe.",
+        "responsavel": "Mariana Oliveira Souza"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-26T15:00:00Z",
+        "status": "CONCLUIDO",
+        "observacao": "Equipe semafórica da CET realizou a substituição da controladora digital.",
+        "responsavel": "Coordenador Lucas Mendes"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "CRITICA",
+      "parecer": "Risco a pedestres e crianças em travessia de faixa escolar.",
+      "orgao_sugerido": "Companhia de Engenharia de Tráfego (CET)"
+    }
+  },
+  {
+    "id_chamado": 7,
+    "titulo": "Vazamento contínuo de água limpa no meio-fio",
+    "descricao": "Cavalete ou tubulação rompida jorrando água limpa continuamente há 2 dias com erosão da sarjeta.",
+    "categoria": "Drenagem e Esgoto",
+    "status_atual": "EM_EXECUCAO",
+    "dt_abertura": "2026-11-03T16:50:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 4,
+      "nome": "Fernanda Costa Lima",
+      "email": "fernanda.costa@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua dos Pinheiros",
+      "numero": "450",
+      "referencia": "Esquina com Rua Fradique Coutinho",
+      "bairro": "Pinheiros",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "05422000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-03T16:50:00Z",
+        "status": "ABERTO",
+        "observacao": "Comunicação de vazamento contínuo de água tratada.",
+        "responsavel": "Fernanda Costa Lima"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-04T08:30:00Z",
+        "status": "EM_EXECUCAO",
+        "observacao": "Técnicos em campo efetuando abertura de vala para reparo do cavalete.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "MEDIA",
+      "parecer": "Desperdício de recurso hídrico e erosão asfáltica superficial.",
+      "orgao_sugerido": "SABESP - Manutenção de Redes de Água"
+    }
+  },
+  {
+    "id_chamado": 8,
+    "titulo": "Pichação em patrimônio histórico tombado",
+    "descricao": "Vandalismo com tintas na fachada lateral do monumento público da praça.",
+    "categoria": "Limpeza Urbana",
+    "status_atual": "REJEITADO",
+    "dt_abertura": "2026-11-04T09:10:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Praça da Sé",
+      "numero": "100",
+      "referencia": "Em frente à Catedral da Sé",
+      "bairro": "Sé",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01001000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-04T09:10:00Z",
+        "status": "ABERTO",
+        "observacao": "Abertura de denúncia de pichação.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-04T11:20:00Z",
+        "status": "REJEITADO",
+        "observacao": "Solicitação indeferida por duplicidade de protocolo já cadastrado na concessionária.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "BAIXA",
+      "parecer": "Dano estético em fachada pública.",
+      "orgao_sugerido": "Departamento do Patrimônio Histórico (DPH)"
+    }
+  }
+]

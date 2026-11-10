@@ -1,0 +1,110 @@
+[
+  {
+    "id_bairro": 1,
+    "nome_bairro": "Bela Vista",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Sé",
+    "zona": "Central",
+    "populacao_estimada": 76000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 1,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 8.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "Iluminação Pública",
+      "Sinalização e Trânsito"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 2,
+    "nome_bairro": "Pinheiros",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Pinheiros",
+    "zona": "Oeste",
+    "populacao_estimada": 65000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 2,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 24.5
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "Vias e Pavimentação",
+      "Drenagem e Esgoto"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 3,
+    "nome_bairro": "Sé",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Sé",
+    "zona": "Central",
+    "populacao_estimada": 28000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 0,
+      "chamados_concluidos": 1,
+      "total_apoios": 0,
+      "tempo_medio_resolucao_horas": 50.3
+    },
+    "criticidade": "ESTAVEL",
+    "indicadores_principais": [
+      "Drenagem e Esgoto",
+      "Limpeza Urbana"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 4,
+    "nome_bairro": "Mooca",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Mooca",
+    "zona": "Leste",
+    "populacao_estimada": 75000,
+    "metricas": {
+      "chamados_totais": 1,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 0.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "Limpeza Urbana"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 5,
+    "nome_bairro": "Santana",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Santana/Tucuruvi",
+    "zona": "Norte",
+    "populacao_estimada": 118000,
+    "metricas": {
+      "chamados_totais": 1,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 0.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "Árvores e Parques"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  }
+]
