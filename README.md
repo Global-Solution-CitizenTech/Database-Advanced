@@ -36,9 +36,9 @@
 | Item | Requisito Oficial da Avaliação | Pontos | Onde Encontrar | Status |
 | :---: | :--- | :---: | :--- | :---: |
 | **01** | **Modelo Relacional Oracle Funcional e 2 Blocos Anônimos:** DDL com constraints, sementes válidas em 3FN e 2 blocos anônimos com `IF`, `LOOP` e cursores explícitos. | 10 pts | [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql) e Parte 4 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
-| **02** | **Funções e Procedimentos PL/SQL:** Mínimo de 2 funções e 2 procedimentos aplicados a regras reais de negócio de CitizenTech. | 15 pts | Procedimentos (`pr_abrir_chamado`, `pr_atualizar_status_chamado`, `pr_registrar_voto`) e Funções (`fn_obter_status_atual`, `fn_calcular_total_votos`, `fn_classificar_criticidade_bairro`) em [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
-| **03** | **Gatilhos & Trilha de Auditoria DML:** 2 triggers implementadas, sendo ao menos uma gravando data, usuário, tipo de operação e valores anteriores vs. novos (`:OLD` vs `:NEW`). | 10 pts | Triggers `TRG_AUDIT_CHAMADO` (alimentando `AUDITORIA_DML_CHAMADO`) e `TRG_VALIDA_VOTO_CHAMADO` (Parte 3 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)) | **Concluído** |
-| **04** | **Pacotes Oracle PL/SQL (Packages):** Organizar as funções e procedimentos em no mínimo 2 pacotes PL/SQL (Spec + Body) com testes de execução. | 10 pts | Pacotes `PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO` com suíte de testes demonstrativos (Partes 1, 2 e 5 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)) | **Concluído** |
+| **02** | **Funções e Procedimentos PL/SQL com Conversão Manual e Subtotais:** Mínimo de 2 funções e 2 procedimentos. Destaque para conversão manual para JSON (`fn_converter_chamado_json`) e procedure com subtotais e total geral calculados à mão (`pr_relatorio_territorial_subtotais`). | 15 pts | Pacotes `PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO` em [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
+| **03** | **Gatilhos & Trilha de Auditoria DML:** 2 triggers implementadas, com auditoria completa de `:OLD` vs `:NEW` formatada em JSON manual na tabela `AUDITORIA_DML_CHAMADO`, além de trigger de integridade cívica contra autovoto. | 10 pts | Triggers `TRG_AUDIT_CHAMADO` e `TRG_VALIDA_VOTO_CHAMADO` (Parte 3 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)) | **Concluído** |
+| **04** | **Pacotes Oracle PL/SQL & Tratamento Específico de Exceções:** 2 pacotes modulares (Spec + Body), tratamento rigoroso de exceções (`NO_DATA_FOUND`, `DUP_VAL_ON_INDEX`, `VALUE_ERROR`, etc. - zero `WHEN OTHERS` isolado) e 9 blocos de testes de integração. | 10 pts | Partes 1, 2 e 5 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
 | **05** | **Estrutura MongoDB & Carga de Documentos:** Script `.js` para selecionar/criar database, criar 2 collections com validação de schema e carga de no mínimo 10 documentos. | 10 pts | Scripts [`setup_mongodb_chamados.js`](./mongodb/setup_mongodb_chamados.js) e [`setup_mongodb_bairros.js`](./mongodb/setup_mongodb_bairros.js) totalizando **13 documentos** inseridos | **Concluído** |
 | **06** | **Mapeamento Relacional->Documental e 3 Relatórios Analíticos:** Matriz de mapeamento conceitual, 3 relatórios com agregação (`$group`, `$project`) comparados com Oracle SQL equivalente. | 15 pts | Matriz documentada nesta seção e script executável [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js) | **Concluído** |
 | **TOTAL** | **Pontuação da Submissão Técnica (70% da Nota da Disciplina)** | **70 pts** | Todos os artefatos funcionais e testados sem dependências externas quebradas | **100% Atingido** |
@@ -63,6 +63,56 @@ O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Mo
    - **Autoria (1:N):** `chamado.usuario_id_usuario` referencia exclusivamente o munícipe que abriu o chamado com foto.
    - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir autovoto e voto duplicado.
 5. **Evidência Fotográfica Binária Nativa (`BLOB`):** A coluna `foto` na tabela `chamado` armazena diretamente os bytes das imagens no Oracle, eliminando riscos de URLs externas quebradas (404) durante a apresentação presencial da banca.
+
+---
+
+## 📦 Arquitetura PL/SQL Avançada (Packages, Funções, Procedures e Auditoria)
+
+O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) foi desenvolvido para atender às exigências mais rigorosas da disciplina, eliminando quaisquer atalhos ou funções mágicas:
+
+### 1. Pacote 1: `PKG_CHAMADO_GESTAO` (Ciclo de Vida do Chamado e Auditoria)
+- **`pr_abrir_chamado`**: Abertura transacional atômica que grava o chamado na tabela `chamado` e automaticamente registra o primeiro histórico com status `ABERTO` em `hist_chamado` (3FN estrita).
+- **`pr_atualizar_status_chamado`**: Valida se o usuário tem privilégio de gestor/fiscal e registra a nova etapa no ciclo de atendimento do chamado com observações.
+- **`fn_obter_status_atual`**: Função de alta performance (`PRAGMA UDF`) que resolve o status vigente via subconsulta analítica de `MAX(id_hist)`.
+- **`fn_converter_chamado_json` (Conversão 100% Manual)**:
+  - **Zero uso de funções nativas do Oracle**: Sem atalhos, constrói a estrutura JSON caractere a caractere via concatenação pura de strings em `CLOB`.
+  - Trata campos nulos com `NVL(..., 'null')`, formata datas ISO 8601 (`YYYY-MM-DD"T"HH24:MI:SS`) e inclui o array embutido de histórico temporal montado também à mão via cursor explícito.
+- **`pr_registrar_auditoria_chamado`**: Grava a trilha na tabela `auditoria_dml_chamado` com os payloads de `:OLD` e `:NEW` serializados manualmente em formato JSON.
+
+### 2. Pacote 2: `PKG_ENGAJAMENTO_CIDADAO` (Inteligência Coletiva e Controle Territorial)
+- **`pr_registrar_voto`**: Registra o apoio da comunidade ao chamado (relação N:M em `voto_chamado`), impedindo autovoto e duplicidade.
+- **`fn_calcular_total_votos`**: Apura a quantidade de votos/apoios de qualquer chamado.
+- **`fn_classificar_criticidade_bairro`**: Algoritmo heurístico que avalia o volume de chamados pendentes vs. resolvidos do bairro e retorna `'CRITICO'`, `'ALERTA'` ou `'NORMAL'`.
+- **`pr_relatorio_territorial_subtotais` (Subtotais e Totais Gerais Feitos à Mão)**:
+  - Implementa **quebra de grupo clássica (Control Break)** através de cursor explícito ordenado por `(b.nm_bairro, c.nm_cidade)`.
+  - **Acumuladores Manuais em Variáveis PL/SQL**: Calcula à mão `v_subtotal_chamados`, `v_subtotal_pendentes`, `v_subtotal_concluidos`, `v_subtotal_votos` a cada transição de bairro.
+  - Ao final do loop, emite o subtotal do último grupo e imprime o **TOTAL GERAL MUNICIPAL** com contagens consolidadas e cálculo manual da **Taxa Geral de Resolução**.
+  - **Zero uso de `ROLLUP` ou funções mágicas**: Demonstração completa de lógica algorítmica de acumuladores em PL/SQL.
+- **`pr_relatorio_engajamento_json`**: Constrói um documento JSON analítico completo de um bairro via manipulação de `CLOB` temporário (`DBMS_LOB.CREATETEMPORARY`, `WRITEAPPEND`), gerando o array de ocorrências sem funções nativas.
+
+### 3. Tratamento Específico de Exceções (Zero `WHEN OTHERS` Isolado)
+Todas as rotinas implementam blocos `EXCEPTION` robustos com tratamento explícito para:
+- `WHEN NO_DATA_FOUND THEN`: Captura registros inexistentes e retorna mensagens claras via `RAISE_APPLICATION_ERROR`.
+- `WHEN DUP_VAL_ON_INDEX THEN`: Intercepta violações de unicidade (como repetição de voto).
+- `WHEN VALUE_ERROR THEN`: Trata erros de conversão de tipos de dados ou estouros de buffers.
+- `WHEN ZERO_DIVIDE THEN`: Protege cálculos de taxas percentuais quando o divisor for zero.
+- **Exceções Customizadas de Negócio**: Declaradas no pacote e associadas a códigos de erro específicos via `PRAGMA EXCEPTION_INIT` (`-20001` a `-20025`), tais como `e_chamado_fechado`, `e_autovoto_proibido`, `e_usuario_nao_gestor`.
+- `WHEN OTHERS THEN`: Utilizado exclusivamente como salvaguarda no final dos blocos após todas as exceções específicas terem sido tratadas.
+
+### 4. Trilha de Auditoria DML Ativa (`TRG_AUDIT_CHAMADO`)
+- Disparada após qualquer `INSERT`, `UPDATE` ou `DELETE` na tabela `CHAMADO`.
+- Captura o usuário conectado (`USER`), carimbo de data/hora (`SYSTIMESTAMP`), a operação executada e os snapshots dos dados anteriores (`:OLD`) e novos (`:NEW`), persistindo na tabela `AUDITORIA_DML_CHAMADO`.
+
+### 5. Bateria de Testes de Integração (9 Blocos na Parte 5)
+1. `pr_abrir_chamado`: Abertura com BLOB e inserção atômica de status.
+2. `pr_atualizar_status_chamado`: Transição por gestor com histórico auditável.
+3. `fn_converter_chamado_json`: Geração manual de JSON e verificação de tamanho em CLOB.
+4. `pr_registrar_voto`: Votação comunitária e apuração com `fn_calcular_total_votos`.
+5. `pr_relatorio_territorial_subtotais`: Emissão do relatório com subtotais e total geral manuais.
+6. `pr_relatorio_engajamento_json`: Extração do JSON territorial completo.
+7. `TRG_AUDIT_CHAMADO`: Verificação dos registros na tabela `AUDITORIA_DML_CHAMADO`.
+8. Exceção específica de violação cívica (tentativa de autovoto).
+9. Exceção específica de `NO_DATA_FOUND` (busca por chamado inexistente).
 
 ---
 
