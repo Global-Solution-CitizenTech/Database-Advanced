@@ -22,7 +22,6 @@
 * **Script SQL Relacional (DDL 3FN + Carga de Dados):** [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql)
 * **Script PL/SQL Avançado (Packages, Triggers, Blocos e Testes):** [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
 * **Pasta de Artefatos NoSQL MongoDB:** [`mongodb/`](./mongodb)
-  * **Script Mestre NoSQL (Carga Completa + Relatórios em Comando Único):** [`setup_completo_mongodb.js`](./mongodb/setup_completo_mongodb.js)
   * **Dataset de Chamados Enriquecidos:** [`chamados_dataset.json`](./mongodb/chamados_dataset.json)
   * **Dataset de Bairros Monitorados:** [`bairros_dataset.json`](./mongodb/bairros_dataset.json)
   * **Script NoSQL — Coleção `chamados`:** [`setup_mongodb_chamados.js`](./mongodb/setup_mongodb_chamados.js)
@@ -316,51 +315,44 @@ Para atender à transição documental exigida pelo edital, justificamos as esco
 
 ---
 
-### Opção 2: Carga e Consultas no MongoDB (Node.js CLI, mongosh ou MongoDB Compass)
+### Opção 2: Carga e Consultas no MongoDB (MongoDB Compass ou mongosh)
 
 Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 
-> 💡 **Nota de Segurança & Avaliação:** As credenciais de conexão do cluster oficial Atlas estão documentadas exclusivamente nesta seção do README para facilitar a avaliação da banca examinadora da FIAP. Em conformidade com as boas práticas de segurança, todos os arquivos de código JavaScript foram sanitizados com placeholders (`<usuario>:<senha>`) e consomem as credenciais dinamicamente via arquivo local `.env` (ignorado pelo `.gitignore`).
+> 💡 **Nota de Conexão Atlas para Avaliação:** A URI de conexão com o banco na nuvem oficial da disciplina é:
+> `mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix`
 
-#### Execução Direta via Terminal / CLI (Node.js + .env):
-Carrega automaticamente as credenciais seguras do arquivo `.env` e executa a esteira completa (conexão Atlas, drops idempotentes, validação de schema, índices, carga de 13 documentos e as 3 consultas analíticas formatadas em tabela):
+#### Execução no MongoDB Compass (Aba `>_MONGOSH`):
+1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima.
+2. Abra a aba inferior **`>_MONGOSH`**.
+3. Navegue até o diretório do projeto e execute os scripts modulares na ordem:
+   ```javascript
+   // 1. Aponta para a pasta do MongoDB
+   process.chdir("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb")
+
+   // 2. Cria validador de schema e popula a coleção 'chamados'
+   load("setup_mongodb_chamados.js")
+
+   // 3. Cria validador de schema e popula a coleção 'bairros_monitoramento'
+   load("setup_mongodb_bairros.js")
+
+   // 4. Executa os 3 Relatórios Analíticos com Aggregation Pipeline
+   load("consultas_relatorios_mongodb.js")
+   ```
+
+#### Execução via Linha de Comando (`mongosh`):
 ```bash
 cd Database-Advanced/mongodb
-npm start
-# Ou diretamente:
-node executar_atlas.js
-```
 
-#### Execução Rápida em Comando Único via `mongosh`:
-```bash
-cd Database-Advanced/mongodb
-mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" setup_completo_mongodb.js
-```
-
-#### Execução Modular Passo a Passo:
-```bash
-# 1. Navegue até a pasta NoSQL
-cd Database-Advanced/mongodb
-
-# 2. Crie e popule a coleção 'chamados' com validador e índices
+# 1. Carga da Coleção 'chamados'
 mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
 
-# 3. Crie e popule a coleção 'bairros_monitoramento' com validador e índices
+# 2. Carga da Coleção 'bairros_monitoramento'
 mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
 
-# 4. Execute os 3 Relatórios Analíticos com formatação CLI em tabela
+# 3. Execução dos 3 Relatórios Analíticos (Aggregation Pipeline)
 mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
 ```
-
-#### Via MongoDB Compass:
-1. Abra o **MongoDB Compass** e conecte-se ao cluster Atlas (`mongodb+srv://...`).
-2. Abra a aba inferior **`>_MONGOSH`**.
-3. Aponte para o diretório e execute o script mestre:
-   ```javascript
-   process.chdir("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb")
-   load("setup_completo_mongodb.js")
-   ```
-4. O console exibirá as validações de schema, confirmação das coleções criadas, índices criados e as tabelas formatadas de cada consulta.
 
 ---
 
