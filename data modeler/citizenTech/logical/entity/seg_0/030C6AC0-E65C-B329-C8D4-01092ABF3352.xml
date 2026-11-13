@@ -3,9 +3,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:53:57 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <adequatelyNormalized>NO</adequatelyNormalized>
 <expectedVolumes>0</expectedVolumes>
 <fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
@@ -19,9 +16,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:54:04 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
@@ -32,9 +26,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:57:04 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT008</logicalDatatype>
@@ -44,9 +35,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:56:49 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT024</logicalDatatype>
@@ -58,9 +46,6 @@
 <createdTime>2026-11-05 16:07:00 UTC</createdTime>
 <generatorID>E977D8F7-BCF7-0322-29EE-BA6D03A2BB11</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <referedAttribute>DC53BC60-D032-9D04-2DDA-1B72B85BB4EF</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -73,30 +58,24 @@
 <createdTime>2026-11-05 16:07:21 UTC</createdTime>
 <generatorID>244230C8-8737-D8E0-18D0-0118FA4C20D4</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <referedAttribute>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
 <dataTypePrecision>5</dataTypePrecision>
-<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 <Attribute name="id_status" id="8B5A7522-0D3B-0C6B-4325-88077BFE9CA5">
 <createdBy>Enzo</createdBy>
 <createdTime>2026-11-07 17:08:44 UTC</createdTime>
 <generatorID>A2C77534-0DB7-076C-2E61-B1FE28321B92</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <referedAttribute>48BAE655-1EC9-FC9D-EF3D-8A48BD73A2A5</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
-<dataTypePrecision>3</dataTypePrecision>
-<ownDataTypeParameters>,3,</ownDataTypeParameters>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
 </Attribute>
 </attributes>
 <identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
@@ -104,9 +83,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:56:36 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <pk>true</pk>
 <usedAttributes>
 <attributeRef>F798B85A-205B-648C-077D-EB7E6AAF98C4</attributeRef>

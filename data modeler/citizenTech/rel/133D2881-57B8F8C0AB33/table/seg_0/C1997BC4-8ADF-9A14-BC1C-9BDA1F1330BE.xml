@@ -1,0 +1,50 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Table class="oracle.dbtools.crest.model.design.relational.Table" directorySegmentName="seg_0" id="C1997BC4-8ADF-9A14-BC1C-9BDA1F1330BE" name="status">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-13 14:29:22 UTC</createdTime>
+<generatorID>4068E1F4-8444-56E7-1157-56C62F030A2E</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<allowColumnReorder>false</allowColumnReorder>
+<existDependencyGenerateInDDl>true</existDependencyGenerateInDDl>
+<parsed>true</parsed>
+<columns itemClass="oracle.dbtools.crest.model.design.relational.Column">
+<Column name="id_status" id="D77C7148-4D2E-4241-83C9-A72645B40AA9">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-13 14:29:22 UTC</createdTime>
+<generatorID>48BAE655-1EC9-FC9D-EF3D-8A48BD73A2A5</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+<Column name="nm_status" id="C2780C82-A466-4F8E-304A-CA250B06A133">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-13 14:29:22 UTC</createdTime>
+<generatorID>03FA2DB1-077C-6725-BE70-D800339703E1</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>20</dataTypeSize>
+<ownDataTypeParameters>20,,</ownDataTypeParameters>
+<autoIncrementCycle>false</autoIncrementCycle>
+</Column>
+</columns>
+<indexes itemClass="oracle.dbtools.crest.model.design.relational.Index">
+<ind_PK_UK id="C382D677-EC1C-8957-6355-01B8BBF56190" name="status_PK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-13 14:29:22 UTC</createdTime>
+<generatorID>648BF9D5-12A9-2517-55A4-75D2E0590608</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<pk>true</pk>
+<indexState>Primary Constraint</indexState>
+<isSurrogateKey>false</isSurrogateKey>
+<indexColumnUsage>
+<colUsage columnID="D77C7148-4D2E-4241-83C9-A72645B40AA9"/>
+</indexColumnUsage>
+</ind_PK_UK>
+</indexes>
+</Table>

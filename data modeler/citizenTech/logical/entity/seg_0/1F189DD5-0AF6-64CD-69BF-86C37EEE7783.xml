@@ -3,9 +3,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:58:55 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <adequatelyNormalized>NO</adequatelyNormalized>
 <expectedVolumes>0</expectedVolumes>
 <fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
@@ -19,9 +16,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:59:25 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT019</logicalDatatype>
@@ -32,9 +26,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:59:36 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
 <logicalDatatype>LOGDT008</logicalDatatype>
@@ -45,9 +36,6 @@
 <createdTime>2026-11-05 16:07:58 UTC</createdTime>
 <generatorID>4D3F5C50-AFAF-D109-3E58-4FCA2EBC444C</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <referedAttribute>DC53BC60-D032-9D04-2DDA-1B72B85BB4EF</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -60,9 +48,6 @@
 <createdTime>2026-11-07 17:22:49 UTC</createdTime>
 <generatorID>4863B74F-3F9D-70F0-7D17-ADBDBF662645</generatorID>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <referedAttribute>66B93D6E-4DA7-5B3C-3009-7886C9C4FFE1</referedAttribute>
 <useDomainConstraints>false</useDomainConstraints>
 <use>1</use>
@@ -76,9 +61,6 @@
 <createdBy>lulz_user</createdBy>
 <createdTime>2026-11-05 15:59:35 UTC</createdTime>
 <ownerDesignName>citizenTech</ownerDesignName>
-<engineerTo>
-<item key="2C069830-FB83-387C-7C21-60E3BFF4D4D7" value="true"/>
-</engineerTo>
 <pk>true</pk>
 <usedAttributes>
 <attributeRef>1E56A701-89DD-9D77-C27A-EA6048E03024</attributeRef>

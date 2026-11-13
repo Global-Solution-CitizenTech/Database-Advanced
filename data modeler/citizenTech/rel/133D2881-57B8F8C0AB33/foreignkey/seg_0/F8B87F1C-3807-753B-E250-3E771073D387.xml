@@ -1,0 +1,17 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<FKIndexAssociation class="oracle.dbtools.crest.model.design.relational.FKIndexAssociation" directorySegmentName="seg_0" id="F8B87F1C-3807-753B-E250-3E771073D387" containerWithKeyObject="34D4A99F-08DD-21B7-DB2D-5A4AA3C64243" localFKIndex="1BEA2110-C050-8956-48A3-332C86AF0709" name="chamado_prioridade_FK">
+<createdBy>Enzo</createdBy>
+<createdTime>2026-11-13 14:29:22 UTC</createdTime>
+<generatorID>E53128F7-8CE9-C3C2-774A-941709012ECC</generatorID>
+<ownerDesignName>citizenTech</ownerDesignName>
+<referredTableLongName>prioridade</referredTableLongName>
+<deleteRule>NO ACTION</deleteRule>
+<referredTableID>D02ED584-D81E-E2DF-9424-D0D3943757D4</referredTableID>
+<keyObject>7B2BAE2B-D9BA-FCDE-90F5-19D89FDEF632</keyObject>
+<referredKeyID>7B2BAE2B-D9BA-FCDE-90F5-19D89FDEF632</referredKeyID>
+<mandatory>true</mandatory>
+<refColNames>id_prioridade</refColNames>
+<transferable>true</transferable>
+<rely>false</rely>
+<columnDependencyConstraintGenerateInDDL>true</columnDependencyConstraintGenerateInDDL>
+</FKIndexAssociation>

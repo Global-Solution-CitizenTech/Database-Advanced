@@ -391,7 +391,7 @@
 	<model_compare_storage_props_filter>
 	</model_compare_storage_props_filter>
 	<naming_options>
-		<model_options objectid="1A701B10-4066-E49D-98AA-682942672BD1">
+		<model_options objectid="133D2881-D885-B1AC-B839-57B8F8C0AB33">
 			<naming_option class_name="oracle.dbtools.crest.model.design.relational.Table" max_name_length="128" case_type="2" valid_characters="" all_valid="true" />
 			<naming_option class_name="oracle.dbtools.crest.model.design.relational.Column" max_name_length="128" case_type="2" valid_characters="" all_valid="true" />
 			<naming_option class_name="oracle.dbtools.crest.model.design.relational.TableView" max_name_length="128" case_type="2" valid_characters="" all_valid="true" />
