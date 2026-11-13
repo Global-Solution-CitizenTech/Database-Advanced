@@ -17,7 +17,7 @@
 
 ## 🔗 Links e Estrutura Oficial de Arquivos da Entrega
 
-* **Repositório GitHub:** [https://github.com/FIAP-Global-Solution-2TDSPG/Database-Advanced](https://github.com/FIAP-Global-Solution-2TDSPG/Database-Advanced)
+* **Repositório GitHub:** https://github.com/Global-Solution-CitizenTech/Database-Advanced
 * **Modelagem Data Modeler:** [Pasta `data modeler/`](./data%20modeler) (`citizenTech.dmd` e `citizenTech.ddl`)
 * **Script SQL Relacional (DDL 3FN + Carga de Dados):** [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql)
 * **Script PL/SQL Avançado (Packages, Triggers, Blocos e Testes):** [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
@@ -27,20 +27,6 @@
   * **Script NoSQL — Coleção `chamados`:** [`setup_mongodb_chamados.js`](./mongodb/setup_mongodb_chamados.js)
   * **Script NoSQL — Coleção `bairros_monitoramento`:** [`setup_mongodb_bairros.js`](./mongodb/setup_mongodb_bairros.js)
   * **Script NoSQL — 3 Consultas e Relatórios Analíticos:** [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js)
-
----
-
-## 🎯 Rastreabilidade dos Requisitos do Edital (Páginas 70–76)
-
-| Item | Requisito Oficial da Avaliação | Pontos | Onde Encontrar | Status |
-| :---: | :--- | :---: | :--- | :---: |
-| **01** | **Modelo Relacional Oracle Funcional e 2 Blocos Anônimos:** DDL com constraints, sementes válidas em 3FN e 2 blocos anônimos com `IF`, `LOOP` e cursores explícitos. | 10 pts | [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql) e Parte 4 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
-| **02** | **Funções e Procedimentos PL/SQL com Conversão Manual e Subtotais:** Mínimo de 2 funções e 2 procedimentos aplicados a regras de negócio. Destaque para conversão manual para JSON (`fn_converter_chamado_json`), totalização de votos (`fn_calcular_total_votos`), criticidade territorial (`fn_classificar_criticidade_bairro`), abertura atômica (`pr_abrir_chamado`), transição de status (`pr_atualizar_status_chamado`), registro de voto (`pr_registrar_voto`) e relatório com subtotais e total geral feitos à mão (`pr_relatorio_subtotal_bairros`). | 15 pts | Pacotes `PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO` em [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
-| **03** | **Gatilhos & Trilha de Auditoria DML:** 2 triggers implementadas: `TRG_AUDIT_CHAMADO` (com auditoria completa de `:OLD` vs `:NEW` serializada em JSON manual na tabela `AUDITORIA_DML_CHAMADO`) e `TRG_VALIDA_VOTO_CHAMADO` (trigger cívica contra autovoto e votação em chamados fechados). | 10 pts | Triggers `TRG_AUDIT_CHAMADO` e `TRG_VALIDA_VOTO_CHAMADO` (Parte 3 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)) | **Concluído** |
-| **04** | **Pacotes Oracle PL/SQL & Tratamento Específico de Exceções:** 2 pacotes modulares (Spec + Body), tratamento rigoroso de exceções (`NO_DATA_FOUND`, `DUP_VAL_ON_INDEX`, `VALUE_ERROR`, `ZERO_DIVIDE`, PRAGMA exceptions) e suíte de testes de integração com `ROLLBACK`. | 10 pts | Partes 1, 2 e 5 de [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) | **Concluído** |
-| **05** | **Estrutura MongoDB & Carga de Documentos:** Script `.js` para selecionar/criar database, criar 2 collections com validação de schema e carga de no mínimo 10 documentos. | 10 pts | Scripts [`setup_mongodb_chamados.js`](./mongodb/setup_mongodb_chamados.js) e [`setup_mongodb_bairros.js`](./mongodb/setup_mongodb_bairros.js) totalizando **13 documentos** inseridos | **Concluído** |
-| **06** | **Mapeamento Relacional->Documental e 3 Relatórios Analíticos:** Matriz de mapeamento conceitual, 3 relatórios com agregação (`$group`, `$project`) comparados com Oracle SQL equivalente. | 15 pts | Matriz documentada nesta seção e script executável [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js) | **Concluído** |
-| **TOTAL** | **Pontuação da Submissão Técnica (70% da Nota da Disciplina)** | **70 pts** | Todos os artefatos funcionais e testados sem dependências externas quebradas | **100% Atingido** |
 
 ---
 
@@ -115,7 +101,7 @@ Todas as rotinas implementam blocos `EXCEPTION` robustos com tratamento explíci
 
 ## 🔄 Matriz de Mapeamento: Do Relacional ao MongoDB
 
-Para atender à transição documental exigida pelo edital, justificamos as escolhas de modelagem entre **documentos incorporados (*embedding*)** e **referências (*referencing*)**:
+A transição do modelo relacional para documentos adota escolhas entre **documentos incorporados (*embedding*)** e **referências (*referencing*)**:
 
 | Conceito / Entidade Relacional (Oracle) | Representação NoSQL (MongoDB) | Padrão Adotado | Justificativa Técnica da Transição |
 | :--- | :--- | :---: | :--- |
