@@ -48,6 +48,12 @@ O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Mo
    - **Autoria (1:N):** `chamado.usuario_id_usuario` referencia exclusivamente o munícipe que abriu o chamado com foto.
    - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir autovoto e voto duplicado.
 5. **Evidência Fotográfica Binária Nativa (`BLOB`):** A coluna `foto` na tabela `chamado` armazena diretamente os bytes das imagens no Oracle, eliminando riscos de URLs externas quebradas (404) durante a apresentação presencial da banca.
+6. **Padronização Estrita de ENUMs (Oracle + MongoDB + Java Spring Boot):** As `CHECK` constraints relacionais e os `$jsonSchema` do MongoDB seguem integralmente os cinco `enums` da API Java:
+   - `usuario.cargo`: `CIDADAO`, `GESTOR`, `ADMIN`
+   - `categoria.nm_categoria`: `ILUMINACAO_PUBLICA`, `VIAS_E_PAVIMENTACAO`, `DRENAGEM_E_ESGOTO`, `LIMPEZA_URBANA`, `ARVORES_E_PARQUES`, `SINALIZACAO_E_TRANSITO`
+   - `status.nm_status`: `PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`
+   - `prioridade.nm_prioridade`: `BAIXA`, `MEDIA`, `ALTA`, `URGENTE`
+   - `orgao_governo.orgao_governo`: `SECRETARIA_OBRAS`, `CET_TRANSITO`, `ILUMINACAO_PUBLICA`, `DEFESA_CIVIL`, `SUBPREFEITURA`, `SANEAMENTO_BASICO`
 
 ---
 
@@ -147,8 +153,8 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | **1** | Poste com lâmpada apagada em via principal | Bela Vista | `ILUMINACAO_PUBLICA` | `EM_EXECUCAO` | **2** |
 | **2** | Buraco profundo na faixa da direita da via | Pinheiros | `VIAS_E_PAVIMENTACAO` | `EM_ANALISE` | **2** |
 | **4** | Descarte irregular de entulho e móveis velhos | Mooca | `LIMPEZA_URBANA` | `PENDENTE` | **2** |
-| **5** | Galho de grande porte com risco de queda | Santana | Árvores e Parques | `EM_ANALISE` | **2** |
-| **7** | Vazamento contínuo de água limpa no meio-fio | Pinheiros | Drenagem e Esgoto | `EM_EXECUCAO` | **0** |
+| **5** | Galho de grande porte com risco de queda | Santana | `ARVORES_E_PARQUES` | `EM_ANALISE` | **2** |
+| **7** | Vazamento contínuo de água limpa no meio-fio | Pinheiros | `DRENAGEM_E_ESGOTO` | `EM_EXECUCAO` | **0** |
 
 ---
 
@@ -200,12 +206,12 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 | Categoria Urbana | Total de Ocorrências | Ocorrências Abertas | Ocorrências Concluídas | Votos Acumulados |
 | :--- | :---: | :---: | :---: | :---: |
-| **Limpeza Urbana** | 2 | 1 | 0 | 2 |
-| **Drenagem e Esgoto** | 2 | 1 | 1 | 0 |
+| **`LIMPEZA_URBANA`** | 2 | 1 | 0 | 2 |
+| **`DRENAGEM_E_ESGOTO`** | 2 | 1 | 1 | 0 |
 | **`ILUMINACAO_PUBLICA`** | 1 | 1 | 0 | 2 |
 | **`VIAS_E_PAVIMENTACAO`** | 1 | 1 | 0 | 2 |
-| **Árvores e Parques** | 1 | 1 | 0 | 2 |
-| **Sinalização e Trânsito** | 1 | 0 | 1 | 0 |
+| **`ARVORES_E_PARQUES`** | 1 | 1 | 0 | 2 |
+| **`SINALIZACAO_E_TRANSITO`** | 1 | 0 | 1 | 0 |
 
 ---
 
@@ -358,18 +364,18 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
 1. [ID 1] Poste com lâmpada apagada em via principal    | Bairro: Bela Vista   | Categoria: ILUMINACAO_PUBLICA     | Status: EM_EXECUCAO  | Apoios: 2
 2. [ID 2] Buraco profundo na faixa da direita da via    | Bairro: Pinheiros    | Categoria: VIAS_E_PAVIMENTACAO    | Status: EM_ANALISE   | Apoios: 2
 3. [ID 4] Descarte irregular de entulho e móveis velhos | Bairro: Mooca        | Categoria: LIMPEZA_URBANA         | Status: PENDENTE     | Apoios: 2
-4. [ID 5] Galho de grande porte com risco de queda      | Bairro: Santana      | Categoria: Árvores e Parques      | Status: EM_ANALISE   | Apoios: 2
-5. [ID 7] Vazamento contínuo de água limpa no meio-fio  | Bairro: Pinheiros    | Categoria: Drenagem e Esgoto      | Status: EM_EXECUCAO  | Apoios: 0
+4. [ID 5] Galho de grande porte com risco de queda      | Bairro: Santana      | Categoria: ARVORES_E_PARQUES      | Status: EM_ANALISE   | Apoios: 2
+5. [ID 7] Vazamento contínuo de água limpa no meio-fio  | Bairro: Pinheiros    | Categoria: DRENAGEM_E_ESGOTO      | Status: EM_EXECUCAO  | Apoios: 0
 
 --------------------------------------------------------------------
 >>> RELATÓRIO 2 (AGGREGATION): Volume de Ocorrências por Categoria Urbana
 --------------------------------------------------------------------
- - Categoria: Limpeza Urbana            | Total:  2 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: Drenagem e Esgoto         | Total:  2 | Pendentes:  1 | Concluídas:  1 | Apoios Acumulados:  0
+ - Categoria: LIMPEZA_URBANA            | Total:  2 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
+ - Categoria: DRENAGEM_E_ESGOTO         | Total:  2 | Pendentes:  1 | Concluídas:  1 | Apoios Acumulados:  0
  - Categoria: ILUMINACAO_PUBLICA        | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
  - Categoria: VIAS_E_PAVIMENTACAO       | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: Árvores e Parques         | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: Sinalização e Trânsito    | Total:  1 | Pendentes:  0 | Concluídas:  1 | Apoios Acumulados:  0
+ - Categoria: ARVORES_E_PARQUES         | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
+ - Categoria: SINALIZACAO_E_TRANSITO    | Total:  1 | Pendentes:  0 | Concluídas:  1 | Apoios Acumulados:  0
 
 --------------------------------------------------------------------
 >>> RELATÓRIO 3 (AGGREGATION AVANÇADO): Diagnóstico de Pendência por Bairro

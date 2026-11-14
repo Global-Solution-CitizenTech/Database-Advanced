@@ -437,22 +437,22 @@ INSERT INTO chamado (
     1, 3, 4, 1, 5
 );
 
--- 12. HIST_CHAMADO (Linha do tempo auditada - Cada chamado inicia em ABERTO e evolui com integridade)
--- Chamado 1: ABERTO -> EM_EXECUCAO
+-- 12. HIST_CHAMADO (Linha do tempo auditada - Cada chamado inicia em PENDENTE e evolui com integridade)
+-- Chamado 1: PENDENTE -> EM_EXECUCAO
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (1, TO_DATE('2026-10-28 19:40:00', 'YYYY-MM-DD HH24:MI:SS'), 'Chamado aberto pelo cidadão via aplicativo ZelaFix.', 1, 1, 1);
 
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (2, TO_DATE('2026-10-29 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Ordem de serviço nº 4022 emitida e encaminhada à concessionária de energia.', 1, 3, 3);
 
--- Chamado 2: ABERTO -> EM_ANALISE
+-- Chamado 2: PENDENTE -> EM_ANALISE
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (3, TO_DATE('2026-10-30 08:15:00', 'YYYY-MM-DD HH24:MI:SS'), 'Chamado registrado aguardando vistoria da equipe de tapa-buraco.', 2, 2, 1);
 
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (4, TO_DATE('2026-10-31 14:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'Vistoria técnica presencial realizada; incluído na programação do recapeamento semanal.', 2, 5, 2);
 
--- Chamado 3: ABERTO -> EM_ANALISE -> CONCLUIDO
+-- Chamado 3: PENDENTE -> EM_ANALISE -> CONCLUIDO
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (5, TO_DATE('2026-10-25 14:10:00', 'YYYY-MM-DD HH24:MI:SS'), 'Abertura de chamado de galeria pluvial.', 3, 1, 1);
 
@@ -462,32 +462,32 @@ VALUES (6, TO_DATE('2026-10-26 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Vistoria id
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (7, TO_DATE('2026-10-27 16:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'Equipe de hidrojateamento concluiu a desobstrução e remoção de sedimentos da galeria.', 3, 3, 4);
 
--- Chamado 4: ABERTO
+-- Chamado 4: PENDENTE
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (8, TO_DATE('2026-11-01 10:20:00', 'YYYY-MM-DD HH24:MI:SS'), 'Registro de descarte irregular de entulho na calçada.', 4, 4, 1);
 
--- Chamado 5: ABERTO -> EM_ANALISE
+-- Chamado 5: PENDENTE -> EM_ANALISE
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (9, TO_DATE('2026-11-02 11:45:00', 'YYYY-MM-DD HH24:MI:SS'), 'Abertura de chamado de arborização com risco em fiação.', 5, 1, 1);
 
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (10, TO_DATE('2026-11-02 14:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Equipe técnica encaminhou protocolo urgente para Enel.', 5, 3, 2);
 
--- Chamado 6: ABERTO -> EM_EXECUCAO -> CONCLUIDO
+-- Chamado 6: PENDENTE -> EM_EXECUCAO -> CONCLUIDO
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (11, TO_DATE('2026-10-26 07:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'Semáforo com defeito comunicado por munícipe.', 6, 2, 1);
 
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (12, TO_DATE('2026-10-26 15:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'Equipe semafórica da CET realizou a substituição da controladora digital.', 6, 5, 4);
 
--- Chamado 7: ABERTO -> EM_EXECUCAO
+-- Chamado 7: PENDENTE -> EM_EXECUCAO
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (13, TO_DATE('2026-11-03 16:50:00', 'YYYY-MM-DD HH24:MI:SS'), 'Comunicação de vazamento contínuo de água tratada.', 7, 4, 1);
 
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (14, TO_DATE('2026-11-04 08:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'Técnicos em campo efetuando abertura de vala para reparo do cavalete.', 7, 3, 3);
 
--- Chamado 8: ABERTO -> REJEITADO
+-- Chamado 8: PENDENTE -> REJEITADO
 INSERT INTO hist_chamado (id_hist, dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status) 
 VALUES (15, TO_DATE('2026-11-04 09:10:00', 'YYYY-MM-DD HH24:MI:SS'), 'Abertura de denúncia de pichação.', 8, 1, 1);
 

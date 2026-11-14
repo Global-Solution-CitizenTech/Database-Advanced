@@ -577,13 +577,13 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
                 v_bairro_ant := v_reg.nm_bairro;
                 v_cidade_ant := v_reg.nm_cidade;
                 DBMS_OUTPUT.PUT_LINE('[BAIRRO: ' || UPPER(v_reg.nm_bairro) || ' (' || v_reg.nm_cidade || ')]');
-                DBMS_OUTPUT.PUT_LINE('  ID   | TÍTULO                              | CATEGORIA           | STATUS       | APOIOS');
-                DBMS_OUTPUT.PUT_LINE('  ----+-------------------------------------+---------------------+--------------+-------');
+                DBMS_OUTPUT.PUT_LINE('  ID   | TÍTULO                              | CATEGORIA              | STATUS       | APOIOS');
+                DBMS_OUTPUT.PUT_LINE('  ----+-------------------------------------+------------------------+--------------+-------');
             END IF;
 
             DBMS_OUTPUT.PUT_LINE('  ' || LPAD(v_reg.id_chamado, 4) || ' | ' ||
                                  RPAD(SUBSTR(v_reg.titulo, 1, 35), 35) || ' | ' ||
-                                 RPAD(SUBSTR(v_reg.nm_categoria, 1, 19), 19) || ' | ' ||
+                                 RPAD(SUBSTR(v_reg.nm_categoria, 1, 22), 22) || ' | ' ||
                                  RPAD(v_reg.status_atual, 12) || ' | ' ||
                                  LPAD(v_reg.total_votos, 6));
 

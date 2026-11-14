@@ -16,8 +16,8 @@
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
-      "Iluminação Pública",
-      "Sinalização e Trânsito"
+      "ILUMINACAO_PUBLICA",
+      "SINALIZACAO_E_TRANSITO"
     ],
     "atualizado_em": "2026-11-04T12:00:00Z"
   },
@@ -38,8 +38,8 @@
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
-      "Vias e Pavimentação",
-      "Drenagem e Esgoto"
+      "VIAS_E_PAVIMENTACAO",
+      "DRENAGEM_E_ESGOTO"
     ],
     "atualizado_em": "2026-11-04T12:00:00Z"
   },
@@ -60,8 +60,8 @@
     },
     "criticidade": "ESTAVEL",
     "indicadores_principais": [
-      "Drenagem e Esgoto",
-      "Limpeza Urbana"
+      "DRENAGEM_E_ESGOTO",
+      "LIMPEZA_URBANA"
     ],
     "atualizado_em": "2026-11-04T12:00:00Z"
   },
@@ -82,7 +82,7 @@
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
-      "Limpeza Urbana"
+      "LIMPEZA_URBANA"
     ],
     "atualizado_em": "2026-11-04T12:00:00Z"
   },
@@ -103,7 +103,7 @@
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
-      "Árvores e Parques"
+      "ARVORES_E_PARQUES"
     ],
     "atualizado_em": "2026-11-04T12:00:00Z"
   }
