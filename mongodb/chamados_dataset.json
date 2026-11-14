@@ -3,7 +3,7 @@
     "id_chamado": 1,
     "titulo": "Poste com lâmpada apagada em via principal",
     "descricao": "Poste de iluminação pública em frente ao número 1106 apagado há 4 noites consecutivas, gerando sensação de insegurança aos pedestres.",
-    "categoria": "Iluminação Pública",
+    "categoria": "ILUMINACAO_PUBLICA",
     "status_atual": "EM_EXECUCAO",
     "dt_abertura": "2026-10-28T19:40:00Z",
     "total_votos": 2,
@@ -25,7 +25,7 @@
       {
         "ordem": 1,
         "data": "2026-10-28T19:40:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Chamado aberto pelo cidadão via aplicativo ZelaFix.",
         "responsavel": "Carlos Alberto Silva"
       },
@@ -52,14 +52,14 @@
     "triagem_ia": {
       "prioridade": "ALTA",
       "parecer": "Risco de segurança noturna identificado pela triagem inteligente.",
-      "orgao_sugerido": "ILUME - Departamento de Iluminação Pública"
+      "orgao_sugerido": "ILUMINACAO_PUBLICA"
     }
   },
   {
     "id_chamado": 2,
     "titulo": "Buraco profundo na faixa da direita da via",
     "descricao": "Cratera aberta no asfalto com risco iminente de acidente com motociclistas e danos a veículos.",
-    "categoria": "Vias e Pavimentação",
+    "categoria": "VIAS_E_PAVIMENTACAO",
     "status_atual": "EM_ANALISE",
     "dt_abertura": "2026-10-30T08:15:00Z",
     "total_votos": 2,
@@ -81,7 +81,7 @@
       {
         "ordem": 1,
         "data": "2026-10-30T08:15:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Chamado registrado aguardando vistoria da equipe de tapa-buraco.",
         "responsavel": "Mariana Oliveira Souza"
       },
@@ -106,16 +106,16 @@
       }
     ],
     "triagem_ia": {
-      "prioridade": "CRITICA",
+      "prioridade": "URGENTE",
       "parecer": "Risco elevado de sinistro de trânsito em via arterial.",
-      "orgao_sugerido": "Subprefeitura Pinheiros - Setor de Vias Públicas"
+      "orgao_sugerido": "SECRETARIA_OBRAS"
     }
   },
   {
     "id_chamado": 3,
     "titulo": "Bueiro entupido com transbordamento de águas pluviais",
     "descricao": "Boca de lobo completamente obstruída por folhas e lixo acumulado. Em dias de chuva média ocorre alagamento da calçada.",
-    "categoria": "Drenagem e Esgoto",
+    "categoria": "DRENAGEM_E_ESGOTO",
     "status_atual": "CONCLUIDO",
     "dt_abertura": "2026-10-25T14:10:00Z",
     "total_votos": 0,
@@ -137,7 +137,7 @@
       {
         "ordem": 1,
         "data": "2026-10-25T14:10:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Abertura de chamado de galeria pluvial.",
         "responsavel": "Carlos Alberto Silva"
       },
@@ -158,17 +158,17 @@
     ],
     "votos": [],
     "triagem_ia": {
-      "prioridade": "MEDIA",
+      "prioridade": "ALTA",
       "parecer": "Obstrução de galeria pluvial com risco de alagamento local.",
-      "orgao_sugerido": "SABESP / Secretaria de Infraestrutura Urbana"
+      "orgao_sugerido": "SANEAMENTO_BASICO"
     }
   },
   {
     "id_chamado": 4,
     "titulo": "Descarte irregular de entulho e móveis velhos",
     "descricao": "Grande volume de entulho de construção civil e sofás descartados irregularmente bloqueando passagem de pedestres e cadeirantes.",
-    "categoria": "Limpeza Urbana",
-    "status_atual": "ABERTO",
+    "categoria": "LIMPEZA_URBANA",
+    "status_atual": "PENDENTE",
     "dt_abertura": "2026-11-01T10:20:00Z",
     "total_votos": 2,
     "cidadao": {
@@ -189,7 +189,7 @@
       {
         "ordem": 1,
         "data": "2026-11-01T10:20:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Registro de descarte irregular de entulho na calçada.",
         "responsavel": "Fernanda Costa Lima"
       }
@@ -209,14 +209,14 @@
     "triagem_ia": {
       "prioridade": "MEDIA",
       "parecer": "Obstrução de calçada e proliferação de vetores.",
-      "orgao_sugerido": "Autoridade Municipal de Limpeza Urbana (AMLURB)"
+      "orgao_sugerido": "SUBPREFEITURA"
     }
   },
   {
     "id_chamado": 5,
     "titulo": "Galho de grande porte com risco de queda sobre fiação elétrica",
     "descricao": "Galho seco de árvore centenária encostando diretamente nos cabos da rede elétrica com estalos em dias de vento forte.",
-    "categoria": "Árvores e Parques",
+    "categoria": "ARVORES_E_PARQUES",
     "status_atual": "EM_ANALISE",
     "dt_abertura": "2026-11-02T11:45:00Z",
     "total_votos": 2,
@@ -238,7 +238,7 @@
       {
         "ordem": 1,
         "data": "2026-11-02T11:45:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Abertura de chamado de arborização com risco em fiação.",
         "responsavel": "Carlos Alberto Silva"
       },
@@ -263,16 +263,16 @@
       }
     ],
     "triagem_ia": {
-      "prioridade": "ALTA",
+      "prioridade": "URGENTE",
       "parecer": "Interferência de arborização em rede de média tensão.",
-      "orgao_sugerido": "Enel Distribuição São Paulo / Subprefeitura Santana"
+      "orgao_sugerido": "DEFESA_CIVIL"
     }
   },
   {
     "id_chamado": 6,
     "titulo": "Semáforo de pedestres apagado em cruzamento escolar",
     "descricao": "Sinalização semafórica piscando em amarelo intermitente no cruzamento de fluxo de estudantes da escola local.",
-    "categoria": "Sinalização e Trânsito",
+    "categoria": "SINALIZACAO_E_TRANSITO",
     "status_atual": "CONCLUIDO",
     "dt_abertura": "2026-10-26T07:30:00Z",
     "total_votos": 0,
@@ -294,7 +294,7 @@
       {
         "ordem": 1,
         "data": "2026-10-26T07:30:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Semáforo com defeito comunicado por munícipe.",
         "responsavel": "Mariana Oliveira Souza"
       },
@@ -308,16 +308,16 @@
     ],
     "votos": [],
     "triagem_ia": {
-      "prioridade": "CRITICA",
+      "prioridade": "URGENTE",
       "parecer": "Risco a pedestres e crianças em travessia de faixa escolar.",
-      "orgao_sugerido": "Companhia de Engenharia de Tráfego (CET)"
+      "orgao_sugerido": "CET_TRANSITO"
     }
   },
   {
     "id_chamado": 7,
     "titulo": "Vazamento contínuo de água limpa no meio-fio",
     "descricao": "Cavalete ou tubulação rompida jorrando água limpa continuamente há 2 dias com erosão da sarjeta.",
-    "categoria": "Drenagem e Esgoto",
+    "categoria": "DRENAGEM_E_ESGOTO",
     "status_atual": "EM_EXECUCAO",
     "dt_abertura": "2026-11-03T16:50:00Z",
     "total_votos": 0,
@@ -339,7 +339,7 @@
       {
         "ordem": 1,
         "data": "2026-11-03T16:50:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Comunicação de vazamento contínuo de água tratada.",
         "responsavel": "Fernanda Costa Lima"
       },
@@ -353,16 +353,16 @@
     ],
     "votos": [],
     "triagem_ia": {
-      "prioridade": "MEDIA",
+      "prioridade": "ALTA",
       "parecer": "Desperdício de recurso hídrico e erosão asfáltica superficial.",
-      "orgao_sugerido": "SABESP - Manutenção de Redes de Água"
+      "orgao_sugerido": "SANEAMENTO_BASICO"
     }
   },
   {
     "id_chamado": 8,
     "titulo": "Pichação em patrimônio histórico tombado",
     "descricao": "Vandalismo com tintas na fachada lateral do monumento público da praça.",
-    "categoria": "Limpeza Urbana",
+    "categoria": "LIMPEZA_URBANA",
     "status_atual": "REJEITADO",
     "dt_abertura": "2026-11-04T09:10:00Z",
     "total_votos": 0,
@@ -384,7 +384,7 @@
       {
         "ordem": 1,
         "data": "2026-11-04T09:10:00Z",
-        "status": "ABERTO",
+        "status": "PENDENTE",
         "observacao": "Abertura de denúncia de pichação.",
         "responsavel": "Carlos Alberto Silva"
       },
@@ -400,7 +400,7 @@
     "triagem_ia": {
       "prioridade": "BAIXA",
       "parecer": "Dano estético em fachada pública.",
-      "orgao_sugerido": "Departamento do Patrimônio Histórico (DPH)"
+      "orgao_sugerido": "SUBPREFEITURA"
     }
   }
 ]

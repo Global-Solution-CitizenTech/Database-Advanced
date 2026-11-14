@@ -72,11 +72,12 @@ dbTarget.createCollection("chamados", {
         },
         categoria: {
           bsonType: "string",
-          description: "Categoria do serviço público (ex: Vias e Pavimentação, Iluminação Pública)."
+          enum: ["ILUMINACAO_PUBLICA", "VIAS_E_PAVIMENTACAO", "DRENAGEM_E_ESGOTO", "LIMPEZA_URBANA", "ARVORES_E_PARQUES", "SINALIZACAO_E_TRANSITO"],
+          description: "Categoria do serviço público (alinhada ao CategoriaEnum)."
         },
         status_atual: {
           bsonType: "string",
-          enum: ["ABERTO", "EM_ANALISE", "EM_EXECUCAO", "CONCLUIDO", "REJEITADO"],
+          enum: ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO", "CONCLUIDO", "REJEITADO"],
           description: "Status vigente desnormalizado para consultas de alta performance."
         },
         dt_abertura: {
@@ -120,7 +121,10 @@ dbTarget.createCollection("chamados", {
             properties: {
               ordem: { bsonType: ["int", "long", "double"] },
               data: { bsonType: ["string", "date"] },
-              status: { bsonType: "string" },
+              status: {
+                bsonType: "string",
+                enum: ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO", "CONCLUIDO", "REJEITADO"]
+              },
               observacao: { bsonType: "string" },
               responsavel: { bsonType: "string" }
             }
@@ -143,9 +147,15 @@ dbTarget.createCollection("chamados", {
           bsonType: "object",
           description: "Metadados inteligentes gerados por IA generativa (Spring AI).",
           properties: {
-            prioridade: { bsonType: "string" },
+            prioridade: {
+              bsonType: "string",
+              enum: ["BAIXA", "MEDIA", "ALTA", "URGENTE"]
+            },
             parecer: { bsonType: "string" },
-            orgao_sugerido: { bsonType: "string" }
+            orgao_sugerido: {
+              bsonType: "string",
+              enum: ["SECRETARIA_OBRAS", "CET_TRANSITO", "ILUMINACAO_PUBLICA", "DEFESA_CIVIL", "SUBPREFEITURA", "SANEAMENTO_BASICO"]
+            }
           }
         }
       }

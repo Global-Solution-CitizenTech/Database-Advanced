@@ -30,7 +30,7 @@
 
 ---
 
-## 📐 Modelagem Relacional Oracle (11 Tabelas em 3FN Estrita)
+## 📐 Modelagem Relacional Oracle (13 Tabelas em 3FN Estrita)
 
 O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Modeler 24.3** em rigorosa **3ª Forma Normal (3FN)**, estruturado para suportar toda a esteira de zeladoria urbana, histórico auditável de status e engajamento comunitário:
 
@@ -56,12 +56,12 @@ O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Mo
 O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) foi desenvolvido para atender às exigências mais rigorosas da disciplina, eliminando quaisquer atalhos ou funções mágicas:
 
 ### 1. Pacote 1: `PKG_CHAMADO_GESTAO` (Ciclo de Vida do Chamado e Serialização Manual)
-- **`pr_abrir_chamado`**: Abertura transacional atômica com validações de tamanho mínimo, foto BLOB obrigatória, integridade referencial de chaves estrangeiras (`usuario`, `endereco`, `categoria`), localização do status `ABERTO` e gravação simultânea na tabela `chamado` e na linha do tempo `hist_chamado` (3FN estrita) via `RETURNING id_chamado INTO v_novo_id`.
+- **`pr_abrir_chamado`**: Abertura transacional atômica com validações de tamanho mínimo, foto BLOB obrigatória, integridade referencial de chaves estrangeiras (`usuario`, `endereco`, `categoria`, `prioridade`, `orgao_governo`), localização do status `PENDENTE` e gravação simultânea na tabela `chamado` e na linha do tempo `hist_chamado` (3FN estrita) via `RETURNING id_chamado INTO v_novo_id`.
 - **`pr_atualizar_status_chamado`**: Validação rigorosa de existência de chamado, status e usuário fiscal, garantindo acesso exclusivo para fiscais com privilégio `cargo = 'GESTOR'`, inserindo nova etapa com observações no histórico auditável.
 - **`fn_obter_status_atual`**: Função de alta performance (`PRAGMA UDF`) que resolve o status vigente em $\mathcal{O}(1)$ via ordenação decrescente por `id_hist` aproveitando diretamente o índice de cobertura `idx_hist_chamado_ativo`.
 - **`fn_converter_chamado_json` (Conversão 100% Manual)**:
   - **Zero uso de funções nativas do Oracle**: Constrói o documento JSON manualmente em `CLOB` via `DBMS_LOB.CREATETEMPORARY` e `DBMS_LOB.WRITEAPPEND`.
-  - Serializa o chamado com objetos aninhados (`categoria`, `cidadao`, `localizacao`), tratamento de caracteres de escape e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
+  - Serializa o chamado com objetos aninhados (`categoria`, `prioridade`, `orgaoGoverno`, `cidadao`, `localizacao`), tratamento de caracteres de escape e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
 
 ### 2. Pacote 2: `PKG_ENGAJAMENTO_CIDADAO` (Inteligência Coletiva e Controle Territorial)
 - **`pr_registrar_voto`**: Registra o apoio da comunidade ao chamado (relação N:M em `voto_chamado`), bloqueando autovoto (`v_autor = p_id_usuario`), duplicidade e impedindo votos em ocorrências já encerradas (`CONCLUIDO` ou `REJEITADO`).
@@ -105,7 +105,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 | Conceito / Entidade Relacional (Oracle) | Representação NoSQL (MongoDB) | Padrão Adotado | Justificativa Técnica da Transição |
 | :--- | :--- | :---: | :--- |
-| `chamado` + `usuario` + `endereco` + `bairro` + `cidade` | Documento raiz `chamados` com subdocumentos `cidadao` e `localizacao` | **Embedding** | Leituras atômicas: o aplicativo móvel do cidadão recupera todo o contexto do chamado em uma única operação $\mathcal{O}(1)$ sem realizar múltiplos joins. |
+| `chamado` + `usuario` + `endereco` + `bairro` + `cidade` + `prioridade` + `orgao_governo` | Documento raiz `chamados` com subdocumentos `cidadao`, `localizacao` e `triagem_ia` | **Embedding** | Leituras atômicas: o aplicativo móvel do cidadão recupera todo o contexto do chamado, prioridade e órgão responsável em uma única operação $\mathcal{O}(1)$ sem realizar múltiplos joins. |
 | `hist_chamado` (Linha do tempo) | Array embutido `historico: [ { data, status, observacao, responsavel } ]` | **Embedding** | O histórico de status é delimitado e raramente ultrapassa 10 eventos por chamado, tornando ideal a incorporação de acordo com o padrão *Document Versioning*. |
 | `voto_chamado` (Apoios populares) | Array embutido `votos: [ { id_usuario, nome, dt_voto } ]` | **Embedding** | Preserva a rastreabilidade de quem apoiou a ocorrência diretamente no documento principal. |
 | Total de votos computado | Campo desnormalizado `total_votos: NumberInt` | **Desnormalização Controlada** | No Oracle, a contagem exige `COUNT(v.id_voto)` com `GROUP BY`. No MongoDB, o total é armazenado diretamente para permitir índice ordenado (`{ total_votos: -1 }`) e ranking instantâneo. |
@@ -144,9 +144,9 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 | ID Chamado | Título | Bairro | Categoria | Status Atual | Votos (Apoios) |
 | :---: | :--- | :--- | :--- | :---: | :---: |
-| **1** | Poste com lâmpada apagada em via principal | Bela Vista | Iluminação Pública | `EM_EXECUCAO` | **2** |
-| **2** | Buraco profundo na faixa da direita da via | Pinheiros | Vias e Pavimentação | `EM_ANALISE` | **2** |
-| **4** | Descarte irregular de entulho e móveis velhos | Mooca | Limpeza Urbana | `ABERTO` | **2** |
+| **1** | Poste com lâmpada apagada em via principal | Bela Vista | `ILUMINACAO_PUBLICA` | `EM_EXECUCAO` | **2** |
+| **2** | Buraco profundo na faixa da direita da via | Pinheiros | `VIAS_E_PAVIMENTACAO` | `EM_ANALISE` | **2** |
+| **4** | Descarte irregular de entulho e móveis velhos | Mooca | `LIMPEZA_URBANA` | `PENDENTE` | **2** |
 | **5** | Galho de grande porte com risco de queda | Santana | Árvores e Parques | `EM_ANALISE` | **2** |
 | **7** | Vazamento contínuo de água limpa no meio-fio | Pinheiros | Drenagem e Esgoto | `EM_EXECUCAO` | **0** |
 
@@ -166,7 +166,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
         ocorrencias_abertas: {
           $sum: {
             $cond: [
-              { $in: ["$status_atual", ["ABERTO", "EM_ANALISE", "EM_EXECUCAO"]] },
+              { $in: ["$status_atual", ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO"]] },
               1,
               0
             ]
@@ -186,7 +186,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
   ```sql
   SELECT cat.nm_categoria AS categoria,
          COUNT(c.id_chamado) AS total_ocorrencias,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) IN ('ABERTO', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS ocorrencias_abertas,
+         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS ocorrencias_abertas,
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS ocorrencias_concluidas,
          COUNT(v.id_voto) AS total_votos_acumulados
     FROM categoria cat
@@ -202,8 +202,8 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | :--- | :---: | :---: | :---: | :---: |
 | **Limpeza Urbana** | 2 | 1 | 0 | 2 |
 | **Drenagem e Esgoto** | 2 | 1 | 1 | 0 |
-| **Iluminação Pública** | 1 | 1 | 0 | 2 |
-| **Vias e Pavimentação** | 1 | 1 | 0 | 2 |
+| **`ILUMINACAO_PUBLICA`** | 1 | 1 | 0 | 2 |
+| **`VIAS_E_PAVIMENTACAO`** | 1 | 1 | 0 | 2 |
 | **Árvores e Parques** | 1 | 1 | 0 | 2 |
 | **Sinalização e Trânsito** | 1 | 0 | 1 | 0 |
 
@@ -294,7 +294,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 1. **Passo 1 — Carga DDL e Sementes Relacionais:**
    - Execute o script [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql).
-   - Ele limpa o ambiente de forma idempotente, cria as 11 tabelas em 3FN + tabela de auditoria, cria as PKs, FKs, constraints e insere as sementes válidas com `COMMIT`.
+   - Ele limpa o ambiente de forma idempotente, cria as 13 tabelas em 3FN (`estado`, `cidade`, `bairro`, `endereco`, `usuario`, `telefone`, `categoria`, `status`, `prioridade`, `orgao_governo`, `chamado`, `hist_chamado`, `voto_chamado`) + tabela de auditoria (`auditoria_dml_chamado`), cria as PKs, FKs, constraints e insere as sementes válidas com `COMMIT`.
 2. **Passo 2 — Empacotamento PL/SQL, Triggers e Testes:**
    - Execute o script [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql).
    - Ele compila as packages `PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO`, as triggers `TRG_AUDIT_CHAMADO` e `TRG_VALIDA_VOTO_CHAMADO`, os 2 blocos anônimos e roda a bateria de testes de integração com `DBMS_OUTPUT` e `ROLLBACK` seguro.
@@ -355,9 +355,9 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
 --------------------------------------------------------------------
 >>> RELATÓRIO 1: Ocorrências Ativas com Maior Apoio Comunitário
 --------------------------------------------------------------------
-1. [ID 1] Poste com lâmpada apagada em via principal    | Bairro: Bela Vista   | Categoria: Iluminação Pública     | Status: EM_EXECUCAO  | Apoios: 2
-2. [ID 2] Buraco profundo na faixa da direita da via    | Bairro: Pinheiros    | Categoria: Vias e Pavimentação    | Status: EM_ANALISE   | Apoios: 2
-3. [ID 4] Descarte irregular de entulho e móveis velhos | Bairro: Mooca        | Categoria: Limpeza Urbana         | Status: ABERTO       | Apoios: 2
+1. [ID 1] Poste com lâmpada apagada em via principal    | Bairro: Bela Vista   | Categoria: ILUMINACAO_PUBLICA     | Status: EM_EXECUCAO  | Apoios: 2
+2. [ID 2] Buraco profundo na faixa da direita da via    | Bairro: Pinheiros    | Categoria: VIAS_E_PAVIMENTACAO    | Status: EM_ANALISE   | Apoios: 2
+3. [ID 4] Descarte irregular de entulho e móveis velhos | Bairro: Mooca        | Categoria: LIMPEZA_URBANA         | Status: PENDENTE     | Apoios: 2
 4. [ID 5] Galho de grande porte com risco de queda      | Bairro: Santana      | Categoria: Árvores e Parques      | Status: EM_ANALISE   | Apoios: 2
 5. [ID 7] Vazamento contínuo de água limpa no meio-fio  | Bairro: Pinheiros    | Categoria: Drenagem e Esgoto      | Status: EM_EXECUCAO  | Apoios: 0
 
@@ -366,8 +366,8 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
 --------------------------------------------------------------------
  - Categoria: Limpeza Urbana            | Total:  2 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
  - Categoria: Drenagem e Esgoto         | Total:  2 | Pendentes:  1 | Concluídas:  1 | Apoios Acumulados:  0
- - Categoria: Iluminação Pública        | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: Vias e Pavimentação       | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
+ - Categoria: ILUMINACAO_PUBLICA        | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
+ - Categoria: VIAS_E_PAVIMENTACAO       | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
  - Categoria: Árvores e Parques         | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
  - Categoria: Sinalização e Trânsito    | Total:  1 | Pendentes:  0 | Concluídas:  1 | Apoios Acumulados:  0
 

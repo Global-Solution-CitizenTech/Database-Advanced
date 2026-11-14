@@ -107,7 +107,7 @@ const relatorio2 = dbTarget.chamados.aggregate([
       ocorrencias_abertas: {
         $sum: {
           $cond: [
-            { $in: ["$status_atual", ["ABERTO", "EM_ANALISE", "EM_EXECUCAO"]] },
+            { $in: ["$status_atual", ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO"]] },
             1,
             0
           ]

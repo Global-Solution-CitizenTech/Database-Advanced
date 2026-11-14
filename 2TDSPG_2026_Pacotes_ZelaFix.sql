@@ -35,11 +35,17 @@ CREATE OR REPLACE PACKAGE pkg_chamado_gestao AS
     e_status_inexistente  EXCEPTION;
     PRAGMA EXCEPTION_INIT(e_status_inexistente, -20004);
 
-    e_usuario_nao_gestor  EXCEPTION;
+    e_usuario_nao_gestor     EXCEPTION;
     PRAGMA EXCEPTION_INIT(e_usuario_nao_gestor, -20005);
 
+    e_prioridade_inexistente EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_prioridade_inexistente, -20008);
+
+    e_orgao_inexistente      EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_orgao_inexistente, -20009);
+
     -- 1.1 Procedimento de Abertura Atômica de Chamado Urbano
-    -- Insere o chamado e grava atomicamente o 1º histórico com status 'ABERTO' (3FN)
+    -- Insere o chamado e grava atomicamente o 1º histórico com status 'PENDENTE' (3FN)
     PROCEDURE pr_abrir_chamado (
         p_titulo            IN  VARCHAR2,
         p_descricao         IN  VARCHAR2,
@@ -47,6 +53,8 @@ CREATE OR REPLACE PACKAGE pkg_chamado_gestao AS
         p_id_usuario        IN  NUMBER,
         p_id_endereco       IN  NUMBER,
         p_id_categoria      IN  NUMBER,
+        p_id_prioridade     IN  NUMBER,
+        p_id_orgao          IN  NUMBER,
         p_id_chamado_gerado OUT NUMBER
     );
 
@@ -86,6 +94,8 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         p_id_usuario        IN  NUMBER,
         p_id_endereco       IN  NUMBER,
         p_id_categoria      IN  NUMBER,
+        p_id_prioridade     IN  NUMBER,
+        p_id_orgao          IN  NUMBER,
         p_id_chamado_gerado OUT NUMBER
     ) IS
         v_chk          NUMBER;
@@ -109,18 +119,26 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         SELECT COUNT(*) INTO v_chk FROM categoria WHERE id_categoria = p_id_categoria;
         IF v_chk = 0 THEN RAISE e_parametro_invalido; END IF;
 
-        SELECT id_status INTO v_id_status_ab FROM status WHERE nm_status = 'ABERTO';
+        SELECT COUNT(*) INTO v_chk FROM prioridade WHERE id_prioridade = p_id_prioridade;
+        IF v_chk = 0 THEN RAISE e_prioridade_inexistente; END IF;
+
+        SELECT COUNT(*) INTO v_chk FROM orgao_governo WHERE id_orgao = p_id_orgao;
+        IF v_chk = 0 THEN RAISE e_orgao_inexistente; END IF;
+
+        SELECT id_status INTO v_id_status_ab FROM status WHERE nm_status = 'PENDENTE';
 
         -- Inserção do chamado com captura da PK gerada via RETURNING
         INSERT INTO chamado (
             titulo, descricao, foto, dt_abertura,
-            usuario_id_usuario, endereco_id_endereco, categoria_id_categoria
+            usuario_id_usuario, endereco_id_endereco, categoria_id_categoria,
+            prioridade_id_prioridade, orgao_governo_id_orgao
         ) VALUES (
             TRIM(p_titulo), TRIM(p_descricao), p_foto, SYSDATE,
-            p_id_usuario, p_id_endereco, p_id_categoria
+            p_id_usuario, p_id_endereco, p_id_categoria,
+            p_id_prioridade, p_id_orgao
         ) RETURNING id_chamado INTO v_novo_id;
 
-        -- Gravação atômica do estado inicial 'ABERTO' na linha do tempo (HIST_CHAMADO)
+        -- Gravação atômica do estado inicial 'PENDENTE' na linha do tempo (HIST_CHAMADO)
         INSERT INTO hist_chamado (
             dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status
         ) VALUES (
@@ -130,11 +148,15 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         p_id_chamado_gerado := v_novo_id;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            RAISE_APPLICATION_ERROR(-20004, 'Status inicial ABERTO não cadastrado na base.');
+            RAISE_APPLICATION_ERROR(-20004, 'Status inicial PENDENTE não cadastrado na base.');
         WHEN e_parametro_invalido THEN
             RAISE_APPLICATION_ERROR(-20001, 'Parâmetros inválidos ou FKs de endereço/categoria inexistentes.');
         WHEN e_usuario_inexistente THEN
             RAISE_APPLICATION_ERROR(-20003, 'Usuário com ID ' || p_id_usuario || ' não encontrado.');
+        WHEN e_prioridade_inexistente THEN
+            RAISE_APPLICATION_ERROR(-20008, 'Prioridade com ID ' || p_id_prioridade || ' não encontrada.');
+        WHEN e_orgao_inexistente THEN
+            RAISE_APPLICATION_ERROR(-20009, 'Órgão governamental com ID ' || p_id_orgao || ' não encontrado.');
         WHEN OTHERS THEN
             RAISE_APPLICATION_ERROR(-20006, 'Erro inesperado na abertura do chamado: ' || SQLERRM);
     END pr_abrir_chamado;
@@ -240,14 +262,18 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
                    u.id_usuario, u.nm_usuario, u.email,
                    e.id_endereco, e.rua, e.numero, e.cep,
                    b.nm_bairro, cid.nm_cidade, est.nm_estado,
-                   cat.id_categoria, cat.nm_categoria
+                   cat.id_categoria, cat.nm_categoria,
+                   p.id_prioridade, p.nm_prioridade,
+                   og.id_orgao, og.orgao_governo
               FROM chamado c
-              JOIN usuario u     ON u.id_usuario = c.usuario_id_usuario
-              JOIN endereco e    ON e.id_endereco = c.endereco_id_endereco
-              JOIN bairro b      ON b.id_bairro = e.bairro_id_bairro
-              JOIN cidade cid    ON cid.id_cidade = b.cidade_id_cidade
-              JOIN estado est    ON est.id_estado = cid.estado_id_estado
-              JOIN categoria cat ON cat.id_categoria = c.categoria_id_categoria
+              JOIN usuario u       ON u.id_usuario = c.usuario_id_usuario
+              JOIN endereco e      ON e.id_endereco = c.endereco_id_endereco
+              JOIN bairro b        ON b.id_bairro = e.bairro_id_bairro
+              JOIN cidade cid      ON cid.id_cidade = b.cidade_id_cidade
+              JOIN estado est      ON est.id_estado = cid.estado_id_estado
+              JOIN categoria cat   ON cat.id_categoria = c.categoria_id_categoria
+              JOIN prioridade p    ON p.id_prioridade = c.prioridade_id_prioridade
+              JOIN orgao_governo og ON og.id_orgao = c.orgao_governo_id_orgao
              WHERE c.id_chamado = p_id_chamado;
 
         v_ch c_chamado%ROWTYPE;
@@ -276,13 +302,15 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         v_status_atual := fn_obter_status_atual(p_id_chamado);
         DBMS_LOB.CREATETEMPORARY(v_json, TRUE);
 
-        -- Montagem manual dos objetos aninhados (categoria, cidadao, localizacao)
+        -- Montagem manual dos objetos aninhados (categoria, prioridade, orgaoGoverno, cidadao, localizacao)
         v_buffer := '{' || CHR(10) ||
                     '  "idChamado": ' || v_ch.id_chamado || ',' || CHR(10) ||
                     '  "titulo": "' || REPLACE(v_ch.titulo, '"', '\"') || '",' || CHR(10) ||
                     '  "descricao": "' || REPLACE(REPLACE(v_ch.descricao, CHR(10), '\n'), '"', '\"') || '",' || CHR(10) ||
                     '  "statusAtual": "' || v_status_atual || '",' || CHR(10) ||
                     '  "categoria": {"idCategoria": ' || v_ch.id_categoria || ', "nome": "' || REPLACE(v_ch.nm_categoria, '"', '\"') || '"},' || CHR(10) ||
+                    '  "prioridade": {"idPrioridade": ' || v_ch.id_prioridade || ', "nome": "' || REPLACE(v_ch.nm_prioridade, '"', '\"') || '"},' || CHR(10) ||
+                    '  "orgaoGoverno": {"idOrgao": ' || v_ch.id_orgao || ', "nome": "' || REPLACE(v_ch.orgao_governo, '"', '\"') || '"},' || CHR(10) ||
                     '  "cidadao": {"idUsuario": ' || v_ch.id_usuario || ', "nome": "' || REPLACE(v_ch.nm_usuario, '"', '\"') || '", "email": "' || v_ch.email || '"},' || CHR(10) ||
                     '  "localizacao": {' || CHR(10) ||
                     '    "rua": "' || REPLACE(v_ch.rua, '"', '\"') || '", "numero": "' || NVL(v_ch.numero, 'S/N') || '", "cep": "' || v_ch.cep || '",' || CHR(10) ||
@@ -631,6 +659,8 @@ BEGIN
         v_old_json := '{"id_chamado":' || :OLD.id_chamado ||
                       ',"titulo":"' || REPLACE(:OLD.titulo, '"', '\"') || '"' ||
                       ',"id_categoria":' || :OLD.categoria_id_categoria ||
+                      ',"id_prioridade":' || :OLD.prioridade_id_prioridade ||
+                      ',"id_orgao":' || :OLD.orgao_governo_id_orgao ||
                       ',"id_usuario":' || :OLD.usuario_id_usuario || '}';
     END IF;
 
@@ -638,6 +668,8 @@ BEGIN
         v_new_json := '{"id_chamado":' || :NEW.id_chamado ||
                       ',"titulo":"' || REPLACE(:NEW.titulo, '"', '\"') || '"' ||
                       ',"id_categoria":' || :NEW.categoria_id_categoria ||
+                      ',"id_prioridade":' || :NEW.prioridade_id_prioridade ||
+                      ',"id_orgao":' || :NEW.orgao_governo_id_orgao ||
                       ',"id_usuario":' || :NEW.usuario_id_usuario || '}';
     END IF;
 
@@ -822,6 +854,8 @@ BEGIN
             p_id_usuario        => 2,
             p_id_endereco       => 2,
             p_id_categoria      => 1,
+            p_id_prioridade     => 3,
+            p_id_orgao          => 1,
             p_id_chamado_gerado => v_id_novo
         );
         DBMS_OUTPUT.PUT_LINE('OK: Chamado aberto (ID ' || v_id_novo || ') | Status: ' ||
