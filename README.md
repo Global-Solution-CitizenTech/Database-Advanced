@@ -1,5 +1,5 @@
 # Database-Advanced — 🏙️ ZelaFix (CitizenTech)
-> Engenharia de Banco de Dados Relacional em 3FN Estrita, Empacotamento Avançado em Packages PL/SQL (`PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO`), Trilha de Auditoria DML, Persistência Poliglota com MongoDB Atlas e Governança Urbana — FIAP Global Solution 2026/2 — Turma 2TDSPG.
+> Banco de dados relacional em 3FN, Packages PL/SQL (`PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO`), trilha de auditoria DML e persistência poliglota com MongoDB Atlas — FIAP Global Solution 2026/2 — Turma 2TDSPG.
 
 ---
 
@@ -30,9 +30,9 @@
 
 ---
 
-## 📐 Modelagem Relacional Oracle (13 Tabelas em 3FN Estrita)
+## 📐 Modelagem Relacional Oracle (13 Tabelas em 3FN)
 
-O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Modeler 24.3** em rigorosa **3ª Forma Normal (3FN)**, estruturado para suportar toda a esteira de zeladoria urbana, histórico auditável de status e engajamento comunitário:
+O modelo de dados do **ZelaFix** foi modelado no **Oracle SQL Developer Data Modeler 24.3** em **3ª Forma Normal (3FN)** e cobre a abertura de chamados, o histórico de status e o engajamento comunitário:
 
 ### 1. Modelo Lógico
 ![Modelo Lógico do ZelaFix](./docs/logical.png)
@@ -40,69 +40,71 @@ O modelo de dados do **ZelaFix** foi concebido no **Oracle SQL Developer Data Mo
 ### 2. Modelo Relacional
 ![Modelo Relacional do ZelaFix](./docs/relational.png)
 
-### Decisões de Normalização, Otimização DBA & Integridade Cívica:
-1. **Desacoplamento do Status do Chamado (3FN Estrita + PRAGMA UDF + Otimização O(1)):** O status vigente não é duplicado na tabela `chamado`. A evolução completa vive na tabela `hist_chamado` (`dt_mudanca`, `observacoes`, `status_id_status`). O status atual é obtido pela função empacotada `pkg_chamado_gestao.fn_obter_status_atual(id_chamado)` que resolve em $\mathcal{O}(1)$ via `ORDER BY h.id_hist DESC FETCH FIRST 1 ROW ONLY`, aproveitando diretamente o índice composto `idx_hist_chamado_ativo`. A função é compilada com `PRAGMA UDF`, eliminando a penalidade de troca de contexto SQL/PLSQL.
-2. **Índice Composto de Cobertura (`idx_hist_chamado_ativo`):** Criado sobre `(chamado_id_chamado, id_hist DESC, status_id_status)`, permitindo que o Oracle resolva o status atual diretamente no índice em $\mathcal{O}(1)$ (*Index Range Scan*) sem visitar os blocos de dados da tabela nem executar subconsultas aninhadas com MAX.
-3. **Desduplicação de Índices e Eficiência de I/O:** O índice para `voto_chamado(chamado_id_chamado)` é suprido pela *leading column* da constraint `UNIQUE voto_chamado_un (chamado_id_chamado, usuario_id_usuario)`, eliminando índices redundantes e reduzindo a sobrecarga de I/O em operações de inserção concorrentes.
+### Decisões de Modelagem, Indexação e Integridade:
+1. **Status do chamado derivado do histórico (3FN + `PRAGMA UDF`):** O status vigente não é duplicado na tabela `chamado`. A evolução completa vive na tabela `hist_chamado` (`dt_mudanca`, `observacoes`, `status_id_status`). O status atual é obtido pela função empacotada `pkg_chamado_gestao.fn_obter_status_atual(id_chamado)` que lê o registro mais recente com `ORDER BY h.id_hist DESC FETCH FIRST 1 ROW ONLY`, usando o índice composto `idx_hist_chamado_ativo`. A função usa `PRAGMA UDF` para reduzir o custo de troca de contexto entre SQL e PL/SQL quando é chamada dentro de consultas.
+2. **Índice composto (`idx_hist_chamado_ativo`):** Criado sobre `(chamado_id_chamado, id_hist DESC, status_id_status)`. Como o índice já inclui `status_id_status`, o Oracle localiza o último status de um chamado por *Index Range Scan*, sem subconsulta com `MAX`.
+3. **Sem índice redundante em `voto_chamado`:** as consultas por `chamado_id_chamado` usam a *leading column* da constraint `UNIQUE voto_chamado_un (chamado_id_chamado, usuario_id_usuario)`, então não foi criado um índice separado para essa coluna.
 4. **Separação de Autoria vs. Apoio Comunitário (N:M):**
    - **Autoria (1:N):** `chamado.usuario_id_usuario` referencia exclusivamente o munícipe que abriu o chamado com foto.
-   - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir autovoto e voto duplicado.
+   - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir voto duplicado. O autovoto é bloqueado por `pr_registrar_voto` e, em `INSERT` direto, pela trigger `trg_valida_voto_chamado`.
 5. **Evidência Fotográfica Binária Nativa (`BLOB`):** A coluna `foto` na tabela `chamado` armazena diretamente os bytes das imagens no Oracle, eliminando riscos de URLs externas quebradas (404) durante a apresentação presencial da banca.
-6. **Padronização Estrita de ENUMs (Oracle + MongoDB + Java Spring Boot):** As `CHECK` constraints relacionais e os `$jsonSchema` do MongoDB seguem integralmente os cinco `enums` da API Java:
+6. **Mesmos valores de ENUM no Oracle, no MongoDB e no Java (Spring Boot):** As `CHECK` constraints do Oracle e os `$jsonSchema` do MongoDB usam os mesmos valores dos cinco `enums` da API Java. Cada camada mantém sua própria cópia da lista, então um valor novo precisa ser incluído nas três:
    - `usuario.cargo`: `CIDADAO`, `GESTOR`, `ADMIN`
    - `categoria.nm_categoria`: `ILUMINACAO_PUBLICA`, `VIAS_E_PAVIMENTACAO`, `DRENAGEM_E_ESGOTO`, `LIMPEZA_URBANA`, `ARVORES_E_PARQUES`, `SINALIZACAO_E_TRANSITO`
    - `status.nm_status`: `PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`, `CONCLUIDO`, `REJEITADO`
    - `prioridade.nm_prioridade`: `BAIXA`, `MEDIA`, `ALTA`, `URGENTE`
    - `orgao_governo.orgao_governo`: `SECRETARIA_OBRAS`, `CET_TRANSITO`, `ILUMINACAO_PUBLICA`, `DEFESA_CIVIL`, `SUBPREFEITURA`, `SANEAMENTO_BASICO`
 
+A criticidade do bairro (`CRITICO`, `ALERTA`, `NORMAL`) não é um enum Java: existe só na função Oracle `fn_classificar_criticidade_bairro` e no MongoDB (`bairros_monitoramento`).
+
 ---
 
 ## 📦 Arquitetura PL/SQL Avançada (Packages, Funções, Procedures e Auditoria)
 
-O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) foi desenvolvido para atender às exigências mais rigorosas da disciplina, eliminando quaisquer atalhos ou funções mágicas:
+O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql) reúne os packages, as triggers, os blocos anônimos e a bateria de testes exigidos pela disciplina:
 
 ### 1. Pacote 1: `PKG_CHAMADO_GESTAO` (Ciclo de Vida do Chamado e Serialização Manual)
 - **`pr_abrir_chamado`**: Abertura transacional atômica com validações de tamanho mínimo, foto BLOB obrigatória, integridade referencial de chaves estrangeiras (`usuario`, `endereco`, `categoria`, `prioridade`, `orgao_governo`), localização do status `PENDENTE` e gravação simultânea na tabela `chamado` e na linha do tempo `hist_chamado` (3FN estrita) via `RETURNING id_chamado INTO v_novo_id`.
-- **`pr_atualizar_status_chamado`**: Validação rigorosa de existência de chamado, status e usuário fiscal, garantindo acesso exclusivo para usuários com privilégio administrativo (`cargo IN ('GESTOR', 'ADMIN')`), inserindo nova etapa com observações no histórico auditável.
-- **`fn_obter_status_atual`**: Função de alta performance (`PRAGMA UDF`) que resolve o status vigente em $\mathcal{O}(1)$ via ordenação decrescente por `id_hist` aproveitando diretamente o índice de cobertura `idx_hist_chamado_ativo`.
-- **`fn_converter_chamado_json` (Conversão 100% Manual)**:
-  - **Zero uso de funções nativas do Oracle**: Constrói o documento JSON manualmente em `CLOB` via `DBMS_LOB.CREATETEMPORARY` e `DBMS_LOB.WRITEAPPEND`.
-  - Serializa o chamado com objetos aninhados (`categoria`, `prioridade`, `orgaoGoverno`, `cidadao`, `localizacao`), tratamento de caracteres de escape e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
+- **`pr_atualizar_status_chamado`**: Valida a existência de chamado, status e usuário fiscal e restringe a alteração a usuários com `cargo IN ('GESTOR', 'ADMIN')`, inserindo uma nova etapa com observações em `hist_chamado`.
+- **`fn_obter_status_atual`**: Função (`PRAGMA UDF`) que devolve o status vigente lendo o registro de maior `id_hist` do chamado, com apoio do índice `idx_hist_chamado_ativo`.
+- **`fn_converter_chamado_json` (conversão manual)**:
+  - **Sem funções SQL/JSON nativas** (`JSON_OBJECT`, `JSON_ARRAYAGG`): monta o documento JSON em `CLOB` com `DBMS_LOB.CREATETEMPORARY` e `DBMS_LOB.WRITEAPPEND`.
+  - Serializa o chamado com objetos aninhados (`categoria`, `prioridade`, `orgaoGoverno`, `cidadao`, `localizacao`), escape de caracteres especiais pela função auxiliar `fn_escapar_json` (barra invertida, aspas, quebras de linha e tabulação) e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
 
 ### 2. Pacote 2: `PKG_ENGAJAMENTO_CIDADAO` (Inteligência Coletiva e Controle Territorial)
-- **`pr_registrar_voto`**: Registra o apoio da comunidade ao chamado (relação N:M em `voto_chamado`), bloqueando autovoto (`v_autor = p_id_usuario`), duplicidade e impedindo votos em ocorrências já encerradas (`CONCLUIDO` ou `REJEITADO`).
-- **`fn_calcular_total_votos`**: Função `PRAGMA UDF` otimizada sobre a *leading column* do índice único para contagem instantânea de apoios populares.
-- **`fn_classificar_criticidade_bairro`**: Algoritmo heurístico que avalia o volume de chamados pendentes vs. resolvidos e votos acumulados no território, classificando em `'CRITICO'`, `'ALERTA'` ou `'NORMAL'`.
+- **`pr_registrar_voto`**: Registra o apoio da comunidade ao chamado (relação N:M em `voto_chamado`), bloqueando autovoto (`v_autor_chamado = p_id_usuario`), duplicidade e impedindo votos em ocorrências já encerradas (`CONCLUIDO` ou `REJEITADO`).
+- **`fn_calcular_total_votos`**: Função `PRAGMA UDF` que conta os apoios de um chamado, usando a *leading column* do índice único de `voto_chamado`.
+- **`fn_classificar_criticidade_bairro`**: Classifica o bairro pelos chamados pendentes (`PENDENTE`, `EM_ANALISE`, `EM_EXECUCAO`) e pelos apoios acumulados: `'CRITICO'` com 3 ou mais pendentes ou 5 ou mais apoios; `'ALERTA'` com 1 ou mais pendentes ou 2 ou mais apoios; `'NORMAL'` nos demais casos.
 - **`pr_relatorio_subtotal_bairros` (Subtotais e Totais Gerais Feitos à Mão)**:
   - Implementa **quebra de grupo clássica (Control Break)** através de cursor explícito ordenado por `(b.nm_bairro, ch.id_chamado)`.
-  - **Acumuladores Manuais em Variáveis PL/SQL**: Calcula à mão `v_sub_chamados`, `v_sub_pendentes`, `v_sub_concluidos` e `v_sub_votos` a cada transição de bairro.
+  - **Acumuladores Manuais em Variáveis PL/SQL**: Calcula à mão `v_sub_chamados`, `v_sub_pendentes`, `v_sub_concluidos`, `v_sub_rejeitados` e `v_sub_votos` a cada transição de bairro. Chamados `REJEITADO` são contados à parte e não entram nos pendentes.
   - Ao final do loop, emite o subtotal do último grupo e imprime o **TOTAL GERAL MUNICIPAL** com contagens consolidadas e cálculo manual da **Taxa Geral de Resolução (%)**.
-  - **Zero uso de `ROLLUP` ou funções mágicas**: Demonstração completa de lógica algorítmica de acumuladores em PL/SQL.
+  - **Sem `ROLLUP`**: os subtotais e o total geral vêm de acumuladores em variáveis PL/SQL.
 
-### 3. Tratamento Específico de Exceções (Zero `WHEN OTHERS` Isolado)
-Todas as rotinas implementam blocos `EXCEPTION` robustos com tratamento explícito para:
+### 3. Tratamento de Exceções
+As rotinas tratam exceções específicas antes do `WHEN OTHERS`, entre elas:
 - `WHEN NO_DATA_FOUND THEN`: Captura registros inexistentes e retorna mensagens claras via `RAISE_APPLICATION_ERROR`.
 - `WHEN DUP_VAL_ON_INDEX THEN`: Intercepta violações de unicidade (como repetição de voto comunitário).
 - `WHEN VALUE_ERROR THEN`: Trata erros de conversão de tipos de dados ou estouros de buffers.
 - `WHEN ZERO_DIVIDE THEN`: Protege cálculos de taxas percentuais quando o divisor for zero.
-- **Exceções Customizadas de Negócio**: Declaradas no pacote e associadas a códigos de erro específicos via `PRAGMA EXCEPTION_INIT` (`-20001` a `-20025`), tais como `e_chamado_fechado`, `e_autovoto_proibido`, `e_usuario_nao_gestor`.
+- **Exceções Customizadas de Negócio**: Declaradas no pacote e associadas a códigos de erro específicos via `PRAGMA EXCEPTION_INIT` (faixa `-20001` a `-20023`), tais como `e_chamado_fechado`, `e_autovoto_proibido`, `e_usuario_nao_gestor`.
 - `WHEN OTHERS THEN`: Utilizado exclusivamente como salvaguarda no final dos blocos após todas as exceções específicas terem sido tratadas.
 
 ### 4. Trilha de Auditoria DML e Regras de Negócio em Triggers
-- **`TRG_AUDIT_CHAMADO`**: Trigger disparada após qualquer `INSERT`, `UPDATE` ou `DELETE` na tabela `CHAMADO`, gravando o usuário conectado (`USER`), carimbo de data/hora (`SYSTIMESTAMP`), operação executada e os snapshots dos dados anteriores (`:OLD`) e novos (`:NEW`) serializados manualmente em JSON na tabela `AUDITORIA_DML_CHAMADO`.
+- **`TRG_AUDIT_CHAMADO`**: Trigger disparada após qualquer `INSERT`, `UPDATE` ou `DELETE` na tabela `CHAMADO`, gravando o usuário conectado (`USER`), carimbo de data/hora (`SYSTIMESTAMP`), operação executada e os snapshots dos dados anteriores (`:OLD`) e novos (`:NEW`) serializados manualmente em JSON na tabela `AUDITORIA_DML_CHAMADO`. Os snapshots trazem os campos principais do chamado (id, título, categoria, prioridade, órgão e usuário). Se a gravação da auditoria falhar, a trigger levanta erro (`-20022` ou `-20023`) e o DML original é desfeito.
 - **`TRG_VALIDA_VOTO_CHAMADO`**: Trigger de validação cívica antes do `INSERT` em `VOTO_CHAMADO`, garantindo no nível do SGBD o bloqueio de autovoto e de votos em chamados já finalizados.
 
 ### 5. Dois Blocos Anônimos PL/SQL
 - **Bloco Anônimo 1 (Diagnóstico Territorial)**: Processamento em lote com cursor explícito, loop de repetição, estruturas de decisão `IF/ELSIF/ELSE`, invocação de funções empacotadas e cálculo da taxa percentual de resolução urbana.
-- **Bloco Anônimo 2 (Painel de Auditoria de SLA)**: Auditoria operacional de ocorrências abertas há mais de 3 dias sem conclusão, avaliando apoio popular e identificando gargalos da zeladoria.
+- **Bloco Anônimo 2 (Painel de Auditoria de SLA)**: Auditoria operacional de ocorrências abertas há 3 dias ou mais sem conclusão, avaliando apoio popular e identificando gargalos da zeladoria.
 
 ### 6. Bateria de Testes de Integração (Parte 5)
-1. **Teste do Pacote 1**: Abertura atômica de chamado com foto BLOB, transição de status por gestor e geração manual de JSON com histórico em CLOB.
-2. **Teste do Pacote 2**: Registro de apoio comunitário, totalização de votos e teste provocando a exceção específica de autovoto (`e_autovoto_proibido`).
-3. **Teste de Subtotais**: Emissão do relatório territorial com quebra de grupo, subtotais e total geral feitos à mão (`pr_relatorio_subtotal_bairros`).
-4. **Teste de Auditoria DML**: Verificação dos registros gerados pela trigger `TRG_AUDIT_CHAMADO` na tabela `AUDITORIA_DML_CHAMADO`.
-- Finalizado com comando `ROLLBACK;` para preservação da integridade das sementes de teste.
-
+1. **Teste 1 (Pacote 1):** Abertura atômica de chamado com foto BLOB, transição de status por gestor (`PENDENTE` $\rightarrow$ `EM_ANALISE`) e geração manual de JSON com histórico em CLOB.
+2. **Teste 2 (Pacote 2 e Trigger):** Registro de apoio comunitário, totalização de votos e quatro bloqueios: voto duplicado (`e_voto_duplicado`), autovoto pela procedure (`e_autovoto_proibido`), autovoto por `INSERT` direto (barrado pela trigger `trg_valida_voto_chamado`) e voto em chamado `CONCLUIDO` (`e_chamado_fechado`). Se um bloqueio não ocorrer, o teste imprime `FALHA`.
+3. **Teste 3 (Subtotais):** Emissão do relatório territorial com quebra de grupo, subtotais e total geral feitos à mão (`pr_relatorio_subtotal_bairros`).
+4. **Teste 4 (Auditoria DML):** Verificação dos registros gerados pela trigger `TRG_AUDIT_CHAMADO` na tabela `AUDITORIA_DML_CHAMADO`.
+5. **Teste 5 (Escape JSON):** Validação da função `fn_escapar_json` com aspas, barra invertida, quebra de linha, tabulação e caracteres de controle (`\u00XX`).
+- Finalizado com comando `ROLLBACK;` para preservação das sementes de teste.
 ---
 
 ## 🔄 Matriz de Mapeamento: Do Relacional ao MongoDB
@@ -111,7 +113,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 | Conceito / Entidade Relacional (Oracle) | Representação NoSQL (MongoDB) | Padrão Adotado | Justificativa Técnica da Transição |
 | :--- | :--- | :---: | :--- |
-| `chamado` + `usuario` + `endereco` + `bairro` + `cidade` + `prioridade` + `orgao_governo` | Documento raiz `chamados` com subdocumentos `cidadao`, `localizacao` e `triagem_ia` | **Embedding** | Leituras atômicas: o aplicativo móvel do cidadão recupera todo o contexto do chamado, prioridade e órgão responsável em uma única operação $\mathcal{O}(1)$ sem realizar múltiplos joins. |
+| `chamado` + `usuario` + `endereco` + `bairro` + `cidade` + `prioridade` + `orgao_governo` | Documento raiz `chamados` com subdocumentos `cidadao`, `localizacao` e `triagem_ia` | **Embedding** | Leituras atômicas: o aplicativo móvel do cidadão recupera todo o contexto do chamado, prioridade e órgão responsável em uma única leitura, sem joins. |
 | `hist_chamado` (Linha do tempo) | Array embutido `historico: [ { data, status, observacao, responsavel } ]` | **Embedding** | O histórico de status é delimitado e raramente ultrapassa 10 eventos por chamado, tornando ideal a incorporação de acordo com o padrão *Document Versioning*. |
 | `voto_chamado` (Apoios populares) | Array embutido `votos: [ { id_usuario, nome, dt_voto } ]` | **Embedding** | Preserva a rastreabilidade de quem apoiou a ocorrência diretamente no documento principal. |
 | Total de votos computado | Campo desnormalizado `total_votos: NumberInt` | **Desnormalização Controlada** | No Oracle, a contagem exige `COUNT(v.id_voto)` com `GROUP BY`. No MongoDB, o total é armazenado diretamente para permitir índice ordenado (`{ total_votos: -1 }`) e ranking instantâneo. |
@@ -185,7 +187,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
         }
       }
     },
-    { $sort: { total_ocorrencias: -1, total_votos_acumulados: -1 } }
+    { $sort: { total_ocorrencias: -1, total_votos_acumulados: -1, _id: 1 } }
   ]);
   ```
 * **Oracle SQL:**
@@ -194,13 +196,16 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
          COUNT(c.id_chamado) AS total_ocorrencias,
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS ocorrencias_abertas,
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS ocorrencias_concluidas,
-         COUNT(v.id_voto) AS total_votos_acumulados
+         NVL(SUM(v.qtd_votos), 0) AS total_votos_acumulados
     FROM categoria cat
     LEFT JOIN chamado c ON c.categoria_id_categoria = cat.id_categoria
-    LEFT JOIN voto_chamado v ON v.chamado_id_chamado = c.id_chamado
+    LEFT JOIN (SELECT chamado_id_chamado, COUNT(*) AS qtd_votos
+                 FROM voto_chamado
+                GROUP BY chamado_id_chamado) v ON v.chamado_id_chamado = c.id_chamado
    GROUP BY cat.nm_categoria
-   ORDER BY total_ocorrencias DESC, total_votos_acumulados DESC;
+   ORDER BY total_ocorrencias DESC, total_votos_acumulados DESC, cat.nm_categoria ASC;
   ```
+  > Os apoios são somados por chamado numa subconsulta. Um `LEFT JOIN` direto com `voto_chamado` repetiria cada chamado uma vez por apoio e inflaria `COUNT` e `SUM`. O mesmo vale para o Relatório 3.
 
 * **Resultado Comparativo Obtido:**
 
@@ -208,9 +213,9 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | :--- | :---: | :---: | :---: | :---: |
 | **`LIMPEZA_URBANA`** | 2 | 1 | 0 | 2 |
 | **`DRENAGEM_E_ESGOTO`** | 2 | 1 | 1 | 0 |
+| **`ARVORES_E_PARQUES`** | 1 | 1 | 0 | 2 |
 | **`ILUMINACAO_PUBLICA`** | 1 | 1 | 0 | 2 |
 | **`VIAS_E_PAVIMENTACAO`** | 1 | 1 | 0 | 2 |
-| **`ARVORES_E_PARQUES`** | 1 | 1 | 0 | 2 |
 | **`SINALIZACAO_E_TRANSITO`** | 1 | 0 | 1 | 0 |
 
 ---
@@ -272,12 +277,14 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS chamados_pendentes,
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS chamados_resolvidos,
          ROUND((NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) / COUNT(ch.id_chamado)) * 100, 1) AS taxa_pendencia_pct,
-         COUNT(v.id_voto) AS votos_totais
+         NVL(SUM(v.qtd_votos), 0) AS votos_totais
     FROM bairro b
     JOIN cidade c ON c.id_cidade = b.cidade_id_cidade
     JOIN endereco e ON e.bairro_id_bairro = b.id_bairro
     JOIN chamado ch ON ch.endereco_id_endereco = e.id_endereco
-    LEFT JOIN voto_chamado v ON v.chamado_id_chamado = ch.id_chamado
+    LEFT JOIN (SELECT chamado_id_chamado, COUNT(*) AS qtd_votos
+                 FROM voto_chamado
+                GROUP BY chamado_id_chamado) v ON v.chamado_id_chamado = ch.id_chamado
    GROUP BY b.nm_bairro, c.nm_cidade
    ORDER BY chamados_pendentes DESC, votos_totais DESC, b.nm_bairro ASC;
   ```
@@ -350,7 +357,7 @@ mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" co
 
 ## 🧪 Evidências de Validação e Integridade
 
-Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js), as saídas no console comprovam a equivalência matemática absoluta com os dados relacionais do Oracle:
+Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js), as saídas no console correspondem aos resultados das consultas Oracle equivalentes:
 
 ```text
 ====================================================================
@@ -375,9 +382,9 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
 +----------------------------+---------+------------+-------------+----------------+
 | LIMPEZA_URBANA             |       2 |          1 |           0 |              2 |
 | DRENAGEM_E_ESGOTO          |       2 |          1 |           1 |              0 |
+| ARVORES_E_PARQUES          |       1 |          1 |           0 |              2 |
 | ILUMINACAO_PUBLICA         |       1 |          1 |           0 |              2 |
 | VIAS_E_PAVIMENTACAO        |       1 |          1 |           0 |              2 |
-| ARVORES_E_PARQUES          |       1 |          1 |           0 |              2 |
 | SINALIZACAO_E_TRANSITO     |       1 |          0 |           1 |              0 |
 +----------------------------+---------+------------+-------------+----------------+
 
@@ -396,3 +403,13 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
   EXECUÇÃO CONCLUÍDA COM SUCESSO! DADOS EM HARMONIA COM O ORACLE.
 ====================================================================
 ```
+
+---
+
+## 🤖 Declaração de Uso de Inteligência Artificial Generativa
+
+Em cumprimento às diretrizes da Global Solution FIAP:
+
+* **Ferramentas Utilizadas:** **Gemini 3.8 Flash**, **Gemini 4 Hydrogen** e **Claude Sonnet 5.5**.
+* **Finalidade de Uso:** Apoio na revisão de sintaxe PL/SQL e MongoDB, validação de casos de borda na suíte de testes, conferência de equivalência entre os relatórios Oracle e MongoDB e revisão textual da documentação.
+* **Revisão Humana:** Toda a modelagem relacional em 3FN, regras de negócio, pacotes PL/SQL, triggers, schemas JSON e pipelines de agregação foram projetados, executados e validados pelos integrantes do grupo.

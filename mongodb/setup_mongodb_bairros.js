@@ -97,7 +97,7 @@ dbTarget.createCollection("bairros_monitoramento", {
         },
         criticidade: {
           bsonType: "string",
-          enum: ["CRITICO", "ALERTA", "ESTAVEL"],
+          enum: ["CRITICO", "ALERTA", "NORMAL"],
           description: "Classificação analítica do risco territorial de desassistência urbana."
         },
         indicadores_principais: {

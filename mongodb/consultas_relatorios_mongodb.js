@@ -127,7 +127,8 @@ const relatorio2 = dbTarget.chamados.aggregate([
   {
     $sort: {
       total_ocorrencias: -1,
-      total_votos_acumulados: -1
+      total_votos_acumulados: -1,
+      _id: 1
     }
   }
 ]).toArray();

@@ -44,6 +44,12 @@ CREATE OR REPLACE PACKAGE pkg_chamado_gestao AS
     e_orgao_inexistente      EXCEPTION;
     PRAGMA EXCEPTION_INIT(e_orgao_inexistente, -20009);
 
+    e_transicao_invalida     EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_transicao_invalida, -20017);
+
+    e_historico_invalido     EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_historico_invalido, -20018);
+
     -- 1.1 Procedimento de Abertura Atômica de Chamado Urbano
     -- Insere o chamado e grava atomicamente o 1º histórico com status 'PENDENTE' (3FN)
     PROCEDURE pr_abrir_chamado (
@@ -66,16 +72,21 @@ CREATE OR REPLACE PACKAGE pkg_chamado_gestao AS
         p_observacoes       IN VARCHAR2
     );
 
-    -- 1.3 Função que obtém o nome do status atual vigente do chamado (3FN via MAX de HIST_CHAMADO)
+    -- 1.3 Função que obtém o nome do status atual vigente do chamado (último registro de HIST_CHAMADO por id_hist)
     FUNCTION fn_obter_status_atual (
         p_id_chamado IN NUMBER
     ) RETURN VARCHAR2;
 
-    -- 1.4 Função de Conversão MANUAL de Chamado para JSON (SEM FUNÇÕES NATIVAS)
+    -- 1.4 Função de Conversão MANUAL de Chamado para JSON (sem funções SQL/JSON nativas)
     -- Monta a estrutura JSON completa do chamado e histórico via concatenação em CLOB
     FUNCTION fn_converter_chamado_json (
         p_id_chamado IN NUMBER
     ) RETURN CLOB;
+
+    -- 1.5 Função auxiliar de escape para strings JSON (barra invertida, aspas e todos os caracteres de controle U+0000..U+001F)
+    FUNCTION fn_escapar_json (
+        p_texto IN VARCHAR2
+    ) RETURN VARCHAR2;
 
 END pkg_chamado_gestao;
 /
@@ -102,14 +113,23 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         v_id_status_ab status.id_status%TYPE;
         v_novo_id      chamado.id_chamado%TYPE;
     BEGIN
-        -- Validação de tamanho mínimo e presença de foto BLOB
-        IF p_titulo IS NULL OR LENGTH(TRIM(p_titulo)) < 5
-           OR p_descricao IS NULL OR LENGTH(TRIM(p_descricao)) < 10
-           OR p_foto IS NULL OR DBMS_LOB.GETLENGTH(p_foto) = 0 THEN
+        -- SAVEPOINT garante que CHAMADO e HIST_CHAMADO sejam gravados juntos.
+        -- A procedure não executa COMMIT: o controle final da transação pertence ao chamador.
+        SAVEPOINT sp_abrir_chamado;
+        p_id_chamado_gerado := NULL;
+
+        IF p_titulo IS NULL OR LENGTH(TRIM(p_titulo)) < 5 OR LENGTH(TRIM(p_titulo)) > 100
+           OR p_descricao IS NULL OR LENGTH(TRIM(p_descricao)) < 10 OR LENGTH(TRIM(p_descricao)) > 1000
+           OR p_foto IS NULL OR DBMS_LOB.GETLENGTH(p_foto) = 0
+           OR p_id_usuario IS NULL OR p_id_usuario <= 0
+           OR p_id_endereco IS NULL OR p_id_endereco <= 0
+           OR p_id_categoria IS NULL OR p_id_categoria <= 0
+           OR p_id_prioridade IS NULL OR p_id_prioridade <= 0
+           OR p_id_orgao IS NULL OR p_id_orgao <= 0 THEN
             RAISE e_parametro_invalido;
         END IF;
 
-        -- Validação de integridade das Chaves Estrangeiras (FKs)
+        -- Validação explícita das FKs antes de iniciar as inserções.
         SELECT COUNT(*) INTO v_chk FROM usuario WHERE id_usuario = p_id_usuario;
         IF v_chk = 0 THEN RAISE e_usuario_inexistente; END IF;
 
@@ -127,7 +147,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
 
         SELECT id_status INTO v_id_status_ab FROM status WHERE nm_status = 'PENDENTE';
 
-        -- Inserção do chamado com captura da PK gerada via RETURNING
         INSERT INTO chamado (
             titulo, descricao, foto, dt_abertura,
             usuario_id_usuario, endereco_id_endereco, categoria_id_categoria,
@@ -138,7 +157,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
             p_id_prioridade, p_id_orgao
         ) RETURNING id_chamado INTO v_novo_id;
 
-        -- Gravação atômica do estado inicial 'PENDENTE' na linha do tempo (HIST_CHAMADO)
         INSERT INTO hist_chamado (
             dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status
         ) VALUES (
@@ -148,16 +166,22 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         p_id_chamado_gerado := v_novo_id;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
+            ROLLBACK TO sp_abrir_chamado;
             RAISE_APPLICATION_ERROR(-20004, 'Status inicial PENDENTE não cadastrado na base.');
         WHEN e_parametro_invalido THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros inválidos ou FKs de endereço/categoria inexistentes.');
+            ROLLBACK TO sp_abrir_chamado;
+            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros inválidos, fora do limite ou FKs de endereço/categoria inexistentes.');
         WHEN e_usuario_inexistente THEN
+            ROLLBACK TO sp_abrir_chamado;
             RAISE_APPLICATION_ERROR(-20003, 'Usuário com ID ' || p_id_usuario || ' não encontrado.');
         WHEN e_prioridade_inexistente THEN
+            ROLLBACK TO sp_abrir_chamado;
             RAISE_APPLICATION_ERROR(-20008, 'Prioridade com ID ' || p_id_prioridade || ' não encontrada.');
         WHEN e_orgao_inexistente THEN
+            ROLLBACK TO sp_abrir_chamado;
             RAISE_APPLICATION_ERROR(-20009, 'Órgão governamental com ID ' || p_id_orgao || ' não encontrado.');
         WHEN OTHERS THEN
+            ROLLBACK TO sp_abrir_chamado;
             RAISE_APPLICATION_ERROR(-20006, 'Erro inesperado na abertura do chamado: ' || SQLERRM);
     END pr_abrir_chamado;
 
@@ -169,16 +193,24 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         p_id_usuario_fiscal IN NUMBER,
         p_observacoes       IN VARCHAR2
     ) IS
-        v_chk           NUMBER;
+        v_id_chamado    chamado.id_chamado%TYPE;
         v_cargo_usuario usuario.cargo%TYPE;
         v_nome_status   status.nm_status%TYPE;
+        v_status_atual  VARCHAR2(20);
     BEGIN
-        IF p_id_chamado IS NULL OR p_id_status IS NULL OR p_id_usuario_fiscal IS NULL THEN
+        IF p_id_chamado IS NULL OR p_id_chamado <= 0
+           OR p_id_status IS NULL OR p_id_status <= 0
+           OR p_id_usuario_fiscal IS NULL OR p_id_usuario_fiscal <= 0
+           OR LENGTH(TRIM(p_observacoes)) > 255 THEN
             RAISE e_parametro_invalido;
         END IF;
 
-        SELECT COUNT(*) INTO v_chk FROM chamado WHERE id_chamado = p_id_chamado;
-        IF v_chk = 0 THEN RAISE e_chamado_inexistente; END IF;
+        -- Bloqueia a linha do chamado durante a transição para serializar atualizações concorrentes.
+        BEGIN
+            SELECT id_chamado INTO v_id_chamado FROM chamado WHERE id_chamado = p_id_chamado FOR UPDATE;
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN RAISE e_chamado_inexistente;
+        END;
 
         BEGIN
             SELECT nm_status INTO v_nome_status FROM status WHERE id_status = p_id_status;
@@ -186,7 +218,6 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
             WHEN NO_DATA_FOUND THEN RAISE e_status_inexistente;
         END;
 
-        -- Valida existência do fiscal e garante privilégio exclusivo de GESTOR
         BEGIN
             SELECT cargo INTO v_cargo_usuario FROM usuario WHERE id_usuario = p_id_usuario_fiscal;
         EXCEPTION
@@ -197,6 +228,17 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
             RAISE e_usuario_nao_gestor;
         END IF;
 
+        v_status_atual := fn_obter_status_atual(p_id_chamado);
+
+        IF v_status_atual NOT IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO', 'CONCLUIDO', 'REJEITADO') THEN
+            RAISE e_historico_invalido;
+        END IF;
+
+        -- Estados finais são terminais; também evita registrar o mesmo status repetidamente.
+        IF v_status_atual IN ('CONCLUIDO', 'REJEITADO') OR v_status_atual = v_nome_status THEN
+            RAISE e_transicao_invalida;
+        END IF;
+
         INSERT INTO hist_chamado (
             dt_mudanca, observacoes, chamado_id_chamado, usuario_id_usuario, status_id_status
         ) VALUES (
@@ -205,7 +247,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         );
     EXCEPTION
         WHEN e_parametro_invalido THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros obrigatórios nulos na transição de status.');
+            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros obrigatórios inválidos ou observação acima de 255 caracteres.');
         WHEN e_chamado_inexistente THEN
             RAISE_APPLICATION_ERROR(-20002, 'Chamado ID ' || p_id_chamado || ' não encontrado.');
         WHEN e_status_inexistente THEN
@@ -213,7 +255,11 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         WHEN e_usuario_inexistente THEN
             RAISE_APPLICATION_ERROR(-20003, 'Fiscal ID ' || p_id_usuario_fiscal || ' não encontrado.');
         WHEN e_usuario_nao_gestor THEN
-            RAISE_APPLICATION_ERROR(-20005, 'Acesso negado: Somente GESTORES podem alterar status de chamados.');
+            RAISE_APPLICATION_ERROR(-20005, 'Acesso negado: somente GESTORES ou ADMINISTRADORES podem alterar status.');
+        WHEN e_transicao_invalida THEN
+            RAISE_APPLICATION_ERROR(-20017, 'Transição inválida: estados finais não podem ser reabertos e o mesmo status não pode ser repetido.');
+        WHEN e_historico_invalido THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Não foi possível determinar um status atual válido para o chamado.');
         WHEN OTHERS THEN
             RAISE_APPLICATION_ERROR(-20007, 'Erro ao atualizar status do chamado: ' || SQLERRM);
     END pr_atualizar_status_chamado;
@@ -227,10 +273,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         v_nm_status VARCHAR2(20);
     BEGIN
         IF p_id_chamado IS NULL OR p_id_chamado <= 0 THEN
-            RAISE e_parametro_invalido;
+            RETURN 'INVALIDO';
         END IF;
 
-        -- Otimização DBA: ordenação decrescente aproveitando o índice composto idx_hist_chamado_ativo
         SELECT s.nm_status
           INTO v_nm_status
           FROM hist_chamado h
@@ -241,10 +286,38 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
 
         RETURN v_nm_status;
     EXCEPTION
-        WHEN e_parametro_invalido THEN RETURN 'INVALIDO';
-        WHEN NO_DATA_FOUND        THEN RETURN 'SEM_HISTORICO';
-        WHEN OTHERS               THEN RETURN 'ERRO';
+        WHEN NO_DATA_FOUND THEN RETURN 'SEM_HISTORICO';
+        -- Erros inesperados são propagados em vez de mascarados como um status comum.
     END fn_obter_status_atual;
+
+
+    -- 1.5 Implementação do escape de strings JSON
+    -- A barra invertida é escapada primeiro, para não duplicar as barras inseridas pelos demais REPLACE
+    FUNCTION fn_escapar_json (
+        p_texto IN VARCHAR2
+    ) RETURN VARCHAR2 IS
+        c_hex CONSTANT VARCHAR2(16) := '0123456789abcdef';
+        v_txt VARCHAR2(32767)       := p_texto;
+    BEGIN
+        IF v_txt IS NULL THEN
+            RETURN NULL;
+        END IF;
+        v_txt := REPLACE(v_txt, '\', '\\');
+        v_txt := REPLACE(v_txt, '"', '\"');
+        v_txt := REPLACE(v_txt, CHR(8),  '\b');
+        v_txt := REPLACE(v_txt, CHR(9),  '\t');
+        v_txt := REPLACE(v_txt, CHR(10), '\n');
+        v_txt := REPLACE(v_txt, CHR(12), '\f');
+        v_txt := REPLACE(v_txt, CHR(13), '\r');
+        -- O JSON não aceita nenhum caractere de controle (U+0000..U+001F) sem escape:
+        -- os que não têm forma curta viram \u00XX.
+        FOR i IN 0 .. 31 LOOP
+            IF i NOT IN (8, 9, 10, 12, 13) THEN
+                v_txt := REPLACE(v_txt, CHR(i), '\u00' || SUBSTR(c_hex, TRUNC(i / 16) + 1, 1) || SUBSTR(c_hex, MOD(i, 16) + 1, 1));
+            END IF;
+        END LOOP;
+        RETURN v_txt;
+    END fn_escapar_json;
 
 
     -- 1.4 Implementação da Função de Conversão MANUAL de Chamado para JSON
@@ -300,21 +373,25 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         CLOSE c_chamado;
 
         v_status_atual := fn_obter_status_atual(p_id_chamado);
+        IF v_status_atual NOT IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO', 'CONCLUIDO', 'REJEITADO') THEN
+            RAISE e_historico_invalido;
+        END IF;
+
         DBMS_LOB.CREATETEMPORARY(v_json, TRUE);
 
         -- Montagem manual dos objetos aninhados (categoria, prioridade, orgaoGoverno, cidadao, localizacao)
         v_buffer := '{' || CHR(10) ||
                     '  "idChamado": ' || v_ch.id_chamado || ',' || CHR(10) ||
-                    '  "titulo": "' || REPLACE(v_ch.titulo, '"', '\"') || '",' || CHR(10) ||
-                    '  "descricao": "' || REPLACE(REPLACE(v_ch.descricao, CHR(10), '\n'), '"', '\"') || '",' || CHR(10) ||
-                    '  "statusAtual": "' || v_status_atual || '",' || CHR(10) ||
-                    '  "categoria": {"idCategoria": ' || v_ch.id_categoria || ', "nome": "' || REPLACE(v_ch.nm_categoria, '"', '\"') || '"},' || CHR(10) ||
-                    '  "prioridade": {"idPrioridade": ' || v_ch.id_prioridade || ', "nome": "' || REPLACE(v_ch.nm_prioridade, '"', '\"') || '"},' || CHR(10) ||
-                    '  "orgaoGoverno": {"idOrgao": ' || v_ch.id_orgao || ', "nome": "' || REPLACE(v_ch.orgao_governo, '"', '\"') || '"},' || CHR(10) ||
-                    '  "cidadao": {"idUsuario": ' || v_ch.id_usuario || ', "nome": "' || REPLACE(v_ch.nm_usuario, '"', '\"') || '", "email": "' || v_ch.email || '"},' || CHR(10) ||
+                    '  "titulo": "' || fn_escapar_json(v_ch.titulo) || '",' || CHR(10) ||
+                    '  "descricao": "' || fn_escapar_json(v_ch.descricao) || '",' || CHR(10) ||
+                    '  "statusAtual": "' || fn_escapar_json(v_status_atual) || '",' || CHR(10) ||
+                    '  "categoria": {"idCategoria": ' || v_ch.id_categoria || ', "nome": "' || fn_escapar_json(v_ch.nm_categoria) || '"},' || CHR(10) ||
+                    '  "prioridade": {"idPrioridade": ' || v_ch.id_prioridade || ', "nome": "' || fn_escapar_json(v_ch.nm_prioridade) || '"},' || CHR(10) ||
+                    '  "orgaoGoverno": {"idOrgao": ' || v_ch.id_orgao || ', "nome": "' || fn_escapar_json(v_ch.orgao_governo) || '"},' || CHR(10) ||
+                    '  "cidadao": {"idUsuario": ' || v_ch.id_usuario || ', "nome": "' || fn_escapar_json(v_ch.nm_usuario) || '", "email": "' || fn_escapar_json(v_ch.email) || '"},' || CHR(10) ||
                     '  "localizacao": {' || CHR(10) ||
-                    '    "rua": "' || REPLACE(v_ch.rua, '"', '\"') || '", "numero": "' || NVL(v_ch.numero, 'S/N') || '", "cep": "' || v_ch.cep || '",' || CHR(10) ||
-                    '    "bairro": "' || REPLACE(v_ch.nm_bairro, '"', '\"') || '", "cidade": "' || REPLACE(v_ch.nm_cidade, '"', '\"') || '", "estado": "' || v_ch.nm_estado || '"' || CHR(10) ||
+                    '    "rua": "' || fn_escapar_json(v_ch.rua) || '", "numero": "' || fn_escapar_json(NVL(v_ch.numero, 'S/N')) || '", "cep": "' || fn_escapar_json(v_ch.cep) || '",' || CHR(10) ||
+                    '    "bairro": "' || fn_escapar_json(v_ch.nm_bairro) || '", "cidade": "' || fn_escapar_json(v_ch.nm_cidade) || '", "estado": "' || fn_escapar_json(v_ch.nm_estado) || '"' || CHR(10) ||
                     '  },' || CHR(10) ||
                     '  "dtAbertura": "' || TO_CHAR(v_ch.dt_abertura, 'YYYY-MM-DD"T"HH24:MI:SS') || '",' || CHR(10) ||
                     '  "historicoStatus": [';
@@ -329,9 +406,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
 
             v_buffer := CHR(10) ||
                         '    {"idHist": ' || h.id_hist ||
-                        ', "status": "' || h.nm_status || '"' ||
-                        ', "observacoes": "' || REPLACE(NVL(h.observacoes, ''), '"', '\"') || '"' ||
-                        ', "responsavel": "' || REPLACE(h.responsavel, '"', '\"') || '"' ||
+                        ', "status": "' || fn_escapar_json(h.nm_status) || '"' ||
+                        ', "observacoes": "' || fn_escapar_json(h.observacoes) || '"' ||
+                        ', "responsavel": "' || fn_escapar_json(h.responsavel) || '"' ||
                         ', "dtMudanca": "' || TO_CHAR(h.dt_mudanca, 'YYYY-MM-DD"T"HH24:MI:SS') || '"}';
             DBMS_LOB.WRITEAPPEND(v_json, LENGTH(v_buffer), v_buffer);
         END LOOP;
@@ -341,9 +418,18 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
 
         RETURN v_json;
     EXCEPTION
-        WHEN e_parametro_invalido  THEN RETURN '{"erro": "ID de chamado inválido"}';
-        WHEN e_chamado_inexistente THEN RETURN '{"erro": "Chamado ID ' || p_id_chamado || ' não encontrado"}';
-        WHEN OTHERS                THEN RETURN '{"erro": "Falha na conversão manual para JSON: ' || REPLACE(SQLERRM, '"', '''') || '"}';
+        WHEN e_parametro_invalido THEN
+            IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
+            RETURN '{"erro": "ID de chamado inválido"}';
+        WHEN e_chamado_inexistente THEN
+            IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
+            RETURN '{"erro": "Chamado ID ' || p_id_chamado || ' não encontrado"}';
+        WHEN e_historico_invalido THEN
+            IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
+            RETURN '{"erro": "Chamado sem histórico de status válido"}';
+        WHEN OTHERS THEN
+            IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
+            RETURN '{"erro": "Falha na conversão manual para JSON: ' || fn_escapar_json(SQLERRM) || '"}';
     END fn_converter_chamado_json;
 
 END pkg_chamado_gestao;
@@ -415,12 +501,14 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
         v_chk           NUMBER;
         v_status_atual  VARCHAR2(20);
     BEGIN
+        p_id_voto_gerado := NULL;
         IF p_id_chamado IS NULL OR p_id_chamado <= 0 OR p_id_usuario IS NULL OR p_id_usuario <= 0 THEN
             RAISE e_parametro_invalido;
         END IF;
 
+        -- Serializa o voto com alterações de status feitas pela procedure de gestão.
         BEGIN
-            SELECT usuario_id_usuario INTO v_autor_chamado FROM chamado WHERE id_chamado = p_id_chamado;
+            SELECT usuario_id_usuario INTO v_autor_chamado FROM chamado WHERE id_chamado = p_id_chamado FOR UPDATE;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN RAISE pkg_chamado_gestao.e_chamado_inexistente;
         END;
@@ -437,6 +525,8 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
         v_status_atual := pkg_chamado_gestao.fn_obter_status_atual(p_id_chamado);
         IF v_status_atual IN ('CONCLUIDO', 'REJEITADO') THEN
             RAISE e_chamado_fechado;
+        ELSIF v_status_atual NOT IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN
+            RAISE pkg_chamado_gestao.e_historico_invalido;
         END IF;
 
         INSERT INTO voto_chamado (dt_voto, chamado_id_chamado, usuario_id_usuario)
@@ -449,10 +539,12 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
             RAISE_APPLICATION_ERROR(-20002, 'Chamado ID ' || p_id_chamado || ' não existe para votação.');
         WHEN pkg_chamado_gestao.e_usuario_inexistente THEN
             RAISE_APPLICATION_ERROR(-20003, 'Munícipe votante ID ' || p_id_usuario || ' não encontrado.');
+        WHEN pkg_chamado_gestao.e_historico_invalido THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Votação bloqueada: o chamado não possui histórico de status válido.');
         WHEN e_autovoto_proibido THEN
-            RAISE_APPLICATION_ERROR(-20012, 'Integridade cívica violada: O autor não pode votar no próprio chamado.');
+            RAISE_APPLICATION_ERROR(-20012, 'Integridade cívica violada: o autor não pode votar no próprio chamado.');
         WHEN e_chamado_fechado THEN
-            RAISE_APPLICATION_ERROR(-20011, 'Votação encerrada: O chamado já está ' || v_status_atual || '.');
+            RAISE_APPLICATION_ERROR(-20011, 'Votação encerrada: o chamado já está ' || v_status_atual || '.');
         WHEN DUP_VAL_ON_INDEX THEN
             RAISE_APPLICATION_ERROR(-20010, 'Munícipe já registrou apoio anteriormente nesta ocorrência.');
         WHEN OTHERS THEN
@@ -460,22 +552,26 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
     END pr_registrar_voto;
 
 
-    -- 2.2 Implementação do Total de Votos (Otimizado via Índice Único de Cobertura)
+    -- 2.2 Implementação do Total de Votos (Otimizado via índice da FK/UNIQUE)
     FUNCTION fn_calcular_total_votos (
         p_id_chamado IN NUMBER
     ) RETURN NUMBER IS
         PRAGMA UDF;
-        v_total NUMBER := 0;
+        v_total  NUMBER := 0;
+        v_existe NUMBER := 0;
     BEGIN
         IF p_id_chamado IS NULL OR p_id_chamado <= 0 THEN
-            RAISE e_parametro_invalido;
+            RAISE_APPLICATION_ERROR(-20016, 'ID de chamado deve ser positivo.');
+        END IF;
+
+        SELECT COUNT(*) INTO v_existe FROM chamado WHERE id_chamado = p_id_chamado;
+
+        IF v_existe = 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'Chamado ID ' || p_id_chamado || ' não encontrado para totalização.');
         END IF;
 
         SELECT COUNT(*) INTO v_total FROM voto_chamado WHERE chamado_id_chamado = p_id_chamado;
         RETURN v_total;
-    EXCEPTION
-        WHEN e_parametro_invalido THEN RETURN 0;
-        WHEN OTHERS               THEN RETURN 0;
     END fn_calcular_total_votos;
 
 
@@ -484,9 +580,10 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
         p_id_bairro IN NUMBER
     ) RETURN VARCHAR2 IS
         PRAGMA UDF;
-        v_pendentes NUMBER := 0;
-        v_votos     NUMBER := 0;
-        v_existe    NUMBER := 0;
+        v_pendentes        NUMBER := 0;
+        v_votos            NUMBER := 0;
+        v_existe           NUMBER := 0;
+        v_status_invalidos NUMBER := 0;
     BEGIN
         IF p_id_bairro IS NULL OR p_id_bairro <= 0 THEN
             RAISE e_parametro_invalido;
@@ -495,13 +592,23 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
         SELECT COUNT(*) INTO v_existe FROM bairro WHERE id_bairro = p_id_bairro;
         IF v_existe = 0 THEN RAISE e_bairro_inexistente; END IF;
 
-        SELECT NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) NOT IN ('CONCLUIDO', 'REJEITADO') THEN 1 ELSE 0 END), 0),
-               COUNT(v.id_voto)
-          INTO v_pendentes, v_votos
-          FROM endereco e
-          JOIN chamado ch ON ch.endereco_id_endereco = e.id_endereco
-          LEFT JOIN voto_chamado v ON v.chamado_id_chamado = ch.id_chamado
-         WHERE e.bairro_id_bairro = p_id_bairro;
+        -- Agrega primeiro por chamado. Assim, cada ocorrência é contada uma única vez,
+        -- sem multiplicação de linhas causada por JOIN direto com VOTO_CHAMADO.
+        SELECT NVL(SUM(CASE WHEN status_atual IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0),
+               NVL(SUM(total_votos), 0),
+               NVL(SUM(CASE WHEN status_atual IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO', 'CONCLUIDO', 'REJEITADO') THEN 0 ELSE 1 END), 0)
+          INTO v_pendentes, v_votos, v_status_invalidos
+          FROM (
+                SELECT ch.id_chamado, pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) AS status_atual,
+                       pkg_engajamento_cidadao.fn_calcular_total_votos(ch.id_chamado) AS total_votos
+                  FROM endereco e
+                  JOIN chamado ch ON ch.endereco_id_endereco = e.id_endereco
+                 WHERE e.bairro_id_bairro = p_id_bairro
+          );
+
+        IF v_status_invalidos > 0 THEN
+            RAISE pkg_chamado_gestao.e_historico_invalido;
+        END IF;
 
         IF v_pendentes >= 3 OR v_votos >= 5 THEN
             RETURN 'CRITICO';
@@ -513,7 +620,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
     EXCEPTION
         WHEN e_bairro_inexistente THEN RETURN 'INEXISTENTE';
         WHEN e_parametro_invalido THEN RETURN 'PARAMETRO_INVALIDO';
-        WHEN OTHERS               THEN RETURN 'INDETERMINADO';
+        -- Falhas de integridade e erros inesperados são propagados, nunca classificados como NORMAL.
     END fn_classificar_criticidade_bairro;
 
 
@@ -521,32 +628,39 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
     -- Algoritmo clássico de quebra de grupo (Control Break) com acumuladores manuais no loop
     PROCEDURE pr_relatorio_subtotal_bairros IS
         CURSOR c_ocorrencias IS
-            SELECT b.nm_bairro, c.nm_cidade, ch.id_chamado, ch.titulo, cat.nm_categoria,
+            SELECT b.id_bairro, b.nm_bairro, c.id_cidade, c.nm_cidade, ch.id_chamado, ch.titulo, cat.nm_categoria,
                    pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) AS status_atual,
                    pkg_engajamento_cidadao.fn_calcular_total_votos(ch.id_chamado) AS total_votos
               FROM bairro b
               JOIN cidade c      ON c.id_cidade = b.cidade_id_cidade
+              JOIN estado uf     ON uf.id_estado = c.estado_id_estado
               JOIN endereco e    ON e.bairro_id_bairro = b.id_bairro
               JOIN chamado ch    ON ch.endereco_id_endereco = e.id_endereco
               JOIN categoria cat ON cat.id_categoria = ch.categoria_id_categoria
-             ORDER BY b.nm_bairro ASC, ch.id_chamado ASC;
+             WHERE c.nm_cidade = 'São Paulo'
+               AND uf.nm_estado = 'São Paulo'
+             ORDER BY b.nm_bairro ASC, c.nm_cidade ASC, b.id_bairro ASC, ch.id_chamado ASC;
 
-        v_reg            c_ocorrencias%ROWTYPE;
-        v_bairro_ant     VARCHAR2(50) := NULL;
-        v_cidade_ant     VARCHAR2(50) := NULL;
-        v_tem_dados      BOOLEAN := FALSE;
+        v_reg              c_ocorrencias%ROWTYPE;
+        v_bairro_ant       NUMBER := NULL;
+        v_cidade_ant       NUMBER := NULL;
+        v_nome_bairro_ant  VARCHAR2(50) := NULL;
+        v_nome_cidade_ant  VARCHAR2(50) := NULL;
+        v_tem_dados        BOOLEAN := FALSE;
 
         -- Acumuladores manuais de SUBTOTAL (por Bairro)
         v_sub_chamados   NUMBER := 0;
         v_sub_pendentes  NUMBER := 0;
         v_sub_concluidos NUMBER := 0;
         v_sub_votos      NUMBER := 0;
+        v_sub_rejeitados NUMBER := 0;
 
         -- Acumuladores manuais de TOTAL GERAL MUNICIPAL
         v_tot_chamados   NUMBER := 0;
         v_tot_pendentes  NUMBER := 0;
         v_tot_concluidos NUMBER := 0;
         v_tot_votos      NUMBER := 0;
+        v_tot_rejeitados NUMBER := 0;
         v_taxa_resolucao NUMBER := 0;
     BEGIN
         DBMS_OUTPUT.PUT_LINE('================================================================================');
@@ -560,22 +674,26 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
             v_tem_dados := TRUE;
 
             -- QUEBRA DE GRUPO: quando muda o bairro, imprime o subtotal acumulado e zera variáveis
-            IF v_bairro_ant IS NOT NULL AND v_bairro_ant <> v_reg.nm_bairro THEN
+            IF v_bairro_ant IS NOT NULL AND (v_bairro_ant <> v_reg.id_bairro OR v_cidade_ant <> v_reg.id_cidade) THEN
                 DBMS_OUTPUT.PUT_LINE('  ------------------------------------------------------------------------------');
-                DBMS_OUTPUT.PUT_LINE('  >>> SUBTOTAL [' || UPPER(v_bairro_ant) || ' - ' || v_cidade_ant || ']: ' ||
+                DBMS_OUTPUT.PUT_LINE('  >>> SUBTOTAL [' || UPPER(v_nome_bairro_ant) || ' - ' || v_nome_cidade_ant || ']: ' ||
                                      v_sub_chamados || ' ocorrências | ' || v_sub_pendentes || ' pendentes | ' ||
-                                     v_sub_concluidos || ' concluídas | ' || v_sub_votos || ' apoios');
+                                     v_sub_concluidos || ' concluídas | ' || v_sub_rejeitados || ' rejeitadas | ' ||
+                                     v_sub_votos || ' apoios');
                 DBMS_OUTPUT.PUT_LINE('  ------------------------------------------------------------------------------' || CHR(10));
                 v_sub_chamados   := 0;
                 v_sub_pendentes  := 0;
                 v_sub_concluidos := 0;
+                v_sub_rejeitados := 0;
                 v_sub_votos      := 0;
             END IF;
 
             -- Cabeçalho do novo grupo (Bairro)
-            IF v_bairro_ant IS NULL OR v_bairro_ant <> v_reg.nm_bairro THEN
-                v_bairro_ant := v_reg.nm_bairro;
-                v_cidade_ant := v_reg.nm_cidade;
+            IF v_bairro_ant IS NULL OR v_bairro_ant <> v_reg.id_bairro OR v_cidade_ant <> v_reg.id_cidade THEN
+                v_bairro_ant      := v_reg.id_bairro;
+                v_cidade_ant      := v_reg.id_cidade;
+                v_nome_bairro_ant := v_reg.nm_bairro;
+                v_nome_cidade_ant := v_reg.nm_cidade;
                 DBMS_OUTPUT.PUT_LINE('[BAIRRO: ' || UPPER(v_reg.nm_bairro) || ' (' || v_reg.nm_cidade || ')]');
                 DBMS_OUTPUT.PUT_LINE('  ID   | TÍTULO                              | CATEGORIA              | STATUS       | APOIOS');
                 DBMS_OUTPUT.PUT_LINE('  ----+-------------------------------------+------------------------+--------------+-------');
@@ -593,12 +711,19 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
             v_tot_chamados := v_tot_chamados + 1;
             v_tot_votos    := v_tot_votos + v_reg.total_votos;
 
+            -- CONCLUIDO, REJEITADO e os demais (PENDENTE, EM_ANALISE, EM_EXECUCAO) são contados separadamente:
+            -- um chamado rejeitado está encerrado e não pode entrar nos pendentes.
             IF v_reg.status_atual = 'CONCLUIDO' THEN
                 v_sub_concluidos := v_sub_concluidos + 1;
                 v_tot_concluidos := v_tot_concluidos + 1;
-            ELSE
+            ELSIF v_reg.status_atual = 'REJEITADO' THEN
+                v_sub_rejeitados := v_sub_rejeitados + 1;
+                v_tot_rejeitados := v_tot_rejeitados + 1;
+            ELSIF v_reg.status_atual IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN
                 v_sub_pendentes := v_sub_pendentes + 1;
                 v_tot_pendentes := v_tot_pendentes + 1;
+            ELSE
+                RAISE pkg_chamado_gestao.e_historico_invalido;
             END IF;
         END LOOP;
         CLOSE c_ocorrencias;
@@ -607,12 +732,23 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
 
         -- Subtotal do último grupo após saída do loop
         DBMS_OUTPUT.PUT_LINE('  ------------------------------------------------------------------------------');
-        DBMS_OUTPUT.PUT_LINE('  >>> SUBTOTAL [' || UPPER(v_bairro_ant) || ' - ' || v_cidade_ant || ']: ' ||
+        DBMS_OUTPUT.PUT_LINE('  >>> SUBTOTAL [' || UPPER(v_nome_bairro_ant) || ' - ' || v_nome_cidade_ant || ']: ' ||
                              v_sub_chamados || ' ocorrências | ' || v_sub_pendentes || ' pendentes | ' ||
-                             v_sub_concluidos || ' concluídas | ' || v_sub_votos || ' apoios');
+                             v_sub_concluidos || ' concluídas | ' || v_sub_rejeitados || ' rejeitadas | ' ||
+                             v_sub_votos || ' apoios');
         DBMS_OUTPUT.PUT_LINE('  ------------------------------------------------------------------------------');
 
-        v_taxa_resolucao := ROUND((v_tot_concluidos / v_tot_chamados) * 100, 1);
+        -- REJEITADOS não entram no denominador da taxa de conclusão.
+        -- Se não houver chamados elegíveis, a taxa é 0% (sem divisão por zero).
+        v_taxa_resolucao := CASE
+            WHEN (v_tot_chamados - v_tot_rejeitados) > 0 THEN
+                ROUND(
+                    (v_tot_concluidos /
+                    (v_tot_chamados - v_tot_rejeitados)) * 100,
+                    1
+                )
+            ELSE 0
+        END;
 
         -- Impressão do Total Geral Municipal consolidado
         DBMS_OUTPUT.PUT_LINE(CHR(10) || '================================================================================');
@@ -620,8 +756,10 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
         DBMS_OUTPUT.PUT_LINE('  Total de Ocorrências:     ' || LPAD(v_tot_chamados, 4));
         DBMS_OUTPUT.PUT_LINE('  Total de Pendências:      ' || LPAD(v_tot_pendentes, 4));
         DBMS_OUTPUT.PUT_LINE('  Total Concluídas:         ' || LPAD(v_tot_concluidos, 4));
+        DBMS_OUTPUT.PUT_LINE('  Total Rejeitadas:         ' || LPAD(v_tot_rejeitados, 4));
+        DBMS_OUTPUT.PUT_LINE('  Chamados elegíveis p/ taxa:' || LPAD(v_tot_chamados - v_tot_rejeitados, 4));
         DBMS_OUTPUT.PUT_LINE('  Total Apoios Comunitários:' || LPAD(v_tot_votos, 4));
-        DBMS_OUTPUT.PUT_LINE('  Taxa Geral de Resolução:  ' || LPAD(v_taxa_resolucao, 5) || '%');
+        DBMS_OUTPUT.PUT_LINE('  Taxa de Conclusão (sem rejeitados): ' || LPAD(v_taxa_resolucao, 5) || '%');
         DBMS_OUTPUT.PUT_LINE('================================================================================');
     EXCEPTION
         WHEN e_sem_dados_relatorio THEN
@@ -657,7 +795,7 @@ BEGIN
 
     IF UPDATING OR DELETING THEN
         v_old_json := '{"id_chamado":' || :OLD.id_chamado ||
-                      ',"titulo":"' || REPLACE(:OLD.titulo, '"', '\"') || '"' ||
+                      ',"titulo":"' || pkg_chamado_gestao.fn_escapar_json(:OLD.titulo) || '"' ||
                       ',"id_categoria":' || :OLD.categoria_id_categoria ||
                       ',"id_prioridade":' || :OLD.prioridade_id_prioridade ||
                       ',"id_orgao":' || :OLD.orgao_governo_id_orgao ||
@@ -666,7 +804,7 @@ BEGIN
 
     IF INSERTING OR UPDATING THEN
         v_new_json := '{"id_chamado":' || :NEW.id_chamado ||
-                      ',"titulo":"' || REPLACE(:NEW.titulo, '"', '\"') || '"' ||
+                      ',"titulo":"' || pkg_chamado_gestao.fn_escapar_json(:NEW.titulo) || '"' ||
                       ',"id_categoria":' || :NEW.categoria_id_categoria ||
                       ',"id_prioridade":' || :NEW.prioridade_id_prioridade ||
                       ',"id_orgao":' || :NEW.orgao_governo_id_orgao ||
@@ -679,10 +817,11 @@ BEGIN
         USER, v_op, SYSTIMESTAMP, v_old_json, v_new_json
     );
 EXCEPTION
+    -- A trilha de auditoria não pode falhar em silêncio: o erro aborta o DML original e mostra o motivo
     WHEN VALUE_ERROR THEN
-        DBMS_OUTPUT.PUT_LINE('Aviso: Estouro de tamanho de string na trigger de auditoria.');
+        RAISE_APPLICATION_ERROR(-20022, 'Trilha de auditoria: o snapshot JSON excede o tamanho da coluna.');
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Falha na trigger de auditoria: ' || SQLERRM);
+        RAISE_APPLICATION_ERROR(-20023, 'Falha ao gravar a trilha de auditoria: ' || SQLERRM);
 END trg_audit_chamado;
 /
 
@@ -696,18 +835,24 @@ DECLARE
     v_status_atual  VARCHAR2(20);
     e_autovoto      EXCEPTION;
     e_encerrado     EXCEPTION;
+    e_historico_invalido EXCEPTION;
+    PRAGMA EXCEPTION_INIT(e_historico_invalido, -20018);
 BEGIN
+    -- A linha pai é bloqueada para reduzir a corrida entre voto e encerramento do chamado.
     SELECT usuario_id_usuario INTO v_autor_chamado
       FROM chamado
-     WHERE id_chamado = :NEW.chamado_id_chamado;
+     WHERE id_chamado = :NEW.chamado_id_chamado FOR UPDATE;
 
     IF v_autor_chamado = :NEW.usuario_id_usuario THEN
         RAISE e_autovoto;
     END IF;
 
     v_status_atual := pkg_chamado_gestao.fn_obter_status_atual(:NEW.chamado_id_chamado);
+
     IF v_status_atual IN ('CONCLUIDO', 'REJEITADO') THEN
         RAISE e_encerrado;
+    ELSIF v_status_atual NOT IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN
+        RAISE e_historico_invalido;
     END IF;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -716,11 +861,19 @@ EXCEPTION
         RAISE_APPLICATION_ERROR(-20012, 'Não é permitido votar no próprio chamado cadastrado.');
     WHEN e_encerrado THEN
         RAISE_APPLICATION_ERROR(-20011, 'Votação encerrada para este chamado (status: ' || v_status_atual || ').');
+    WHEN e_historico_invalido THEN
+        RAISE_APPLICATION_ERROR(-20018, 'Votação bloqueada: o chamado não possui histórico de status válido.');
     WHEN OTHERS THEN
         RAISE_APPLICATION_ERROR(-20019, 'Erro ao validar integridade do voto na trigger: ' || SQLERRM);
 END trg_valida_voto_chamado;
 /
 
+SHOW ERRORS PACKAGE PKG_CHAMADO_GESTAO;
+SHOW ERRORS PACKAGE BODY PKG_CHAMADO_GESTAO;
+SHOW ERRORS PACKAGE PKG_ENGAJAMENTO_CIDADAO;
+SHOW ERRORS PACKAGE BODY PKG_ENGAJAMENTO_CIDADAO;
+SHOW ERRORS TRIGGER TRG_AUDIT_CHAMADO;
+SHOW ERRORS TRIGGER TRG_VALIDA_VOTO_CHAMADO;
 
 -- ====================================================================
 -- PARTE 4: DOIS BLOCOS ANÔNIMOS PL/SQL (CURSORES, IF/ELSIF E LOOP)
@@ -733,7 +886,8 @@ DECLARE
         SELECT b.id_bairro, b.nm_bairro,
                COUNT(ch.id_chamado) AS total_chamados,
                NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS total_concluidos,
-               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) NOT IN ('CONCLUIDO', 'REJEITADO') THEN 1 ELSE 0 END), 0) AS total_pendentes
+               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS total_pendentes,
+               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'REJEITADO' THEN 1 ELSE 0 END), 0) AS total_rejeitados
           FROM bairro b
           LEFT JOIN endereco e ON e.bairro_id_bairro = b.id_bairro
           LEFT JOIN chamado ch ON ch.endereco_id_endereco = e.id_endereco
@@ -753,24 +907,25 @@ BEGIN
         FETCH c_analise_territorial INTO v_reg;
         EXIT WHEN c_analise_territorial%NOTFOUND;
 
-        v_taxa_resolucao := CASE WHEN v_reg.total_chamados > 0
-                                 THEN ROUND((v_reg.total_concluidos / v_reg.total_chamados) * 100, 1)
-                                 ELSE 100.0 END;
+        -- A taxa considera somente chamados elegíveis: os REJEITADOS ficam fora do denominador.
+        v_taxa_resolucao := CASE WHEN (v_reg.total_chamados - v_reg.total_rejeitados) > 0 THEN ROUND((v_reg.total_concluidos / (v_reg.total_chamados - v_reg.total_rejeitados)) * 100, 1) ELSE 0.0 END;
 
         v_criticidade := pkg_engajamento_cidadao.fn_classificar_criticidade_bairro(v_reg.id_bairro);
 
         IF v_criticidade = 'CRITICO' THEN
             DBMS_OUTPUT.PUT_LINE('[URGÊNCIA MÁXIMA] Bairro: ' || RPAD(v_reg.nm_bairro, 15) ||
                                  ' | Pendentes: ' || LPAD(v_reg.total_pendentes, 2) ||
-                                 ' | Resolução: ' || LPAD(v_taxa_resolucao, 5) || '% | ALOCAR MUTIRÃO');
+                                 ' | Conclusão (s/ rejeitados): ' || LPAD(v_taxa_resolucao, 5) || '% | ALOCAR MUTIRÃO');
         ELSIF v_criticidade = 'ALERTA' THEN
             DBMS_OUTPUT.PUT_LINE('[ATENÇÃO / ALERTA] Bairro: ' || RPAD(v_reg.nm_bairro, 15) ||
                                  ' | Pendentes: ' || LPAD(v_reg.total_pendentes, 2) ||
-                                 ' | Resolução: ' || LPAD(v_taxa_resolucao, 5) || '% | MONITORAR ESCALA');
-        ELSE
+                                 ' | Conclusão (s/ rejeitados): ' || LPAD(v_taxa_resolucao, 5) || '% | MONITORAR ESCALA');
+        ELSIF v_criticidade = 'NORMAL' THEN
             DBMS_OUTPUT.PUT_LINE('[OPERAÇÃO NORMAL] Bairro: ' || RPAD(v_reg.nm_bairro, 15) ||
                                  ' | Pendentes: ' || LPAD(v_reg.total_pendentes, 2) ||
-                                 ' | Resolução: ' || LPAD(v_taxa_resolucao, 5) || '% | SITUAÇÃO CONTROLADA');
+                                 ' | Conclusão (s/ rejeitados): ' || LPAD(v_taxa_resolucao, 5) || '% | SITUAÇÃO CONTROLADA');
+        ELSE
+            RAISE_APPLICATION_ERROR(-20018, 'Criticidade não calculável para o bairro ID ' || v_reg.id_bairro || ': ' || v_criticidade);
         END IF;
     END LOOP;
     CLOSE c_analise_territorial;
@@ -786,7 +941,7 @@ END;
 /
 
 -- BLOCO ANÔNIMO 2: Auditoria de SLA de Atendimento e Alerta de Chamados Estagnados
--- Percorre chamados abertos há mais de 3 dias sem conclusão, avaliando apoio popular
+-- Percorre chamados abertos há 3 dias ou mais sem conclusão, avaliando apoio popular
 DECLARE
     CURSOR c_chamados_sla IS
         SELECT c.id_chamado, c.titulo,
@@ -804,7 +959,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('====================================================================');
 
     FOR r IN c_chamados_sla LOOP
-        IF r.status_atual NOT IN ('CONCLUIDO', 'REJEITADO') THEN
+        IF r.status_atual IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN
             IF r.dias_em_aberto >= 3.0 THEN
                 v_qtd_estourada := v_qtd_estourada + 1;
                 DBMS_OUTPUT.PUT_LINE('ALERTA SLA ESTOURADO: [ID ' || LPAD(r.id_chamado, 2) || '] ' ||
@@ -816,6 +971,8 @@ BEGIN
                                      RPAD(SUBSTR(r.titulo, 1, 32), 32) || '...' ||
                                      ' | Dias: ' || LPAD(r.dias_em_aberto, 5) || ' | Status: ' || r.status_atual);
             END IF;
+        ELSIF r.status_atual NOT IN ('CONCLUIDO', 'REJEITADO') THEN
+            RAISE_APPLICATION_ERROR(-20018, 'Status inválido no histórico do chamado ID ' || r.id_chamado || '.');
         END IF;
     END LOOP;
 
@@ -838,14 +995,17 @@ END;
 -- ====================================================================
 
 -- 1. Teste Completo do Pacote 1 (Abertura Atômica, Transição de Status e JSON Manual)
---    Bloco interno absorve eventual conflito de sequência na abertura e demonstra
---    as rotinas e a conversão manual para JSON impressa na íntegra.
+--    Se a abertura falhar, o bloco interno imprime 'FALHA NO TESTE 1' com o erro e demonstra
+--    as rotinas sobre o chamado 1 (seed), para a conversão manual para JSON ainda ser exibida.
 DECLARE
     v_id_novo NUMBER;
-    v_foto    BLOB := HEXTORAW('89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C63000100000500010D0A2DB40000000049454E44AE426082');
+    v_foto_raw RAW(32767) := HEXTORAW('89504E470D0A1A0A0000000D49484452000000010000000108060000001F15C4890000000A49444154789C63000100000500010D0A2DB40000000049454E44AE426082');
+    v_foto    BLOB;
     v_json    CLOB;
 BEGIN
     DBMS_OUTPUT.PUT_LINE('=== TESTE 1: Abertura Atômica, Transição de Status e Conversão Manual JSON ===');
+    DBMS_LOB.CREATETEMPORARY(v_foto, TRUE);
+    DBMS_LOB.WRITEAPPEND(v_foto, UTL_RAW.LENGTH(v_foto_raw), v_foto_raw);
     BEGIN
         pkg_chamado_gestao.pr_abrir_chamado(
             p_titulo            => 'Teste: Poste sem aterramento próximo à escola',
@@ -865,22 +1025,27 @@ BEGIN
         v_json := pkg_chamado_gestao.fn_converter_chamado_json(v_id_novo);
     EXCEPTION
         WHEN OTHERS THEN
-            DBMS_OUTPUT.PUT_LINE('Info: ' || SQLERRM);
+            DBMS_OUTPUT.PUT_LINE('FALHA NO TESTE 1: ' || SQLERRM);
             DBMS_OUTPUT.PUT_LINE('Fallback: demonstrando rotinas sobre chamado ID=1 (seed).');
             DBMS_OUTPUT.PUT_LINE('Status atual (ID=1): ' || pkg_chamado_gestao.fn_obter_status_atual(1));
             v_json := pkg_chamado_gestao.fn_converter_chamado_json(1);
     END;
 
-    -- Impressão integral do documento JSON gerado manualmente (sem truncar)
-    DBMS_OUTPUT.PUT_LINE('OK: JSON manual gerado na íntegra (' || DBMS_LOB.GETLENGTH(v_json) || ' caracteres):');
+    -- Impressão do documento JSON gerado manualmente (primeiros 4000 caracteres)
+    DBMS_OUTPUT.PUT_LINE('OK: JSON manual gerado (' || DBMS_LOB.GETLENGTH(v_json) || ' caracteres):');
     DBMS_OUTPUT.PUT_LINE(DBMS_LOB.SUBSTR(v_json, 4000, 1));
+    IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
+    IF v_foto IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_foto) = 1 THEN DBMS_LOB.FREETEMPORARY(v_foto); END IF;
 END;
 /
 
 -- 2. Teste do Pacote 2 (Voto Comunitário, Contagem e Bloqueio de Autovoto)
---    Cenário seguro para repetições sucessivas sem depender de sequence/reset prévio:
+--    Cenário seguro para repetições sucessivas (o ROLLBACK final desfaz os votos de teste):
 --    A) Voto válido testado com tratamento de idempotência caso já tenha sido gravado
---    B) Bloqueio de autovoto testado provocando e capturando e_autovoto_proibido (usuário 4 no chamado 7)
+--    B) Bloqueio de autovoto pela procedure (e_autovoto_proibido; usuário 4 é o autor do chamado 7)
+--    C) Bloqueio de autovoto por INSERT direto em voto_chamado, exercitando a trigger trg_valida_voto_chamado
+--    D) Bloqueio de voto em chamado encerrado (e_chamado_fechado; chamado 3 está CONCLUIDO)
+--    Em B, C e D, se a regra não bloquear, o teste imprime 'FALHA' em vez de passar em silêncio.
 DECLARE
     v_id_voto NUMBER;
 BEGIN
@@ -893,16 +1058,45 @@ BEGIN
                              pkg_engajamento_cidadao.fn_calcular_total_votos(7));
     EXCEPTION
         WHEN pkg_engajamento_cidadao.e_voto_duplicado THEN
-            DBMS_OUTPUT.PUT_LINE('OK (Idempotente): Voto do munícipe 1 no chamado 7 já computado. Total: ' ||
+            DBMS_OUTPUT.PUT_LINE('OK: Voto do munícipe 1 no chamado 7 já estava computado. Total: ' ||
                                  pkg_engajamento_cidadao.fn_calcular_total_votos(7));
+    END;
+
+    -- Repetição explícita: a segunda tentativa do mesmo usuário deve ser recusada.
+    BEGIN
+        pkg_engajamento_cidadao.pr_registrar_voto(7, 1, v_id_voto);
+        DBMS_OUTPUT.PUT_LINE('FALHA: a procedure aceitou um segundo voto do mesmo usuário.');
+    EXCEPTION
+        WHEN pkg_engajamento_cidadao.e_voto_duplicado THEN
+            DBMS_OUTPUT.PUT_LINE('OK: duplicidade bloqueada pela constraint UNIQUE e convertida em e_voto_duplicado.');
     END;
 
     -- Provoca e valida a exceção de autovoto: usuário 4 é o criador do chamado 7
     BEGIN
         pkg_engajamento_cidadao.pr_registrar_voto(7, 4, v_id_voto);
+        DBMS_OUTPUT.PUT_LINE('FALHA: autovoto no chamado 7 não foi bloqueado pela procedure.');
     EXCEPTION
         WHEN pkg_engajamento_cidadao.e_autovoto_proibido THEN
             DBMS_OUTPUT.PUT_LINE('OK: Exceção e_autovoto_proibido capturada com sucesso: ' || SQLERRM);
+    END;
+
+    -- C) INSERT direto (fora da procedure): quem barra o autovoto aqui é a trigger
+    BEGIN
+        INSERT INTO voto_chamado (dt_voto, chamado_id_chamado, usuario_id_usuario)
+        VALUES (SYSDATE, 7, 4);
+        DBMS_OUTPUT.PUT_LINE('FALHA: INSERT direto de autovoto não foi bloqueado pela trigger.');
+    EXCEPTION
+        WHEN pkg_engajamento_cidadao.e_autovoto_proibido THEN
+            DBMS_OUTPUT.PUT_LINE('OK: Trigger trg_valida_voto_chamado bloqueou o INSERT direto de autovoto: ' || SQLERRM);
+    END;
+
+    -- D) Voto em chamado encerrado: o chamado 3 está CONCLUIDO e o usuário 2 não é o autor
+    BEGIN
+        pkg_engajamento_cidadao.pr_registrar_voto(3, 2, v_id_voto);
+        DBMS_OUTPUT.PUT_LINE('FALHA: voto em chamado CONCLUIDO não foi bloqueado.');
+    EXCEPTION
+        WHEN pkg_engajamento_cidadao.e_chamado_fechado THEN
+            DBMS_OUTPUT.PUT_LINE('OK: Exceção e_chamado_fechado capturada com sucesso: ' || SQLERRM);
     END;
 END;
 /
@@ -937,10 +1131,25 @@ BEGIN
 END;
 /
 
+-- 5. Teste do escape JSON (fn_escapar_json): aspas, barra invertida, quebra de linha, tabulação e controle.
+--    Se a saída divergir do esperado, o teste imprime 'FALHA' em vez de passar em silêncio.
+DECLARE
+    v_entrada  VARCHAR2(100) := 'Poste "X" em C:\rua' || CHR(10) || 'tab' || CHR(9) || 'ctl' || CHR(1);
+    v_esperado VARCHAR2(200) := 'Poste \"X\" em C:\\rua\ntab\tctl\u0001';
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('=== TESTE 5: Escape de JSON (fn_escapar_json) ===');
+    IF pkg_chamado_gestao.fn_escapar_json(v_entrada) = v_esperado THEN
+        DBMS_OUTPUT.PUT_LINE('OK: escape correto -> ' || v_esperado);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('FALHA: obtido -> ' || pkg_chamado_gestao.fn_escapar_json(v_entrada));
+    END IF;
+END;
+/
+
 -- Desfaz as mutações transitórias da suíte de teste para preservar os dados originais (seeds)
 ROLLBACK;
 
-PROMPT ====================================================================;
-PROMPT  SUÍTE DE PACOTES PL/SQL, TRIGGERS E TESTES EXECUTADA COM SUCESSO!
+PROMPT ====================================================================
+PROMPT  SUÍTE FINALIZADA. CONFIRA AS MENSAGENS OK/FALHA E SHOW ERRORS ACIMA.
 PROMPT  Projeto: ZelaFix — Zeladoria Urbana Colaborativa (GS2)
-PROMPT ====================================================================;
+PROMPT ====================================================================

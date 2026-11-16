@@ -58,7 +58,7 @@
       "total_apoios": 0,
       "tempo_medio_resolucao_horas": 50.3
     },
-    "criticidade": "ESTAVEL",
+    "criticidade": "NORMAL",
     "indicadores_principais": [
       "DRENAGEM_E_ESGOTO",
       "LIMPEZA_URBANA"
