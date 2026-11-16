@@ -66,6 +66,7 @@
 <logicalDatatype>LOGDT024</logicalDatatype>
 <dataTypeSize>10</dataTypeSize>
 <listOfValues>
+<valueDef value="ADMIN" description="usuário admin do sistema"/>
 <valueDef value="CIDADAO" description="usuário base da aplicação"/>
 <valueDef value="GESTOR" description="usuário que resolve problemas da aplicação"/>
 </listOfValues>
