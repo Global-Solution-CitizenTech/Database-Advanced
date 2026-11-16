@@ -193,7 +193,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
             WHEN NO_DATA_FOUND THEN RAISE e_usuario_inexistente;
         END;
 
-        IF v_cargo_usuario <> 'GESTOR' THEN
+        IF v_cargo_usuario NOT IN ('GESTOR', 'ADMIN') THEN
             RAISE e_usuario_nao_gestor;
         END IF;
 

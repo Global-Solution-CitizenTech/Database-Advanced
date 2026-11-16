@@ -148,8 +148,7 @@ function resolverCaminhoDataset(nomeArquivo) {
     typeof __dirname !== "undefined" ? path.resolve(__dirname, "mongodb", nomeArquivo) : null,
     typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), nomeArquivo) : null,
     typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "mongodb", nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo) : null,
-    path.resolve("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb", nomeArquivo)
+    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo) : null
   ].filter(Boolean);
 
   for (const c of caminhos) {

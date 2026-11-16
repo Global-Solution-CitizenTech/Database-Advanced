@@ -63,7 +63,7 @@ O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
 
 ### 1. Pacote 1: `PKG_CHAMADO_GESTAO` (Ciclo de Vida do Chamado e Serialização Manual)
 - **`pr_abrir_chamado`**: Abertura transacional atômica com validações de tamanho mínimo, foto BLOB obrigatória, integridade referencial de chaves estrangeiras (`usuario`, `endereco`, `categoria`, `prioridade`, `orgao_governo`), localização do status `PENDENTE` e gravação simultânea na tabela `chamado` e na linha do tempo `hist_chamado` (3FN estrita) via `RETURNING id_chamado INTO v_novo_id`.
-- **`pr_atualizar_status_chamado`**: Validação rigorosa de existência de chamado, status e usuário fiscal, garantindo acesso exclusivo para fiscais com privilégio `cargo = 'GESTOR'`, inserindo nova etapa com observações no histórico auditável.
+- **`pr_atualizar_status_chamado`**: Validação rigorosa de existência de chamado, status e usuário fiscal, garantindo acesso exclusivo para usuários com privilégio administrativo (`cargo IN ('GESTOR', 'ADMIN')`), inserindo nova etapa com observações no histórico auditável.
 - **`fn_obter_status_atual`**: Função de alta performance (`PRAGMA UDF`) que resolve o status vigente em $\mathcal{O}(1)$ via ordenação decrescente por `id_hist` aproveitando diretamente o índice de cobertura `idx_hist_chamado_ativo`.
 - **`fn_converter_chamado_json` (Conversão 100% Manual)**:
   - **Zero uso de funções nativas do Oracle**: Constrói o documento JSON manualmente em `CLOB` via `DBMS_LOB.CREATETEMPORARY` e `DBMS_LOB.WRITEAPPEND`.
@@ -311,16 +311,16 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 
 Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 
-> 💡 **Nota de Conexão Atlas para Avaliação:** A URI de conexão com o banco na nuvem oficial da disciplina é:
-> `mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix`
+> 💡 **Nota de Conexão Atlas para Avaliação:** Substitua `<usuario>` e `<senha>` pelas credenciais do cluster oficial da equipe no MongoDB Atlas (configuradas no arquivo `.env` / painel da disciplina):
+> `mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix`
 
 #### Execução no MongoDB Compass (Aba `>_MONGOSH`):
 1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima.
 2. Abra a aba inferior **`>_MONGOSH`**.
 3. Navegue até o diretório do projeto e execute os scripts modulares na ordem:
    ```javascript
-   // 1. Aponta para a pasta do MongoDB
-   process.chdir("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb")
+   // 1. Aponta para a pasta do MongoDB do repositório extraído
+   process.chdir("<caminho_do_repositorio>/Database-Advanced/mongodb")
 
    // 2. Cria validador de schema e popula a coleção 'chamados'
    load("setup_mongodb_chamados.js")
@@ -337,13 +337,13 @@ Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 cd Database-Advanced/mongodb
 
 # 1. Carga da Coleção 'chamados'
-mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
+mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
 
 # 2. Carga da Coleção 'bairros_monitoramento'
-mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
+mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
 
 # 3. Execução dos 3 Relatórios Analíticos (Aggregation Pipeline)
-mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
+mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
 ```
 
 ---
@@ -358,33 +358,39 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
   Execução dos 3 Relatórios Obrigatórios (Edital GS2 - Págs 70-76)
 ====================================================================
 
---------------------------------------------------------------------
->>> RELATÓRIO 1: Ocorrências Ativas com Maior Apoio Comunitário
---------------------------------------------------------------------
-1. [ID 1] Poste com lâmpada apagada em via principal    | Bairro: Bela Vista   | Categoria: ILUMINACAO_PUBLICA     | Status: EM_EXECUCAO  | Apoios: 2
-2. [ID 2] Buraco profundo na faixa da direita da via    | Bairro: Pinheiros    | Categoria: VIAS_E_PAVIMENTACAO    | Status: EM_ANALISE   | Apoios: 2
-3. [ID 4] Descarte irregular de entulho e móveis velhos | Bairro: Mooca        | Categoria: LIMPEZA_URBANA         | Status: PENDENTE     | Apoios: 2
-4. [ID 5] Galho de grande porte com risco de queda      | Bairro: Santana      | Categoria: ARVORES_E_PARQUES      | Status: EM_ANALISE   | Apoios: 2
-5. [ID 7] Vazamento contínuo de água limpa no meio-fio  | Bairro: Pinheiros    | Categoria: DRENAGEM_E_ESGOTO      | Status: EM_EXECUCAO  | Apoios: 0
+>>> RELATÓRIO 1: Ocorrências Ativas com Maior Apoio Comunitário (Filtro: Ativos | Order: total_votos DESC)
++-------+----------------------------------------------+----------------+------------------------+--------------+----------+
+| ID    | TÍTULO DA OCORRÊNCIA                         | BAIRRO         | CATEGORIA              | STATUS       | APOIOS   |
++-------+----------------------------------------------+----------------+------------------------+--------------+----------+
+|     1 | Poste com lâmpada apagada em via principal   | Bela Vista     | ILUMINACAO_PUBLICA     | EM_EXECUCAO  |        2 |
+|     2 | Buraco profundo na faixa da direita da via   | Pinheiros      | VIAS_E_PAVIMENTACAO    | EM_ANALISE   |        2 |
+|     4 | Descarte irregular de entulho e móveis ve... | Mooca          | LIMPEZA_URBANA         | PENDENTE     |        2 |
+|     5 | Galho de grande porte com risco de queda ... | Santana        | ARVORES_E_PARQUES      | EM_ANALISE   |        2 |
+|     7 | Vazamento contínuo de água limpa no meio-fio | Pinheiros      | DRENAGEM_E_ESGOTO      | EM_EXECUCAO  |        0 |
++-------+----------------------------------------------+----------------+------------------------+--------------+----------+
 
---------------------------------------------------------------------
->>> RELATÓRIO 2 (AGGREGATION): Volume de Ocorrências por Categoria Urbana
---------------------------------------------------------------------
- - Categoria: LIMPEZA_URBANA            | Total:  2 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: DRENAGEM_E_ESGOTO         | Total:  2 | Pendentes:  1 | Concluídas:  1 | Apoios Acumulados:  0
- - Categoria: ILUMINACAO_PUBLICA        | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: VIAS_E_PAVIMENTACAO       | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: ARVORES_E_PARQUES         | Total:  1 | Pendentes:  1 | Concluídas:  0 | Apoios Acumulados:  2
- - Categoria: SINALIZACAO_E_TRANSITO    | Total:  1 | Pendentes:  0 | Concluídas:  1 | Apoios Acumulados:  0
+>>> RELATÓRIO 2 (AGGREGATION): Volume de Ocorrências e Gargalos por Categoria Urbana
++----------------------------+---------+------------+-------------+----------------+
+| CATEGORIA URBANA           | TOTAL   | PENDENTES  | CONCLUÍDAS  | APOIOS TOTAIS  |
++----------------------------+---------+------------+-------------+----------------+
+| LIMPEZA_URBANA             |       2 |          1 |           0 |              2 |
+| DRENAGEM_E_ESGOTO          |       2 |          1 |           1 |              0 |
+| ILUMINACAO_PUBLICA         |       1 |          1 |           0 |              2 |
+| VIAS_E_PAVIMENTACAO        |       1 |          1 |           0 |              2 |
+| ARVORES_E_PARQUES          |       1 |          1 |           0 |              2 |
+| SINALIZACAO_E_TRANSITO     |       1 |          0 |           1 |              0 |
++----------------------------+---------+------------+-------------+----------------+
 
---------------------------------------------------------------------
->>> RELATÓRIO 3 (AGGREGATION AVANÇADO): Diagnóstico de Pendência por Bairro
---------------------------------------------------------------------
- - Bairro: Pinheiros       (São Paulo) | Total:  2 | Pendentes:  2 | Resolvidos:  0 | Taxa Pendência: 100.0% | Apoios:  2
- - Bairro: Bela Vista      (São Paulo) | Total:  2 | Pendentes:  1 | Resolvidos:  1 | Taxa Pendência:  50.0% | Apoios:  2
- - Bairro: Mooca           (São Paulo) | Total:  1 | Pendentes:  1 | Resolvidos:  0 | Taxa Pendência: 100.0% | Apoios:  2
- - Bairro: Santana         (São Paulo) | Total:  1 | Pendentes:  1 | Resolvidos:  0 | Taxa Pendência: 100.0% | Apoios:  2
- - Bairro: Sé              (São Paulo) | Total:  2 | Pendentes:  0 | Resolvidos:  1 | Taxa Pendência:   0.0% | Apoios:  0
+>>> RELATÓRIO 3 (AGGREGATION AVANÇADO): Diagnóstico Territorial de Pendência por Bairro
++------------------+--------------+---------+------------+-------------+--------------+----------+
+| BAIRRO           | MUNICÍPIO    | TOTAL   | PENDENTES  | RESOLVIDOS  | PENDÊNCIA %  | APOIOS   |
++------------------+--------------+---------+------------+-------------+--------------+----------+
+| Pinheiros        | São Paulo    |       2 |          2 |           0 |         100% |        2 |
+| Bela Vista       | São Paulo    |       2 |          1 |           1 |          50% |        2 |
+| Mooca            | São Paulo    |       1 |          1 |           0 |         100% |        2 |
+| Santana          | São Paulo    |       1 |          1 |           0 |         100% |        2 |
+| Sé               | São Paulo    |       2 |          0 |           1 |           0% |        0 |
++------------------+--------------+---------+------------+-------------+--------------+----------+
 
 ====================================================================
   EXECUÇÃO CONCLUÍDA COM SUCESSO! DADOS EM HARMONIA COM O ORACLE.
