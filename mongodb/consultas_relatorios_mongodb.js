@@ -159,7 +159,7 @@ const relatorio3 = dbTarget.chamados.aggregate([
       votos_totais: { $sum: "$total_votos" },
       chamados_pendentes: {
         $sum: {
-          $cond: [{ $ne: ["$status_atual", "CONCLUIDO"] }, 1, 0]
+          $cond: [{ $in: ["$status_atual", ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO"]] }, 1, 0]
         }
       },
       chamados_resolvidos: {

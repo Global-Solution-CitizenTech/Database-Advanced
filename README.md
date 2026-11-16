@@ -229,7 +229,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
         votos_totais: { $sum: "$total_votos" },
         chamados_pendentes: {
           $sum: {
-            $cond: [{ $ne: ["$status_atual", "CONCLUIDO"] }, 1, 0]
+            $cond: [{ $in: ["$status_atual", ["PENDENTE", "EM_ANALISE", "EM_EXECUCAO"]] }, 1, 0]
           }
         },
         chamados_resolvidos: {
@@ -269,9 +269,9 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
   SELECT b.nm_bairro AS bairro,
          c.nm_cidade AS cidade,
          COUNT(ch.id_chamado) AS total_chamados,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) <> 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS chamados_pendentes,
+         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS chamados_pendentes,
          NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS chamados_resolvidos,
-         ROUND((NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) <> 'CONCLUIDO' THEN 1 ELSE 0 END), 0) / COUNT(ch.id_chamado)) * 100, 1) AS taxa_pendencia_pct,
+         ROUND((NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) / COUNT(ch.id_chamado)) * 100, 1) AS taxa_pendencia_pct,
          COUNT(v.id_voto) AS votos_totais
     FROM bairro b
     JOIN cidade c ON c.id_cidade = b.cidade_id_cidade
@@ -290,7 +290,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | **Bela Vista** | São Paulo | 2 | **1** | 1 | **50.0%** | 2 |
 | **Mooca** | São Paulo | 1 | **1** | 0 | **100.0%** | 2 |
 | **Santana** | São Paulo | 1 | **1** | 0 | **100.0%** | 2 |
-| **Sé** | São Paulo | 2 | **1** *(rejeitado)* | 1 | **50.0%** | 0 |
+| **Sé** | São Paulo | 2 | **0** | 1 | **0.0%** | 0 |
 
 ---
 
@@ -312,7 +312,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 
 > 💡 **Nota de Conexão Atlas para Avaliação:** A URI de conexão com o banco na nuvem oficial da disciplina é:
-> `mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix`
+> `mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix`
 
 #### Execução no MongoDB Compass (Aba `>_MONGOSH`):
 1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima.
@@ -337,13 +337,13 @@ Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 cd Database-Advanced/mongodb
 
 # 1. Carga da Coleção 'chamados'
-mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
+mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
 
 # 2. Carga da Coleção 'bairros_monitoramento'
-mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
+mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
 
 # 3. Execução dos 3 Relatórios Analíticos (Aggregation Pipeline)
-mongosh "mongodb+srv://enzookuizumifiap_db_user:tSzxhkbxANQizqdA@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
+mongosh "mongodb+srv://enzookuizumifiap_db_user:ovNZKISTkCxMAHU2@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
 ```
 
 ---
@@ -384,7 +384,7 @@ Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_m
  - Bairro: Bela Vista      (São Paulo) | Total:  2 | Pendentes:  1 | Resolvidos:  1 | Taxa Pendência:  50.0% | Apoios:  2
  - Bairro: Mooca           (São Paulo) | Total:  1 | Pendentes:  1 | Resolvidos:  0 | Taxa Pendência: 100.0% | Apoios:  2
  - Bairro: Santana         (São Paulo) | Total:  1 | Pendentes:  1 | Resolvidos:  0 | Taxa Pendência: 100.0% | Apoios:  2
- - Bairro: Sé              (São Paulo) | Total:  2 | Pendentes:  1 | Resolvidos:  1 | Taxa Pendência:  50.0% | Apoios:  0
+ - Bairro: Sé              (São Paulo) | Total:  2 | Pendentes:  0 | Resolvidos:  1 | Taxa Pendência:   0.0% | Apoios:  0
 
 ====================================================================
   EXECUÇÃO CONCLUÍDA COM SUCESSO! DADOS EM HARMONIA COM O ORACLE.
