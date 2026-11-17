@@ -16,23 +16,188 @@
 // 1. Via Linha de Comando (mongosh) a partir da pasta 'mongodb/':
 //    cd Database-Advanced/mongodb
 //    mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
-//    (Credenciais de acesso disponíveis no README.md e no arquivo .env)
-// 2. No MongoDB Compass (aba inferior ">_MONGOSH"):
-//    process.chdir("<caminho_do_repositorio>/Database-Advanced/mongodb")
-//    load("setup_mongodb_bairros.js")
+// 2. No MongoDB Compass (aba ">_MONGOSH" — load() e process.chdir() não são suportados no Compass):
+//    Cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
 // ====================================================================
 
+(() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
+const fs = require("fs");
+const path = require("path");
 
-// 1. Seleciona o banco oficial da aplicação
+function resolverCaminhoDataset(nomeArquivo) {
+  const caminhos = [];
+
+  if (typeof __dirname !== "undefined" && __dirname) {
+    caminhos.push(path.resolve(__dirname, nomeArquivo));
+    caminhos.push(path.resolve(__dirname, "mongodb", nomeArquivo));
+  }
+
+  // Extrai a pasta do script via stack trace quando invocado via mongosh CLI
+  try {
+    const stack = (new Error().stack || "").split("\n");
+    for (const linha of stack) {
+      const match = linha.match(/(?:at\s+|@|\()([A-Za-z]:[\\/][^:\n\r]+|\/[^:\n\r]+)/);
+      if (match && match[1]) {
+        const arq = match[1].replace(/:\d+(:\d+)?\)?$/, "").trim();
+        if (arq.endsWith(".js") && fs.existsSync(arq)) {
+          const dir = path.dirname(arq);
+          caminhos.push(path.resolve(dir, nomeArquivo));
+          caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
+        }
+      }
+    }
+  } catch (e) {}
+
+  if (typeof process !== "undefined" && process.cwd) {
+    let dir = process.cwd();
+    for (let i = 0; i < 4; i++) {
+      caminhos.push(path.resolve(dir, nomeArquivo));
+      caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
+      caminhos.push(path.resolve(dir, "Database-Advanced", "mongodb", nomeArquivo));
+      const pai = path.dirname(dir);
+      if (pai === dir) break;
+      dir = pai;
+    }
+  }
+
+  for (const c of caminhos) {
+    try {
+      if (fs.existsSync(c)) return c;
+    } catch (e) {}
+  }
+  return null;
+}
+
+// 1. Tenta ler 'bairros_dataset.json' dinamicamente; se colado direto no Compass >_MONGOSH (sem contexto de pasta), usa fallback embutido portátil
+const caminhoJson = resolverCaminhoDataset("bairros_dataset.json");
+const DATASET_FALLBACK = [
+  {
+    "id_bairro": 1,
+    "nome_bairro": "Bela Vista",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Sé",
+    "zona": "Central",
+    "populacao_estimada": 76000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 1,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 7.5
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "ILUMINACAO_PUBLICA",
+      "SINALIZACAO_E_TRANSITO"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 2,
+    "nome_bairro": "Pinheiros",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Pinheiros",
+    "zona": "Oeste",
+    "populacao_estimada": 65000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 2,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 0.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "VIAS_E_PAVIMENTACAO",
+      "DRENAGEM_E_ESGOTO"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 3,
+    "nome_bairro": "Sé",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Sé",
+    "zona": "Central",
+    "populacao_estimada": 28000,
+    "metricas": {
+      "chamados_totais": 2,
+      "chamados_pendentes": 0,
+      "chamados_concluidos": 1,
+      "total_apoios": 0,
+      "tempo_medio_resolucao_horas": 50.3
+    },
+    "criticidade": "NORMAL",
+    "indicadores_principais": [
+      "DRENAGEM_E_ESGOTO",
+      "LIMPEZA_URBANA"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 4,
+    "nome_bairro": "Mooca",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Mooca",
+    "zona": "Leste",
+    "populacao_estimada": 75000,
+    "metricas": {
+      "chamados_totais": 1,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 0.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "LIMPEZA_URBANA"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  },
+  {
+    "id_bairro": 5,
+    "nome_bairro": "Santana",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "subprefeitura": "Subprefeitura Santana/Tucuruvi",
+    "zona": "Norte",
+    "populacao_estimada": 118000,
+    "metricas": {
+      "chamados_totais": 1,
+      "chamados_pendentes": 1,
+      "chamados_concluidos": 0,
+      "total_apoios": 2,
+      "tempo_medio_resolucao_horas": 0.0
+    },
+    "criticidade": "ALERTA",
+    "indicadores_principais": [
+      "ARVORES_E_PARQUES"
+    ],
+    "atualizado_em": "2026-11-04T12:00:00Z"
+  }
+];
+
+const dadosParsed = caminhoJson
+  ? JSON.parse(fs.readFileSync(caminhoJson, "utf8"))
+  : DATASET_FALLBACK;
+
+// 2. Seleciona o banco oficial da aplicação
 const dbName = "zelafix";
 const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
 
 log("====================================================================");
 log(">>> [MongoDB ZelaFix] Conectado ao banco de dados: " + dbName);
+log(caminhoJson
+  ? ">>> Dataset localizado em: " + caminhoJson
+  : ">>> Modo colagem interativa (Compass >_MONGOSH): carregando 5 bairros do fallback portátil embutido.");
 log("====================================================================");
 
-// 2. Remove coleção preexistente para recriação limpa e idempotente
+// 3. Remove coleção preexistente para recriação limpa e idempotente
 try {
   dbTarget.bairros_monitoramento.drop();
   log(">>> Coleção antiga 'bairros_monitoramento' removida para recriação limpa.");
@@ -40,7 +205,7 @@ try {
   // Ignora se a coleção ainda não existia
 }
 
-// 3. Criação da coleção com Validador de Schema JSON ($jsonSchema)
+// 4. Criação da coleção com Validador de Schema JSON ($jsonSchema)
 dbTarget.createCollection("bairros_monitoramento", {
   validator: {
     $jsonSchema: {
@@ -115,7 +280,7 @@ dbTarget.createCollection("bairros_monitoramento", {
 });
 log(">>> Coleção 'bairros_monitoramento' criada com sucesso com $jsonSchema Validator.");
 
-// 4. Criação de Índices Estratégicos
+// 5. Criação de Índices Estratégicos
 dbTarget.bairros_monitoramento.createIndex(
   { "id_bairro": 1 },
   { unique: true, name: "idx_id_bairro_unique" }
@@ -138,38 +303,7 @@ dbTarget.bairros_monitoramento.createIndex(
 
 log(">>> Índices estratégicos criados para a coleção 'bairros_monitoramento'.");
 
-// 5. Carga de Dados a partir de 'bairros_dataset.json'
-const fs = require("fs");
-const path = require("path");
-
-function resolverCaminhoDataset(nomeArquivo) {
-  const caminhos = [
-    typeof __dirname !== "undefined" ? path.resolve(__dirname, nomeArquivo) : null,
-    typeof __dirname !== "undefined" ? path.resolve(__dirname, "mongodb", nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "mongodb", nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo) : null
-  ].filter(Boolean);
-
-  for (const c of caminhos) {
-    try {
-      if (fs.existsSync(c)) return c;
-    } catch (e) {}
-  }
-  return null;
-}
-
-const caminhoJson = resolverCaminhoDataset("bairros_dataset.json");
-
-if (!caminhoJson) {
-  throw new Error("ERRO CRÍTICO: Arquivo 'bairros_dataset.json' não encontrado. Execute a partir da pasta 'Database-Advanced/mongodb/'.");
-}
-
-log(">>> Dataset localizado em: " + caminhoJson);
-
-const conteudoBruto = fs.readFileSync(caminhoJson, "utf8");
-const dadosParsed = JSON.parse(conteudoBruto);
-
+// 6. Carga de Dados a partir de 'bairros_dataset.json'
 const datasetBairros = dadosParsed.map(item => ({
   ...item,
   id_bairro: typeof NumberInt !== "undefined" ? NumberInt(item.id_bairro) : item.id_bairro,
@@ -203,3 +337,4 @@ dbTarget.bairros_monitoramento.find({}, {
   log(" - [ID " + doc.id_bairro + "] " + doc.nome_bairro + " (" + doc.zona + ") | Subprefeitura: " + doc.subprefeitura + " | Pendentes: " + doc.metricas.chamados_pendentes + " | Votos: " + doc.metricas.total_apoios + " | Criticidade: " + doc.criticidade);
 });
 log("====================================================================");
+})();

@@ -118,8 +118,8 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         SAVEPOINT sp_abrir_chamado;
         p_id_chamado_gerado := NULL;
 
-        IF p_titulo IS NULL OR LENGTH(TRIM(p_titulo)) < 5 OR LENGTH(TRIM(p_titulo)) > 100
-           OR p_descricao IS NULL OR LENGTH(TRIM(p_descricao)) < 10 OR LENGTH(TRIM(p_descricao)) > 1000
+        IF p_titulo IS NULL OR LENGTH(TRIM(p_titulo)) < 5 OR LENGTHB(TRIM(p_titulo)) > 100
+           OR p_descricao IS NULL OR LENGTH(TRIM(p_descricao)) < 10 OR LENGTHB(TRIM(p_descricao)) > 1000
            OR p_foto IS NULL OR DBMS_LOB.GETLENGTH(p_foto) = 0
            OR p_id_usuario IS NULL OR p_id_usuario <= 0
            OR p_id_endereco IS NULL OR p_id_endereco <= 0
@@ -201,7 +201,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         IF p_id_chamado IS NULL OR p_id_chamado <= 0
            OR p_id_status IS NULL OR p_id_status <= 0
            OR p_id_usuario_fiscal IS NULL OR p_id_usuario_fiscal <= 0
-           OR LENGTH(TRIM(p_observacoes)) > 255 THEN
+           OR LENGTHB(TRIM(p_observacoes)) > 255 THEN
             RAISE e_parametro_invalido;
         END IF;
 
@@ -1118,7 +1118,9 @@ BEGIN
     UPDATE chamado SET titulo = titulo WHERE id_chamado = 1;
 
     FOR r IN (
-        SELECT id_auditoria, tipo_operacao, nome_usuario, valores_novos
+        SELECT id_auditoria, tipo_operacao, nome_usuario,
+               TO_CHAR(data_hora_operacao, 'YYYY-MM-DD HH24:MI:SS') AS dt_op,
+               valores_anteriores, valores_novos
           FROM auditoria_dml_chamado
          ORDER BY id_auditoria DESC
          FETCH FIRST 3 ROWS ONLY
@@ -1126,7 +1128,9 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Audit #' || r.id_auditoria ||
                              ' | Op: '     || r.tipo_operacao ||
                              ' | User: '   || r.nome_usuario  ||
-                             ' | Novos: '  || SUBSTR(r.valores_novos, 1, 120));
+                             ' | Data: '   || r.dt_op         ||
+                             ' | Ant: '    || NVL(SUBSTR(r.valores_anteriores, 1, 90), 'NULL') ||
+                             ' | Novos: '  || NVL(SUBSTR(r.valores_novos, 1, 90), 'NULL'));
     END LOOP;
 END;
 /

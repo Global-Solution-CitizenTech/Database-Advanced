@@ -16,23 +16,78 @@
 // 1. Via Linha de Comando (mongosh) a partir da pasta 'mongodb/':
 //    cd Database-Advanced/mongodb
 //    mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
-//    (Credenciais de acesso disponíveis no README.md e no arquivo .env)
-// 2. No MongoDB Compass (aba inferior ">_MONGOSH"):
-//    process.chdir("<caminho_do_repositorio>/Database-Advanced/mongodb")
-//    load("setup_mongodb_chamados.js")
+// 2. No MongoDB Compass (aba ">_MONGOSH" — load() e process.chdir() não são suportados no Compass):
+//    Cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
 // ====================================================================
 
+(() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
+const fs = require("fs");
+const path = require("path");
 
-// 1. Seleciona o banco oficial da aplicação
+function resolverCaminhoDataset(nomeArquivo) {
+  const caminhos = [];
+
+  if (typeof __dirname !== "undefined" && __dirname) {
+    caminhos.push(path.resolve(__dirname, nomeArquivo));
+    caminhos.push(path.resolve(__dirname, "mongodb", nomeArquivo));
+  }
+
+  // Extrai a pasta do script via stack trace quando invocado via mongosh CLI
+  try {
+    const stack = (new Error().stack || "").split("\n");
+    for (const linha of stack) {
+      const match = linha.match(/(?:at\s+|@|\()([A-Za-z]:[\\/][^:\n\r]+|\/[^:\n\r]+)/);
+      if (match && match[1]) {
+        const arq = match[1].replace(/:\d+(:\d+)?\)?$/, "").trim();
+        if (arq.endsWith(".js") && fs.existsSync(arq)) {
+          const dir = path.dirname(arq);
+          caminhos.push(path.resolve(dir, nomeArquivo));
+          caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
+        }
+      }
+    }
+  } catch (e) {}
+
+  if (typeof process !== "undefined" && process.cwd) {
+    caminhos.push(path.resolve(process.cwd(), nomeArquivo));
+    caminhos.push(path.resolve(process.cwd(), "mongodb", nomeArquivo));
+    caminhos.push(path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo));
+  }
+
+  // Caminho canônico do repositório no ambiente de desenvolvimento (permite colar direto no MongoDB Compass)
+  caminhos.push(path.resolve("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb", nomeArquivo));
+
+  for (const c of caminhos) {
+    try {
+      if (fs.existsSync(c)) return c;
+    } catch (e) {}
+  }
+  return null;
+}
+
+// 1. Localiza e lê o dataset ANTES de dropar a coleção (evita deixar o banco vazio se o path falhar)
+const caminhoJson = resolverCaminhoDataset("chamados_dataset.json");
+
+if (!caminhoJson) {
+  throw new Error(
+    "ERRO CRÍTICO: Arquivo 'chamados_dataset.json' não encontrado. Execute via mongosh CLI na pasta 'Database-Advanced/mongodb/' ou importe o JSON pelo MongoDB Compass."
+  );
+}
+
+const conteudoBruto = fs.readFileSync(caminhoJson, "utf8");
+const dadosParsed = JSON.parse(conteudoBruto);
+
+// 2. Seleciona o banco oficial da aplicação
 const dbName = "zelafix";
 const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
 
 log("====================================================================");
 log(">>> [MongoDB ZelaFix] Conectado ao banco de dados: " + dbName);
+log(">>> Dataset localizado em: " + caminhoJson);
 log("====================================================================");
 
-// 2. Remove coleção preexistente para recriação limpa e idempotente
+// 3. Remove coleção preexistente para recriação limpa e idempotente
 try {
   dbTarget.chamados.drop();
   log(">>> Coleção antiga 'chamados' removida para recriação limpa.");
@@ -40,7 +95,7 @@ try {
   // Ignora se a coleção ainda não existia
 }
 
-// 3. Criação da coleção 'chamados' com Validador de Schema JSON ($jsonSchema)
+// 4. Criação da coleção 'chamados' com Validador de Schema JSON ($jsonSchema)
 dbTarget.createCollection("chamados", {
   validator: {
     $jsonSchema: {
@@ -164,7 +219,7 @@ dbTarget.createCollection("chamados", {
 });
 log(">>> Coleção 'chamados' criada com sucesso com $jsonSchema Validator.");
 
-// 4. Criação de Índices Estratégicos
+// 5. Criação de Índices Estratégicos
 dbTarget.chamados.createIndex(
   { "id_chamado": 1 },
   { unique: true, name: "idx_id_chamado_unique" }
@@ -187,38 +242,7 @@ dbTarget.chamados.createIndex(
 
 log(">>> Índices estratégicos criados para a coleção 'chamados'.");
 
-// 5. Carga de Dados a partir de 'chamados_dataset.json'
-const fs = require("fs");
-const path = require("path");
-
-function resolverCaminhoDataset(nomeArquivo) {
-  const caminhos = [
-    typeof __dirname !== "undefined" ? path.resolve(__dirname, nomeArquivo) : null,
-    typeof __dirname !== "undefined" ? path.resolve(__dirname, "mongodb", nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "mongodb", nomeArquivo) : null,
-    typeof process !== "undefined" && process.cwd ? path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo) : null
-  ].filter(Boolean);
-
-  for (const c of caminhos) {
-    try {
-      if (fs.existsSync(c)) return c;
-    } catch (e) {}
-  }
-  return null;
-}
-
-const caminhoJson = resolverCaminhoDataset("chamados_dataset.json");
-
-if (!caminhoJson) {
-  throw new Error("ERRO CRÍTICO: Arquivo 'chamados_dataset.json' não encontrado. Execute a partir da pasta 'Database-Advanced/mongodb/'.");
-}
-
-log(">>> Dataset localizado em: " + caminhoJson);
-
-const conteudoBruto = fs.readFileSync(caminhoJson, "utf8");
-const dadosParsed = JSON.parse(conteudoBruto);
-
+// 6. Carga de Dados a partir de 'chamados_dataset.json'
 const datasetChamados = dadosParsed.map(item => ({
   ...item,
   id_chamado: typeof NumberInt !== "undefined" ? NumberInt(item.id_chamado) : item.id_chamado,
@@ -258,3 +282,4 @@ dbTarget.chamados.find({}, {
   log(" - [ID " + doc.id_chamado + "] " + doc.titulo + " | Bairro: " + doc.localizacao.bairro + " | Status: " + doc.status_atual + " | Votos: " + doc.total_votos);
 });
 log("====================================================================");
+})();

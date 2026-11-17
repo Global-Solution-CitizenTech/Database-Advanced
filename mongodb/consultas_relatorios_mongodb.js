@@ -15,12 +15,11 @@
 // COMO EXECUTAR:
 // 1. Via Linha de Comando (mongosh):
 //    mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" consultas_relatorios_mongodb.js
-//    (Credenciais de acesso disponíveis no README.md e no arquivo .env)
 // 2. No MongoDB Compass (aba ">_MONGOSH"):
-//    process.chdir("<caminho_do_repositorio>/Database-Advanced/mongodb")
-//    load("consultas_relatorios_mongodb.js")
+//    Cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
 // ====================================================================
 
+(() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
 
 // Conecta ao database 'zelafix'
@@ -218,3 +217,4 @@ imprimirTabela(
 log("\n====================================================================");
 log("  EXECUÇÃO CONCLUÍDA COM SUCESSO! DADOS EM HARMONIA COM O ORACLE.");
 log("====================================================================");
+})();

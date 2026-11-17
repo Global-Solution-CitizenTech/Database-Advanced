@@ -1,6 +1,9 @@
 # Database-Advanced — 🏙️ ZelaFix (CitizenTech)
 > Banco de dados relacional em 3FN, Packages PL/SQL (`PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO`), trilha de auditoria DML e persistência poliglota com MongoDB Atlas — FIAP Global Solution 2026/2 — Turma 2TDSPG.
 
+## 💡 Sobre o Problema CitizenTech & Solução ZelaFix (ODS 11)
+Grandes centros urbanos sofrem com a demora na identificação e priorização de problemas de zeladoria (buracos em vias, iluminação pública apagada, bueiros obstruídos e queda de árvores), além da falta de transparência sobre o andamento das solicitações. O **ZelaFix** é uma plataforma **CitizenTech** alinhada à **ODS 11 (Cidades e Comunidades Sustentáveis)** que coloca o munícipe no centro da gestão urbana: o cidadão registra ocorrências com evidência fotográfica, a comunidade apoia demandas prioritárias por meio de votos e o poder público acompanha o histórico auditável e a criticidade por bairro.
+
 ---
 
 ## 👥 Integrantes do Projeto
@@ -18,6 +21,8 @@
 ## 🔗 Links e Estrutura Oficial de Arquivos da Entrega
 
 * **Repositório GitHub:** https://github.com/Global-Solution-CitizenTech/Database-Advanced
+* **Identificação do Grupo:** [`identificacao.txt`](./identificacao.txt)
+* **Documentação Completa c/ Prints (PDF):** [`Documentação Database Advanced GS 2 - ZelaFix.pdf`](./docs/Documenta%C3%A7%C3%A3o%20Database%20Advanced%20GS%202%20-%20ZelaFix.pdf)
 * **Modelagem Data Modeler:** [Pasta `data modeler/`](./data%20modeler) (`citizenTech.dmd` e `citizenTech.ddl`)
 * **Script SQL Relacional (DDL 3FN + Carga de Dados):** [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql)
 * **Script PL/SQL Avançado (Packages, Triggers, Blocos e Testes):** [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
@@ -322,22 +327,10 @@ Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 > `mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix`
 
 #### Execução no MongoDB Compass (Aba `>_MONGOSH`):
-1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima.
+1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima (certifique-se de estar na aba do cluster `zelafix`, e não em `localhost:27017`).
 2. Abra a aba inferior **`>_MONGOSH`**.
-3. Navegue até o diretório do projeto e execute os scripts modulares na ordem:
-   ```javascript
-   // 1. Aponta para a pasta do MongoDB do repositório extraído
-   process.chdir("<caminho_do_repositorio>/Database-Advanced/mongodb")
-
-   // 2. Cria validador de schema e popula a coleção 'chamados'
-   load("setup_mongodb_chamados.js")
-
-   // 3. Cria validador de schema e popula a coleção 'bairros_monitoramento'
-   load("setup_mongodb_bairros.js")
-
-   // 4. Executa os 3 Relatórios Analíticos com Aggregation Pipeline
-   load("consultas_relatorios_mongodb.js")
-   ```
+3. Como o shell embutido do Compass não implementa `load()` nem `process.chdir()`, basta **colar e executar** o conteúdo de cada arquivo `.js` em sequência (`setup_mongodb_chamados.js` $\rightarrow$ `setup_mongodb_bairros.js` $\rightarrow$ `consultas_relatorios_mongodb.js`).
+   > *(Caso execute em outra máquina fora do caminho local do projeto, utilize o `mongosh` CLI abaixo ou importe `chamados_dataset.json` / `bairros_dataset.json` pelo botão **Add Data → Import JSON** do Compass e cole `consultas_relatorios_mongodb.js`.)*
 
 #### Execução via Linha de Comando (`mongosh`):
 ```bash
@@ -356,6 +349,8 @@ mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" co
 ---
 
 ## 🧪 Evidências de Validação e Integridade
+
+> 📄 **Prints completos de execução** (Oracle SQL Developer + MongoDB Compass / Atlas) disponíveis no documento oficial em PDF: [`docs/Documentação Database Advanced GS 2 - ZelaFix.pdf`](./docs/Documenta%C3%A7%C3%A3o%20Database%20Advanced%20GS%202%20-%20ZelaFix.pdf).
 
 Ao executar [`consultas_relatorios_mongodb.js`](./mongodb/consultas_relatorios_mongodb.js), as saídas no console correspondem aos resultados das consultas Oracle equivalentes:
 

@@ -12,7 +12,7 @@
       "chamados_pendentes": 1,
       "chamados_concluidos": 1,
       "total_apoios": 2,
-      "tempo_medio_resolucao_horas": 8.0
+      "tempo_medio_resolucao_horas": 7.5
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
@@ -34,7 +34,7 @@
       "chamados_pendentes": 2,
       "chamados_concluidos": 0,
       "total_apoios": 2,
-      "tempo_medio_resolucao_horas": 24.5
+      "tempo_medio_resolucao_horas": 0.0
     },
     "criticidade": "ALERTA",
     "indicadores_principais": [
