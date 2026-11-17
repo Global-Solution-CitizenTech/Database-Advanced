@@ -885,9 +885,9 @@ DECLARE
     CURSOR c_analise_territorial IS
         SELECT b.id_bairro, b.nm_bairro,
                COUNT(ch.id_chamado) AS total_chamados,
-               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS total_concluidos,
-               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS total_pendentes,
-               NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'REJEITADO' THEN 1 ELSE 0 END), 0) AS total_rejeitados
+               SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END) AS total_concluidos,
+               SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END) AS total_pendentes,
+               SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'REJEITADO' THEN 1 ELSE 0 END) AS total_rejeitados
           FROM bairro b
           LEFT JOIN endereco e ON e.bairro_id_bairro = b.id_bairro
           LEFT JOIN chamado ch ON ch.endereco_id_endereco = e.id_endereco
@@ -1109,13 +1109,14 @@ END;
 /
 
 -- 4. Teste de Verificação da Trilha de Auditoria DML (TRG_AUDIT_CHAMADO)
---    Dispara o trigger com um UPDATE no-op (título := título) para gerar ao menos um
---    registro visível na consulta abaixo, dentro desta mesma sessão.
+--    Executa um UPDATE real em chamado (escalando a prioridade do chamado 1 de 3-ALTA para 4-URGENTE)
+--    para demonstrar na trilha de auditoria a diferença real entre valores_anteriores (:OLD) e valores_novos (:NEW),
+--    imprimindo o JSON completo sem truncamento. O ROLLBACK ao final da suíte restaura o valor original.
 BEGIN
     DBMS_OUTPUT.PUT_LINE('=== TESTE 4: Evidências da Trilha de Auditoria DML (AUDITORIA_DML_CHAMADO) ===');
 
-    -- UPDATE no-op: aciona trg_audit_chamado sem alterar dado real
-    UPDATE chamado SET titulo = titulo WHERE id_chamado = 1;
+    -- UPDATE real: altera prioridade_id_prioridade de 3 (ALTA) para 4 (URGENTE) no chamado 1
+    UPDATE chamado SET prioridade_id_prioridade = 4 WHERE id_chamado = 1;
 
     FOR r IN (
         SELECT id_auditoria, tipo_operacao, nome_usuario,
@@ -1126,11 +1127,11 @@ BEGIN
          FETCH FIRST 3 ROWS ONLY
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Audit #' || r.id_auditoria ||
-                             ' | Op: '     || r.tipo_operacao ||
-                             ' | User: '   || r.nome_usuario  ||
-                             ' | Data: '   || r.dt_op         ||
-                             ' | Ant: '    || NVL(SUBSTR(r.valores_anteriores, 1, 90), 'NULL') ||
-                             ' | Novos: '  || NVL(SUBSTR(r.valores_novos, 1, 90), 'NULL'));
+                             ' | Op: '   || RPAD(r.tipo_operacao, 6) ||
+                             ' | User: ' || r.nome_usuario ||
+                             ' | Data: ' || r.dt_op);
+        DBMS_OUTPUT.PUT_LINE('  Anterior: ' || NVL(r.valores_anteriores, 'NULL'));
+        DBMS_OUTPUT.PUT_LINE('  Novo:     ' || NVL(r.valores_novos, 'NULL'));
     END LOOP;
 END;
 /

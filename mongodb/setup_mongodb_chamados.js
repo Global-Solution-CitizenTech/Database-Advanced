@@ -13,67 +13,18 @@
 //   5. Milton Jakson de Sousa Marcelino - RM: 564836
 //
 // COMO EXECUTAR:
-// 1. Via Linha de Comando (mongosh) a partir da pasta 'mongodb/':
-//    cd Database-Advanced/mongodb
+// 1. Via Linha de Comando (mongosh):
 //    mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_chamados.js
-// 2. No MongoDB Compass (aba ">_MONGOSH" — load() e process.chdir() não são suportados no Compass):
-//    Cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
+// 2. No MongoDB Compass (aba ">_MONGOSH"; load() e process.chdir() não são suportados no Compass):
+//    cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
+// O arquivo chamados_dataset.json é a cópia do mesmo dataset (idêntica ao array embutido)
+// para importação manual: Compass > Add Data > Import JSON.
 // ====================================================================
 
 (() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
-const fs = require("fs");
-const path = require("path");
-
-function resolverCaminhoDataset(nomeArquivo) {
-  const caminhos = [];
-
-  if (typeof __dirname !== "undefined" && __dirname) {
-    caminhos.push(path.resolve(__dirname, nomeArquivo));
-    caminhos.push(path.resolve(__dirname, "mongodb", nomeArquivo));
-  }
-
-  // Extrai a pasta do script via stack trace quando invocado via mongosh CLI
-  try {
-    const stack = (new Error().stack || "").split("\n");
-    for (const linha of stack) {
-      const match = linha.match(/(?:at\s+|@|\()([A-Za-z]:[\\/][^:\n\r]+|\/[^:\n\r]+)/);
-      if (match && match[1]) {
-        const arq = match[1].replace(/:\d+(:\d+)?\)?$/, "").trim();
-        if (arq.endsWith(".js") && fs.existsSync(arq)) {
-          const dir = path.dirname(arq);
-          caminhos.push(path.resolve(dir, nomeArquivo));
-          caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
-        }
-      }
-    }
-  } catch (e) {}
-
-  if (typeof process !== "undefined" && process.cwd) {
-    let dir = process.cwd();
-    for (let i = 0; i < 4; i++) {
-      caminhos.push(path.resolve(dir, nomeArquivo));
-      caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
-      caminhos.push(path.resolve(dir, "Database-Advanced", "mongodb", nomeArquivo));
-      const pai = path.dirname(dir);
-      if (pai === dir) break;
-      dir = pai;
-    }
-  }
-
-  for (const c of caminhos) {
-    try {
-      if (fs.existsSync(c)) return c;
-    } catch (e) {}
-  }
-  return null;
-}
-
-// 1. Tenta ler 'chamados_dataset.json' dinamicamente; se colado direto no Compass >_MONGOSH (sem contexto de pasta), usa fallback embutido portátil.
-//    O dataset é resolvido ANTES de dropar a coleção, então o banco nunca fica vazio por falha de caminho.
-//    O fallback é cópia fiel de 'chamados_dataset.json' (mesmos 8 chamados).
-const caminhoJson = resolverCaminhoDataset("chamados_dataset.json");
-const DATASET_FALLBACK = [
+// Dataset embutido: fonte única de dados deste script.
+const DATASET_CHAMADOS = [
   {
     "id_chamado": 1,
     "titulo": "Poste com lâmpada apagada em via principal",
@@ -480,31 +431,27 @@ const DATASET_FALLBACK = [
   }
 ];
 
-const dadosParsed = caminhoJson
-  ? JSON.parse(fs.readFileSync(caminhoJson, "utf8"))
-  : DATASET_FALLBACK;
-
-// 2. Seleciona o banco oficial da aplicação (equivale ao comando "use zelafix" do mongosh interativo)
+// 2. Comando 'use': seleciona (ou cria, no primeiro insert) o database oficial 'zelafix'.
+//    use("zelafix") é o equivalente em script do comando de shell 'use zelafix'
+//    (a forma sem parênteses não é JavaScript válido dentro de um arquivo .js).
 const dbName = "zelafix";
-const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
+use(dbName);
 
 log("====================================================================");
 log(">>> [MongoDB ZelaFix] Conectado ao banco de dados: " + dbName);
-log(caminhoJson
-  ? ">>> Dataset localizado em: " + caminhoJson
-  : ">>> Modo colagem interativa (Compass >_MONGOSH): carregando 8 chamados do fallback portátil embutido.");
+log(">>> Dataset embutido no script: 8 documentos para a coleção 'chamados'.");
 log("====================================================================");
 
 // 3. Remove coleção preexistente para recriação limpa e idempotente
 try {
-  dbTarget.chamados.drop();
+  db.chamados.drop();
   log(">>> Coleção antiga 'chamados' removida para recriação limpa.");
 } catch (e) {
   // Ignora se a coleção ainda não existia
 }
 
 // 4. Criação da coleção 'chamados' com Validador de Schema JSON ($jsonSchema)
-dbTarget.createCollection("chamados", {
+db.createCollection("chamados", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
@@ -628,30 +575,30 @@ dbTarget.createCollection("chamados", {
 log(">>> Coleção 'chamados' criada com sucesso com $jsonSchema Validator.");
 
 // 5. Criação de Índices Estratégicos
-dbTarget.chamados.createIndex(
+db.chamados.createIndex(
   { "id_chamado": 1 },
   { unique: true, name: "idx_id_chamado_unique" }
 );
 
-dbTarget.chamados.createIndex(
+db.chamados.createIndex(
   { "status_atual": 1, "localizacao.bairro": 1 },
   { name: "idx_status_bairro" }
 );
 
-dbTarget.chamados.createIndex(
+db.chamados.createIndex(
   { "total_votos": -1 },
   { name: "idx_total_votos" }
 );
 
-dbTarget.chamados.createIndex(
+db.chamados.createIndex(
   { "titulo": "text", "descricao": "text" },
   { name: "idx_busca_textual_chamado", default_language: "portuguese" }
 );
 
 log(">>> Índices estratégicos criados para a coleção 'chamados'.");
 
-// 6. Carga de Dados a partir de 'chamados_dataset.json'
-const datasetChamados = dadosParsed.map(item => ({
+// 6. Carga de Dados (insertMany)
+const datasetChamados = DATASET_CHAMADOS.map(item => ({
   ...item,
   id_chamado: typeof NumberInt !== "undefined" ? NumberInt(item.id_chamado) : item.id_chamado,
   total_votos: typeof NumberInt !== "undefined" ? NumberInt(item.total_votos) : item.total_votos,
@@ -672,14 +619,14 @@ const datasetChamados = dadosParsed.map(item => ({
   }))
 }));
 
-const resultadoCarga = dbTarget.chamados.insertMany(datasetChamados);
+const resultadoCarga = db.chamados.insertMany(datasetChamados);
 const totalInseridos = resultadoCarga.insertedCount || Object.keys(resultadoCarga.insertedIds || {}).length;
 log(">>> Carga concluída com sucesso! Documentos inseridos na coleção 'chamados': " + totalInseridos);
 
-// 6. Consulta de Verificação Imediata
+// 7. Consulta de Verificação Imediata (find)
 log("====================================================================");
 log(">>> Verificação da Carga de Chamados:");
-dbTarget.chamados.find({}, {
+db.chamados.find({}, {
   id_chamado: 1,
   titulo: 1,
   categoria: 1,

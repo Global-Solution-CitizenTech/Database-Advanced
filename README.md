@@ -26,6 +26,7 @@ Grandes centros urbanos sofrem com a demora na identificação e priorização d
 * **Modelagem Data Modeler:** [Pasta `data modeler/`](./data%20modeler) (`citizenTech.dmd` e `citizenTech.ddl`)
 * **Script SQL Relacional (DDL 3FN + Carga de Dados):** [`2TDSPG_2026_CodigoSql_ZelaFix.sql`](./2TDSPG_2026_CodigoSql_ZelaFix.sql)
 * **Script PL/SQL Avançado (Packages, Triggers, Blocos e Testes):** [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
+* **Script Oracle — Relatórios Equivalentes (comparação com o MongoDB):** [`2TDSPG_2026_Relatorios_Oracle_ZelaFix.sql`](./2TDSPG_2026_Relatorios_Oracle_ZelaFix.sql)
 * **Pasta de Artefatos NoSQL MongoDB:** [`mongodb/`](./mongodb)
   * **Dataset de Chamados Enriquecidos:** [`chamados_dataset.json`](./mongodb/chamados_dataset.json)
   * **Dataset de Bairros Monitorados:** [`bairros_dataset.json`](./mongodb/bairros_dataset.json)
@@ -74,7 +75,7 @@ O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
 - **`fn_obter_status_atual`**: Função (`PRAGMA UDF`) que devolve o status vigente lendo o registro de maior `id_hist` do chamado, com apoio do índice `idx_hist_chamado_ativo`.
 - **`fn_converter_chamado_json` (conversão manual)**:
   - **Sem funções SQL/JSON nativas** (`JSON_OBJECT`, `JSON_ARRAYAGG`): monta o documento JSON em `CLOB` com `DBMS_LOB.CREATETEMPORARY` e `DBMS_LOB.WRITEAPPEND`.
-  - Serializa o chamado com objetos aninhados (`categoria`, `prioridade`, `orgaoGoverno`, `cidadao`, `localizacao`), escape de caracteres especiais pela função auxiliar `fn_escapar_json` (barra invertida, aspas, quebras de linha e tabulação) e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
+  - Serializa o chamado com objetos aninhados (`categoria`, `prioridade`, `orgaoGoverno`, `cidadao`, `localizacao`), escape de caracteres especiais pela função auxiliar `fn_escapar_json` (barra invertida, aspas e todos os caracteres de controle U+0000 a U+001F, conforme a RFC 8259) e o array embutido de histórico de status (`historicoStatus`) via cursor explícito.
 
 ### 2. Pacote 2: `PKG_ENGAJAMENTO_CIDADAO` (Inteligência Coletiva e Controle Territorial)
 - **`pr_registrar_voto`**: Registra o apoio da comunidade ao chamado (relação N:M em `voto_chamado`), bloqueando autovoto (`v_autor_chamado = p_id_usuario`), duplicidade e impedindo votos em ocorrências já encerradas (`CONCLUIDO` ou `REJEITADO`).
@@ -83,7 +84,7 @@ O arquivo [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql)
 - **`pr_relatorio_subtotal_bairros` (Subtotais e Totais Gerais Feitos à Mão)**:
   - Implementa **quebra de grupo clássica (Control Break)** através de cursor explícito ordenado por `(b.nm_bairro, ch.id_chamado)`.
   - **Acumuladores Manuais em Variáveis PL/SQL**: Calcula à mão `v_sub_chamados`, `v_sub_pendentes`, `v_sub_concluidos`, `v_sub_rejeitados` e `v_sub_votos` a cada transição de bairro. Chamados `REJEITADO` são contados à parte e não entram nos pendentes.
-  - Ao final do loop, emite o subtotal do último grupo e imprime o **TOTAL GERAL MUNICIPAL** com contagens consolidadas e cálculo manual da **Taxa Geral de Resolução (%)**.
+  - Ao final do loop, emite o subtotal do último grupo e imprime o **TOTAL GERAL MUNICIPAL** com contagens consolidadas e cálculo manual da **Taxa de Conclusão (%)**, com os chamados rejeitados fora do denominador.
   - **Sem `ROLLUP`**: os subtotais e o total geral vêm de acumuladores em variáveis PL/SQL.
 
 ### 3. Tratamento de Exceções
@@ -107,9 +108,10 @@ As rotinas tratam exceções específicas antes do `WHEN OTHERS`, entre elas:
 1. **Teste 1 (Pacote 1):** Abertura atômica de chamado com foto BLOB, transição de status por gestor (`PENDENTE` $\rightarrow$ `EM_ANALISE`) e geração manual de JSON com histórico em CLOB.
 2. **Teste 2 (Pacote 2 e Trigger):** Registro de apoio comunitário, totalização de votos e quatro bloqueios: voto duplicado (`e_voto_duplicado`), autovoto pela procedure (`e_autovoto_proibido`), autovoto por `INSERT` direto (barrado pela trigger `trg_valida_voto_chamado`) e voto em chamado `CONCLUIDO` (`e_chamado_fechado`). Se um bloqueio não ocorrer, o teste imprime `FALHA`.
 3. **Teste 3 (Subtotais):** Emissão do relatório territorial com quebra de grupo, subtotais e total geral feitos à mão (`pr_relatorio_subtotal_bairros`).
-4. **Teste 4 (Auditoria DML):** Verificação dos registros gerados pela trigger `TRG_AUDIT_CHAMADO` na tabela `AUDITORIA_DML_CHAMADO`.
+4. **Teste 4 (Auditoria DML):** Execução de `UPDATE` na prioridade do chamado 1 (`3-ALTA` $\rightarrow$ `4-URGENTE`) e listagem dos snapshots JSON completos (`valores_anteriores` vs. `valores_novos`) gravados pela trigger `TRG_AUDIT_CHAMADO` em `AUDITORIA_DML_CHAMADO`.
 5. **Teste 5 (Escape JSON):** Validação da função `fn_escapar_json` com aspas, barra invertida, quebra de linha, tabulação e caracteres de controle (`\u00XX`).
 - Finalizado com comando `ROLLBACK;` para preservação das sementes de teste.
+
 ---
 
 ## 🔄 Matriz de Mapeamento: Do Relacional ao MongoDB
@@ -123,6 +125,11 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | `voto_chamado` (Apoios populares) | Array embutido `votos: [ { id_usuario, nome, dt_voto } ]` | **Embedding** | Preserva a rastreabilidade de quem apoiou a ocorrência diretamente no documento principal. |
 | Total de votos computado | Campo desnormalizado `total_votos: NumberInt` | **Desnormalização Controlada** | No Oracle, a contagem exige `COUNT(v.id_voto)` com `GROUP BY`. No MongoDB, o total é armazenado diretamente para permitir índice ordenado (`{ total_votos: -1 }`) e ranking instantâneo. |
 | Gestão Territorial das Subprefeituras | Coleção separada `bairros_monitoramento` | **Referencing Lógico** | Bairros são entidades de análise autônoma com ciclo de vida independente dos chamados. O vínculo é mantido pelo campo lógico `id_bairro`. |
+| `categoria` e `status` (tabelas de domínio) | Campos de texto `categoria`, `status_atual` e `historico[].status`, com `enum` no `$jsonSchema` | **Valor por extenso** | As tabelas de apoio só guardam o nome; gravar o texto elimina o JOIN, e o `enum` mantém o mesmo domínio dos `CHECK` do Oracle. `status_atual` é o último evento de `hist_chamado` (o que `fn_obter_status_atual` devolve). |
+
+> **Fora da migração, por decisão:** `usuario.senha` (hash de credencial não deve ir para a base analítica) e `telefone` (contato sem uso nos relatórios).
+>
+> **Só existe no MongoDB:** em `bairros_monitoramento`, `subprefeitura`, `zona` e `populacao_estimada` são dados de referência territorial, sem coluna correspondente no Oracle. Já `metricas` (totais de chamados, pendentes, concluídos, apoios e `tempo_medio_resolucao_horas`) e `criticidade` são derivados dos dados do Oracle: as métricas coincidem com o Relatório 3 e a criticidade segue a regra de `fn_classificar_criticidade_bairro`.
 
 ---
 
@@ -149,7 +156,8 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
     JOIN bairro b ON b.id_bairro = e.bairro_id_bairro
     LEFT JOIN voto_chamado v ON v.chamado_id_chamado = c.id_chamado
    WHERE pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) NOT IN ('CONCLUIDO', 'REJEITADO')
-   GROUP BY c.id_chamado, c.titulo, cat.nm_categoria, b.nm_bairro
+   GROUP BY c.id_chamado, c.titulo, cat.nm_categoria, b.nm_bairro,
+            pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado)
    ORDER BY total_votos DESC, c.id_chamado ASC;
   ```
 
@@ -160,7 +168,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | **1** | Poste com lâmpada apagada em via principal | Bela Vista | `ILUMINACAO_PUBLICA` | `EM_EXECUCAO` | **2** |
 | **2** | Buraco profundo na faixa da direita da via | Pinheiros | `VIAS_E_PAVIMENTACAO` | `EM_ANALISE` | **2** |
 | **4** | Descarte irregular de entulho e móveis velhos | Mooca | `LIMPEZA_URBANA` | `PENDENTE` | **2** |
-| **5** | Galho de grande porte com risco de queda | Santana | `ARVORES_E_PARQUES` | `EM_ANALISE` | **2** |
+| **5** | Galho de grande porte com risco de queda sobre fiação elétrica | Santana | `ARVORES_E_PARQUES` | `EM_ANALISE` | **2** |
 | **7** | Vazamento contínuo de água limpa no meio-fio | Pinheiros | `DRENAGEM_E_ESGOTO` | `EM_EXECUCAO` | **0** |
 
 ---
@@ -199,9 +207,9 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
   ```sql
   SELECT cat.nm_categoria AS categoria,
          COUNT(c.id_chamado) AS total_ocorrencias,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS ocorrencias_abertas,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS ocorrencias_concluidas,
-         NVL(SUM(v.qtd_votos), 0) AS total_votos_acumulados
+         SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END) AS ocorrencias_abertas,
+         SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(c.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END) AS ocorrencias_concluidas,
+         SUM(NVL(v.qtd_votos, 0)) AS total_votos_acumulados
     FROM categoria cat
     LEFT JOIN chamado c ON c.categoria_id_categoria = cat.id_categoria
     LEFT JOIN (SELECT chamado_id_chamado, COUNT(*) AS qtd_votos
@@ -279,10 +287,10 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
   SELECT b.nm_bairro AS bairro,
          c.nm_cidade AS cidade,
          COUNT(ch.id_chamado) AS total_chamados,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) AS chamados_pendentes,
-         NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END), 0) AS chamados_resolvidos,
-         ROUND((NVL(SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END), 0) / COUNT(ch.id_chamado)) * 100, 1) AS taxa_pendencia_pct,
-         NVL(SUM(v.qtd_votos), 0) AS votos_totais
+         SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END) AS chamados_pendentes,
+         SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) = 'CONCLUIDO' THEN 1 ELSE 0 END) AS chamados_resolvidos,
+         ROUND((SUM(CASE WHEN pkg_chamado_gestao.fn_obter_status_atual(ch.id_chamado) IN ('PENDENTE', 'EM_ANALISE', 'EM_EXECUCAO') THEN 1 ELSE 0 END) / COUNT(ch.id_chamado)) * 100, 1) AS taxa_pendencia_pct,
+         SUM(NVL(v.qtd_votos, 0)) AS votos_totais
     FROM bairro b
     JOIN cidade c ON c.id_cidade = b.cidade_id_cidade
     JOIN endereco e ON e.bairro_id_bairro = b.id_bairro
@@ -316,6 +324,8 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 2. **Passo 2 — Empacotamento PL/SQL, Triggers e Testes:**
    - Execute o script [`2TDSPG_2026_Pacotes_ZelaFix.sql`](./2TDSPG_2026_Pacotes_ZelaFix.sql).
    - Ele compila as packages `PKG_CHAMADO_GESTAO` e `PKG_ENGAJAMENTO_CIDADAO`, as triggers `TRG_AUDIT_CHAMADO` e `TRG_VALIDA_VOTO_CHAMADO`, os 2 blocos anônimos e roda a bateria de testes de integração com `DBMS_OUTPUT` e `ROLLBACK` seguro.
+3. **Passo 3 — Relatórios Oracle equivalentes aos do MongoDB:**
+   - Execute [`2TDSPG_2026_Relatorios_Oracle_ZelaFix.sql`](./2TDSPG_2026_Relatorios_Oracle_ZelaFix.sql) depois do Passo 2. São as mesmas 3 consultas da seção de relatórios acima, e a saída coincide com as tabelas "Resultado Comparativo Obtido".
 
 ---
 
@@ -329,8 +339,8 @@ Todos os artefatos residem na pasta [`mongodb/`](./mongodb).
 #### Execução no MongoDB Compass (Aba `>_MONGOSH`):
 1. Abra o **MongoDB Compass** e conecte-se com a URI do cluster acima (certifique-se de estar na aba do cluster `zelafix`, e não em `localhost:27017`).
 2. Abra a aba inferior **`>_MONGOSH`**.
-3. Como o shell embutido do Compass não implementa `load()` nem `process.chdir()`, basta **colar e executar** o conteúdo de cada arquivo `.js` em sequência (`setup_mongodb_chamados.js` $\rightarrow$ `setup_mongodb_bairros.js` $\rightarrow$ `consultas_relatorios_mongodb.js`).
-   > *(Caso execute em outra máquina fora do caminho local do projeto, utilize o `mongosh` CLI abaixo ou importe `chamados_dataset.json` / `bairros_dataset.json` pelo botão **Add Data → Import JSON** do Compass e cole `consultas_relatorios_mongodb.js`.)*
+3. Como os scripts utilizam `use("zelafix")` e já trazem os datasets embutidos de forma autossuficiente (sem depender de `load()`, `process.chdir()` ou caminhos locais), basta **colar e executar** o conteúdo de cada arquivo `.js` em sequência (`setup_mongodb_chamados.js` $\rightarrow$ `setup_mongodb_bairros.js` $\rightarrow$ `consultas_relatorios_mongodb.js`).
+   > *(Os arquivos `chamados_dataset.json` e `bairros_dataset.json` contêm exatamente os mesmos dados em formato JSON puro para importação manual opcional via **Add Data → Import JSON** do Compass.)*
 
 #### Execução via Linha de Comando (`mongosh`):
 ```bash

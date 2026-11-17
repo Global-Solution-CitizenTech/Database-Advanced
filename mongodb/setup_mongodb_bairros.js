@@ -12,66 +12,20 @@
 //   4. Luna de Carvalho Guimarães       - RM: 562290
 //   5. Milton Jakson de Sousa Marcelino - RM: 564836
 //
-// COMO EXECUTAR:
-// 1. Via Linha de Comando (mongosh) a partir da pasta 'mongodb/':
-//    cd Database-Advanced/mongodb
+// COMO EXECUTAR (script autossuficiente: os 5 documentos estão embutidos neste arquivo,
+// sem depender de caminho de pasta nem de arquivo externo):
+// 1. Via Linha de Comando (mongosh):
 //    mongosh "mongodb+srv://<usuario>:<senha>@zelafix.t2rxvpu.mongodb.net/zelafix" setup_mongodb_bairros.js
-// 2. No MongoDB Compass (aba ">_MONGOSH" — load() e process.chdir() não são suportados no Compass):
-//    Cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
+// 2. No MongoDB Compass (aba ">_MONGOSH"; load() e process.chdir() não são suportados no Compass):
+//    cole o conteúdo deste arquivo diretamente no console ">_MONGOSH" conectado ao cluster.
+// O arquivo bairros_dataset.json é a cópia do mesmo dataset (idêntica ao array embutido)
+// para importação manual: Compass > Add Data > Import JSON.
 // ====================================================================
 
 (() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
-const fs = require("fs");
-const path = require("path");
-
-function resolverCaminhoDataset(nomeArquivo) {
-  const caminhos = [];
-
-  if (typeof __dirname !== "undefined" && __dirname) {
-    caminhos.push(path.resolve(__dirname, nomeArquivo));
-    caminhos.push(path.resolve(__dirname, "mongodb", nomeArquivo));
-  }
-
-  // Extrai a pasta do script via stack trace quando invocado via mongosh CLI
-  try {
-    const stack = (new Error().stack || "").split("\n");
-    for (const linha of stack) {
-      const match = linha.match(/(?:at\s+|@|\()([A-Za-z]:[\\/][^:\n\r]+|\/[^:\n\r]+)/);
-      if (match && match[1]) {
-        const arq = match[1].replace(/:\d+(:\d+)?\)?$/, "").trim();
-        if (arq.endsWith(".js") && fs.existsSync(arq)) {
-          const dir = path.dirname(arq);
-          caminhos.push(path.resolve(dir, nomeArquivo));
-          caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
-        }
-      }
-    }
-  } catch (e) {}
-
-  if (typeof process !== "undefined" && process.cwd) {
-    let dir = process.cwd();
-    for (let i = 0; i < 4; i++) {
-      caminhos.push(path.resolve(dir, nomeArquivo));
-      caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
-      caminhos.push(path.resolve(dir, "Database-Advanced", "mongodb", nomeArquivo));
-      const pai = path.dirname(dir);
-      if (pai === dir) break;
-      dir = pai;
-    }
-  }
-
-  for (const c of caminhos) {
-    try {
-      if (fs.existsSync(c)) return c;
-    } catch (e) {}
-  }
-  return null;
-}
-
-// 1. Tenta ler 'bairros_dataset.json' dinamicamente; se colado direto no Compass >_MONGOSH (sem contexto de pasta), usa fallback embutido portátil
-const caminhoJson = resolverCaminhoDataset("bairros_dataset.json");
-const DATASET_FALLBACK = [
+// Dataset embutido: fonte única de dados deste script (sem leitura de arquivo, sem fallback).
+const DATASET_BAIRROS = [
   {
     "id_bairro": 1,
     "nome_bairro": "Bela Vista",
@@ -182,31 +136,27 @@ const DATASET_FALLBACK = [
   }
 ];
 
-const dadosParsed = caminhoJson
-  ? JSON.parse(fs.readFileSync(caminhoJson, "utf8"))
-  : DATASET_FALLBACK;
-
-// 2. Seleciona o banco oficial da aplicação
+// 2. Comando 'use': seleciona (ou cria, no primeiro insert) o database oficial 'zelafix'.
+//    use("zelafix") é o equivalente em script do comando de shell 'use zelafix'
+//    (a forma sem parênteses não é JavaScript válido dentro de um arquivo .js).
 const dbName = "zelafix";
-const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
+use(dbName);
 
 log("====================================================================");
 log(">>> [MongoDB ZelaFix] Conectado ao banco de dados: " + dbName);
-log(caminhoJson
-  ? ">>> Dataset localizado em: " + caminhoJson
-  : ">>> Modo colagem interativa (Compass >_MONGOSH): carregando 5 bairros do fallback portátil embutido.");
+log(">>> Dataset embutido no script: 5 documentos para a coleção 'bairros_monitoramento'.");
 log("====================================================================");
 
 // 3. Remove coleção preexistente para recriação limpa e idempotente
 try {
-  dbTarget.bairros_monitoramento.drop();
+  db.bairros_monitoramento.drop();
   log(">>> Coleção antiga 'bairros_monitoramento' removida para recriação limpa.");
 } catch (e) {
   // Ignora se a coleção ainda não existia
 }
 
 // 4. Criação da coleção com Validador de Schema JSON ($jsonSchema)
-dbTarget.createCollection("bairros_monitoramento", {
+db.createCollection("bairros_monitoramento", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
@@ -281,30 +231,30 @@ dbTarget.createCollection("bairros_monitoramento", {
 log(">>> Coleção 'bairros_monitoramento' criada com sucesso com $jsonSchema Validator.");
 
 // 5. Criação de Índices Estratégicos
-dbTarget.bairros_monitoramento.createIndex(
+db.bairros_monitoramento.createIndex(
   { "id_bairro": 1 },
   { unique: true, name: "idx_id_bairro_unique" }
 );
 
-dbTarget.bairros_monitoramento.createIndex(
+db.bairros_monitoramento.createIndex(
   { "criticidade": 1 },
   { name: "idx_criticidade_bairro" }
 );
 
-dbTarget.bairros_monitoramento.createIndex(
+db.bairros_monitoramento.createIndex(
   { "subprefeitura": 1 },
   { name: "idx_subprefeitura" }
 );
 
-dbTarget.bairros_monitoramento.createIndex(
+db.bairros_monitoramento.createIndex(
   { "zona": 1, "nome_bairro": 1 },
   { name: "idx_zona_nome" }
 );
 
 log(">>> Índices estratégicos criados para a coleção 'bairros_monitoramento'.");
 
-// 6. Carga de Dados a partir de 'bairros_dataset.json'
-const datasetBairros = dadosParsed.map(item => ({
+// 6. Carga de Dados (insertMany)
+const datasetBairros = DATASET_BAIRROS.map(item => ({
   ...item,
   id_bairro: typeof NumberInt !== "undefined" ? NumberInt(item.id_bairro) : item.id_bairro,
   populacao_estimada: typeof NumberInt !== "undefined" ? NumberInt(item.populacao_estimada) : item.populacao_estimada,
@@ -318,14 +268,14 @@ const datasetBairros = dadosParsed.map(item => ({
   }
 }));
 
-const resultadoCarga = dbTarget.bairros_monitoramento.insertMany(datasetBairros);
+const resultadoCarga = db.bairros_monitoramento.insertMany(datasetBairros);
 const totalInseridos = resultadoCarga.insertedCount || Object.keys(resultadoCarga.insertedIds || {}).length;
 log(">>> Carga concluída com sucesso! Documentos inseridos na coleção 'bairros_monitoramento': " + totalInseridos);
 
-// 6. Consulta de Verificação Imediata
+// 7. Consulta de Verificação Imediata (find)
 log("====================================================================");
 log(">>> Verificação da Carga de Bairros Monitorados:");
-dbTarget.bairros_monitoramento.find({}, {
+db.bairros_monitoramento.find({}, {
   id_bairro: 1,
   nome_bairro: 1,
   subprefeitura: 1,

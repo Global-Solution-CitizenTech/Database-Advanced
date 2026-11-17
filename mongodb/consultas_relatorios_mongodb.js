@@ -22,9 +22,10 @@
 (() => {
 const log = typeof console !== "undefined" && console.log ? console.log : print;
 
-// Conecta ao database 'zelafix'
+// Comando 'use': seleciona o database oficial 'zelafix'.
+// use("zelafix") é o equivalente em script do comando de shell 'use zelafix'.
 const dbName = "zelafix";
-const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
+use(dbName);
 
 /**
  * Função Auxiliar Reutilizável (DRY): Formatação e renderização de tabelas CLI
@@ -63,7 +64,7 @@ log("====================================================================");
 // Método: find() com filtro de exclusão ($nin), projeção e ordenação descendente
 // Objetivo: Listar as ocorrências ativas com maior engajamento popular
 // --------------------------------------------------------------------
-const relatorio1 = dbTarget.chamados.find(
+const relatorio1 = db.chamados.find(
   {
     status_atual: { $nin: ["CONCLUIDO", "REJEITADO"] }
   },
@@ -97,7 +98,7 @@ imprimirTabela(
 // Operadores: $group com acumuladores ($sum, $cond) e $sort
 // Objetivo: Apoiar o planejamento orçamentário municipal mapeando gargalos
 // --------------------------------------------------------------------
-const relatorio2 = dbTarget.chamados.aggregate([
+const relatorio2 = db.chamados.aggregate([
   {
     $group: {
       _id: "$categoria",
@@ -150,7 +151,7 @@ imprimirTabela(
 // Operadores: $group, $project com expressões aritméticas ($multiply, $divide, $round) e $sort
 // Objetivo: Identificar distritos com maior taxa de pendência para mutirões
 // --------------------------------------------------------------------
-const relatorio3 = dbTarget.chamados.aggregate([
+const relatorio3 = db.chamados.aggregate([
   {
     $group: {
       _id: "$localizacao.bairro",
