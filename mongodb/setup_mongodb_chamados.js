@@ -50,13 +50,16 @@ function resolverCaminhoDataset(nomeArquivo) {
   } catch (e) {}
 
   if (typeof process !== "undefined" && process.cwd) {
-    caminhos.push(path.resolve(process.cwd(), nomeArquivo));
-    caminhos.push(path.resolve(process.cwd(), "mongodb", nomeArquivo));
-    caminhos.push(path.resolve(process.cwd(), "Database-Advanced", "mongodb", nomeArquivo));
+    let dir = process.cwd();
+    for (let i = 0; i < 4; i++) {
+      caminhos.push(path.resolve(dir, nomeArquivo));
+      caminhos.push(path.resolve(dir, "mongodb", nomeArquivo));
+      caminhos.push(path.resolve(dir, "Database-Advanced", "mongodb", nomeArquivo));
+      const pai = path.dirname(dir);
+      if (pai === dir) break;
+      dir = pai;
+    }
   }
-
-  // Caminho canônico do repositório no ambiente de desenvolvimento (permite colar direto no MongoDB Compass)
-  caminhos.push(path.resolve("C:/Users/Enzo/new_backup/FIAP/_Projetos/Global_Solution_2/Database-Advanced/mongodb", nomeArquivo));
 
   for (const c of caminhos) {
     try {
@@ -66,25 +69,430 @@ function resolverCaminhoDataset(nomeArquivo) {
   return null;
 }
 
-// 1. Localiza e lê o dataset ANTES de dropar a coleção (evita deixar o banco vazio se o path falhar)
+// 1. Tenta ler 'chamados_dataset.json' dinamicamente; se colado direto no Compass >_MONGOSH (sem contexto de pasta), usa fallback embutido portátil.
+//    O dataset é resolvido ANTES de dropar a coleção, então o banco nunca fica vazio por falha de caminho.
+//    O fallback é cópia fiel de 'chamados_dataset.json' (mesmos 8 chamados).
 const caminhoJson = resolverCaminhoDataset("chamados_dataset.json");
+const DATASET_FALLBACK = [
+  {
+    "id_chamado": 1,
+    "titulo": "Poste com lâmpada apagada em via principal",
+    "descricao": "Poste de iluminação pública em frente ao número 1106 apagado há 4 noites consecutivas, gerando sensação de insegurança aos pedestres.",
+    "categoria": "ILUMINACAO_PUBLICA",
+    "status_atual": "EM_EXECUCAO",
+    "dt_abertura": "2026-10-28T19:40:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Paulista",
+      "numero": "1106",
+      "referencia": "Próximo ao MASP",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01311000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-28T19:40:00Z",
+        "status": "PENDENTE",
+        "observacao": "Chamado aberto pelo cidadão via aplicativo ZelaFix.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-29T10:00:00Z",
+        "status": "EM_EXECUCAO",
+        "observacao": "Ordem de serviço nº 4022 emitida e encaminhada à concessionária de energia.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-10-29T09:00:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-10-29T18:45:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "ALTA",
+      "parecer": "Risco de segurança noturna identificado pela triagem inteligente.",
+      "orgao_sugerido": "ILUMINACAO_PUBLICA"
+    }
+  },
+  {
+    "id_chamado": 2,
+    "titulo": "Buraco profundo na faixa da direita da via",
+    "descricao": "Cratera aberta no asfalto com risco iminente de acidente com motociclistas e danos a veículos.",
+    "categoria": "VIAS_E_PAVIMENTACAO",
+    "status_atual": "EM_ANALISE",
+    "dt_abertura": "2026-10-30T08:15:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 2,
+      "nome": "Mariana Oliveira Souza",
+      "email": "mariana.souza@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua dos Pinheiros",
+      "numero": "450",
+      "referencia": "Esquina com Rua Fradique Coutinho",
+      "bairro": "Pinheiros",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "05422000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-30T08:15:00Z",
+        "status": "PENDENTE",
+        "observacao": "Chamado registrado aguardando vistoria da equipe de tapa-buraco.",
+        "responsavel": "Mariana Oliveira Souza"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-31T14:30:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Vistoria técnica presencial realizada; incluído na programação do recapeamento semanal.",
+        "responsavel": "Coordenador Lucas Mendes"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 1,
+        "nome": "Carlos Alberto Silva",
+        "dt_voto": "2026-10-30T09:30:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-10-30T14:15:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "URGENTE",
+      "parecer": "Risco elevado de sinistro de trânsito em via arterial.",
+      "orgao_sugerido": "SECRETARIA_OBRAS"
+    }
+  },
+  {
+    "id_chamado": 3,
+    "titulo": "Bueiro entupido com transbordamento de águas pluviais",
+    "descricao": "Boca de lobo completamente obstruída por folhas e lixo acumulado. Em dias de chuva média ocorre alagamento da calçada.",
+    "categoria": "DRENAGEM_E_ESGOTO",
+    "status_atual": "CONCLUIDO",
+    "dt_abertura": "2026-10-25T14:10:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Praça da Sé",
+      "numero": "100",
+      "referencia": "Em frente à Catedral da Sé",
+      "bairro": "Sé",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01001000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-25T14:10:00Z",
+        "status": "PENDENTE",
+        "observacao": "Abertura de chamado de galeria pluvial.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-26T09:00:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Vistoria identificou acúmulo de detritos.",
+        "responsavel": "Eng. Roberto Santos"
+      },
+      {
+        "ordem": 3,
+        "data": "2026-10-27T16:30:00Z",
+        "status": "CONCLUIDO",
+        "observacao": "Equipe de hidrojateamento concluiu a desobstrução e remoção de sedimentos da galeria.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "ALTA",
+      "parecer": "Obstrução de galeria pluvial com risco de alagamento local.",
+      "orgao_sugerido": "SANEAMENTO_BASICO"
+    }
+  },
+  {
+    "id_chamado": 4,
+    "titulo": "Descarte irregular de entulho e móveis velhos",
+    "descricao": "Grande volume de entulho de construção civil e sofás descartados irregularmente bloqueando passagem de pedestres e cadeirantes.",
+    "categoria": "LIMPEZA_URBANA",
+    "status_atual": "PENDENTE",
+    "dt_abertura": "2026-11-01T10:20:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 4,
+      "nome": "Fernanda Costa Lima",
+      "email": "fernanda.costa@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua da Mooca",
+      "numero": "1500",
+      "referencia": "Ao lado da estação Mooca",
+      "bairro": "Mooca",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "03104001"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-01T10:20:00Z",
+        "status": "PENDENTE",
+        "observacao": "Registro de descarte irregular de entulho na calçada.",
+        "responsavel": "Fernanda Costa Lima"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 1,
+        "nome": "Carlos Alberto Silva",
+        "dt_voto": "2026-11-01T11:00:00Z"
+      },
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-11-01T14:20:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "MEDIA",
+      "parecer": "Obstrução de calçada e proliferação de vetores.",
+      "orgao_sugerido": "SUBPREFEITURA"
+    }
+  },
+  {
+    "id_chamado": 5,
+    "titulo": "Galho de grande porte com risco de queda sobre fiação elétrica",
+    "descricao": "Galho seco de árvore centenária encostando diretamente nos cabos da rede elétrica com estalos em dias de vento forte.",
+    "categoria": "ARVORES_E_PARQUES",
+    "status_atual": "EM_ANALISE",
+    "dt_abertura": "2026-11-02T11:45:00Z",
+    "total_votos": 2,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Cruzeiro do Sul",
+      "numero": "2500",
+      "referencia": "Em frente ao Metrô Santana",
+      "bairro": "Santana",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "02030000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-02T11:45:00Z",
+        "status": "PENDENTE",
+        "observacao": "Abertura de chamado de arborização com risco em fiação.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-02T14:00:00Z",
+        "status": "EM_ANALISE",
+        "observacao": "Equipe técnica encaminhou protocolo urgente para Enel.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [
+      {
+        "id_usuario": 2,
+        "nome": "Mariana Oliveira Souza",
+        "dt_voto": "2026-11-02T12:00:00Z"
+      },
+      {
+        "id_usuario": 4,
+        "nome": "Fernanda Costa Lima",
+        "dt_voto": "2026-11-02T13:10:00Z"
+      }
+    ],
+    "triagem_ia": {
+      "prioridade": "URGENTE",
+      "parecer": "Interferência de arborização em rede de média tensão.",
+      "orgao_sugerido": "DEFESA_CIVIL"
+    }
+  },
+  {
+    "id_chamado": 6,
+    "titulo": "Semáforo de pedestres apagado em cruzamento escolar",
+    "descricao": "Sinalização semafórica piscando em amarelo intermitente no cruzamento de fluxo de estudantes da escola local.",
+    "categoria": "SINALIZACAO_E_TRANSITO",
+    "status_atual": "CONCLUIDO",
+    "dt_abertura": "2026-10-26T07:30:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 2,
+      "nome": "Mariana Oliveira Souza",
+      "email": "mariana.souza@email.com"
+    },
+    "localizacao": {
+      "rua": "Avenida Paulista",
+      "numero": "1106",
+      "referencia": "Próximo ao MASP",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01311000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-10-26T07:30:00Z",
+        "status": "PENDENTE",
+        "observacao": "Semáforo com defeito comunicado por munícipe.",
+        "responsavel": "Mariana Oliveira Souza"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-10-26T15:00:00Z",
+        "status": "CONCLUIDO",
+        "observacao": "Equipe semafórica da CET realizou a substituição da controladora digital.",
+        "responsavel": "Coordenador Lucas Mendes"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "URGENTE",
+      "parecer": "Risco a pedestres e crianças em travessia de faixa escolar.",
+      "orgao_sugerido": "CET_TRANSITO"
+    }
+  },
+  {
+    "id_chamado": 7,
+    "titulo": "Vazamento contínuo de água limpa no meio-fio",
+    "descricao": "Cavalete ou tubulação rompida jorrando água limpa continuamente há 2 dias com erosão da sarjeta.",
+    "categoria": "DRENAGEM_E_ESGOTO",
+    "status_atual": "EM_EXECUCAO",
+    "dt_abertura": "2026-11-03T16:50:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 4,
+      "nome": "Fernanda Costa Lima",
+      "email": "fernanda.costa@email.com"
+    },
+    "localizacao": {
+      "rua": "Rua dos Pinheiros",
+      "numero": "450",
+      "referencia": "Esquina com Rua Fradique Coutinho",
+      "bairro": "Pinheiros",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "05422000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-03T16:50:00Z",
+        "status": "PENDENTE",
+        "observacao": "Comunicação de vazamento contínuo de água tratada.",
+        "responsavel": "Fernanda Costa Lima"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-04T08:30:00Z",
+        "status": "EM_EXECUCAO",
+        "observacao": "Técnicos em campo efetuando abertura de vala para reparo do cavalete.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "ALTA",
+      "parecer": "Desperdício de recurso hídrico e erosão asfáltica superficial.",
+      "orgao_sugerido": "SANEAMENTO_BASICO"
+    }
+  },
+  {
+    "id_chamado": 8,
+    "titulo": "Pichação em patrimônio histórico tombado",
+    "descricao": "Vandalismo com tintas na fachada lateral do monumento público da praça.",
+    "categoria": "LIMPEZA_URBANA",
+    "status_atual": "REJEITADO",
+    "dt_abertura": "2026-11-04T09:10:00Z",
+    "total_votos": 0,
+    "cidadao": {
+      "id_usuario": 1,
+      "nome": "Carlos Alberto Silva",
+      "email": "carlos.silva@email.com"
+    },
+    "localizacao": {
+      "rua": "Praça da Sé",
+      "numero": "100",
+      "referencia": "Em frente à Catedral da Sé",
+      "bairro": "Sé",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01001000"
+    },
+    "historico": [
+      {
+        "ordem": 1,
+        "data": "2026-11-04T09:10:00Z",
+        "status": "PENDENTE",
+        "observacao": "Abertura de denúncia de pichação.",
+        "responsavel": "Carlos Alberto Silva"
+      },
+      {
+        "ordem": 2,
+        "data": "2026-11-04T11:20:00Z",
+        "status": "REJEITADO",
+        "observacao": "Solicitação indeferida por duplicidade de protocolo já cadastrado na concessionária.",
+        "responsavel": "Eng. Roberto Santos"
+      }
+    ],
+    "votos": [],
+    "triagem_ia": {
+      "prioridade": "BAIXA",
+      "parecer": "Dano estético em fachada pública.",
+      "orgao_sugerido": "SUBPREFEITURA"
+    }
+  }
+];
 
-if (!caminhoJson) {
-  throw new Error(
-    "ERRO CRÍTICO: Arquivo 'chamados_dataset.json' não encontrado. Execute via mongosh CLI na pasta 'Database-Advanced/mongodb/' ou importe o JSON pelo MongoDB Compass."
-  );
-}
+const dadosParsed = caminhoJson
+  ? JSON.parse(fs.readFileSync(caminhoJson, "utf8"))
+  : DATASET_FALLBACK;
 
-const conteudoBruto = fs.readFileSync(caminhoJson, "utf8");
-const dadosParsed = JSON.parse(conteudoBruto);
-
-// 2. Seleciona o banco oficial da aplicação
+// 2. Seleciona o banco oficial da aplicação (equivale ao comando "use zelafix" do mongosh interativo)
 const dbName = "zelafix";
 const dbTarget = typeof db !== "undefined" && db.getSiblingDB ? db.getSiblingDB(dbName) : db;
 
 log("====================================================================");
 log(">>> [MongoDB ZelaFix] Conectado ao banco de dados: " + dbName);
-log(">>> Dataset localizado em: " + caminhoJson);
+log(caminhoJson
+  ? ">>> Dataset localizado em: " + caminhoJson
+  : ">>> Modo colagem interativa (Compass >_MONGOSH): carregando 8 chamados do fallback portátil embutido.");
 log("====================================================================");
 
 // 3. Remove coleção preexistente para recriação limpa e idempotente
