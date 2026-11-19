@@ -10,8 +10,8 @@ Grandes centros urbanos sofrem com a demora na identificação e priorização d
 
 | Nome | RM | Turma | GitHub | LinkedIn |
 | :--- | :---: | :---: | :--- | :--- |
-| **Enzo Okuizumi** | **561432** | 2TDSPG | [EnzoOkuizumiFiap](https://github.com/EnzoOkuizumiFiap) | [Enzo Okuizumi](https://www.linkedin.com/in/enzo-okuizumi-b60292256/) |
-| **Gustavo Okada** | **563428** | 2TDSPG | [Gdev3356](https://github.com/Gdev3356) | [Gustavo Okada](https://www.linkedin.com/in/gustavo-okada-53a3b8359/) |
+| **Enzo Okuizumi Miranda de Souza** | **561432** | 2TDSPG | [EnzoOkuizumiFiap](https://github.com/EnzoOkuizumiFiap) | [Enzo Okuizumi](https://www.linkedin.com/in/enzo-okuizumi-b60292256/) |
+| **Gustavo Keiji Okada** | **563428** | 2TDSPG | [Gdev3356](https://github.com/Gdev3356) | [Gustavo Okada](https://www.linkedin.com/in/gustavo-okada-53a3b8359/) |
 | **Lucas Barros Gouveia** | **566422** | 2TDSPG | [LuzBGouveia](https://github.com/LuzBGouveia) | [Lucas Barros Gouveia](https://www.linkedin.com/in/lucas-barros-gouveia-09b147355/) |
 | **Luna de Carvalho Guimarães** | **562290** | 2TDSPG | [lunaguima](https://github.com/lunaguima) | [Luna Guimarães](https://www.linkedin.com/in/luna-guimar%C3%A3es-b0ba82309/) |
 | **Milton Jakson de Sousa Marcelino** | **564836** | 2TDSPG | [MiltonMarcelino](https://github.com/MiltonMarcelino) | [Milton Marcelino](https://www.linkedin.com/in/milton-marcelino-250298142) |
@@ -52,7 +52,7 @@ O modelo de dados do **ZelaFix** foi modelado no **Oracle SQL Developer Data Mod
 3. **Sem índice redundante em `voto_chamado`:** as consultas por `chamado_id_chamado` usam a *leading column* da constraint `UNIQUE voto_chamado_un (chamado_id_chamado, usuario_id_usuario)`, então não foi criado um índice separado para essa coluna.
 4. **Separação de Autoria vs. Apoio Comunitário (N:M):**
    - **Autoria (1:N):** `chamado.usuario_id_usuario` referencia exclusivamente o munícipe que abriu o chamado com foto.
-   - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir voto duplicado. O autovoto é bloqueado por `pr_registrar_voto` e, em `INSERT` direto, pela trigger `trg_valida_voto_chamado`.
+   - **Apoios Comunitários (N:M):** `voto_chamado (chamado_id_chamado, usuario_id_usuario)` é a tabela associativa que permite que a vizinhança apoie a resolução rápida do problema, com a constraint `voto_chamado_un UNIQUE` para impedir voto duplicado. O autovoto é bloqueado por `pr_registrar_voto` e, em `INSERT`/`UPDATE` direto, pela trigger `trg_valida_voto_chamado`.
 5. **Evidência Fotográfica Binária Nativa (`BLOB`):** A coluna `foto` na tabela `chamado` armazena diretamente os bytes das imagens no Oracle, eliminando riscos de URLs externas quebradas (404) durante a apresentação presencial da banca.
 6. **Mesmos valores de ENUM no Oracle, no MongoDB e no Java (Spring Boot):** As `CHECK` constraints do Oracle e os `$jsonSchema` do MongoDB usam os mesmos valores dos cinco `enums` da API Java. Cada camada mantém sua própria cópia da lista, então um valor novo precisa ser incluído nas três:
    - `usuario.cargo`: `CIDADAO`, `GESTOR`, `ADMIN`
@@ -98,7 +98,7 @@ As rotinas tratam exceções específicas antes do `WHEN OTHERS`, entre elas:
 
 ### 4. Trilha de Auditoria DML e Regras de Negócio em Triggers
 - **`TRG_AUDIT_CHAMADO`**: Trigger disparada após qualquer `INSERT`, `UPDATE` ou `DELETE` na tabela `CHAMADO`, gravando o usuário conectado (`USER`), carimbo de data/hora (`SYSTIMESTAMP`), operação executada e os snapshots dos dados anteriores (`:OLD`) e novos (`:NEW`) serializados manualmente em JSON na tabela `AUDITORIA_DML_CHAMADO`. Os snapshots trazem os campos principais do chamado (id, título, categoria, prioridade, órgão e usuário). Se a gravação da auditoria falhar, a trigger levanta erro (`-20022` ou `-20023`) e o DML original é desfeito.
-- **`TRG_VALIDA_VOTO_CHAMADO`**: Trigger de validação cívica antes do `INSERT` em `VOTO_CHAMADO`, garantindo no nível do SGBD o bloqueio de autovoto e de votos em chamados já finalizados.
+- **`TRG_VALIDA_VOTO_CHAMADO`**: Trigger de validação cívica antes do `INSERT` ou `UPDATE` (`chamado_id_chamado`, `usuario_id_usuario`) em `VOTO_CHAMADO`, garantindo no nível do SGBD o bloqueio de autovoto e de votos em chamados já finalizados.
 
 ### 5. Dois Blocos Anônimos PL/SQL
 - **Bloco Anônimo 1 (Diagnóstico Territorial)**: Processamento em lote com cursor explícito, loop de repetição, estruturas de decisão `IF/ELSIF/ELSE`, invocação de funções empacotadas e cálculo da taxa percentual de resolução urbana.
@@ -127,7 +127,7 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
 | Gestão Territorial das Subprefeituras | Coleção separada `bairros_monitoramento` | **Referencing Lógico** | Bairros são entidades de análise autônoma com ciclo de vida independente dos chamados. O vínculo é mantido pelo campo lógico `id_bairro`. |
 | `categoria` e `status` (tabelas de domínio) | Campos de texto `categoria`, `status_atual` e `historico[].status`, com `enum` no `$jsonSchema` | **Valor por extenso** | As tabelas de apoio só guardam o nome; gravar o texto elimina o JOIN, e o `enum` mantém o mesmo domínio dos `CHECK` do Oracle. `status_atual` é o último evento de `hist_chamado` (o que `fn_obter_status_atual` devolve). |
 
-> **Fora da migração, por decisão:** `usuario.senha` (hash de credencial não deve ir para a base analítica) e `telefone` (contato sem uso nos relatórios).
+> **Fora da migração, por decisão:** `usuario.senha` (hash de credencial não deve ir para a base analítica) e `telefone` (contato sem uso nos relatórios). O campo `estado.nm_estado` (`São Paulo`) é normalizado para a sigla UF (`SP`) na visão documental do MongoDB.
 >
 > **Só existe no MongoDB:** em `bairros_monitoramento`, `subprefeitura`, `zona` e `populacao_estimada` são dados de referência territorial, sem coluna correspondente no Oracle. Já `metricas` (totais de chamados, pendentes, concluídos, apoios e `tempo_medio_resolucao_horas`) e `criticidade` são derivados dos dados do Oracle: as métricas coincidem com o Relatório 3 e a criticidade segue a regra de `fn_classificar_criticidade_bairro`.
 
@@ -241,8 +241,10 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
   db.chamados.aggregate([
     {
       $group: {
-        _id: "$localizacao.bairro",
-        cidade: { $first: "$localizacao.cidade" },
+        _id: {
+          bairro: "$localizacao.bairro",
+          cidade: "$localizacao.cidade"
+        },
         total_chamados: { $sum: 1 },
         votos_totais: { $sum: "$total_votos" },
         chamados_pendentes: {
@@ -260,8 +262,8 @@ A transição do modelo relacional para documentos adota escolhas entre **docume
     {
       $project: {
         _id: 0,
-        bairro: "$_id",
-        cidade: 1,
+        bairro: "$_id.bairro",
+        cidade: "$_id.cidade",
         total_chamados: 1,
         votos_totais: 1,
         chamados_pendentes: 1,

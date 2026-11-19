@@ -6,8 +6,8 @@
 // PROJETO: ZelaFix — Zeladoria Urbana Colaborativa
 // TURMA: 2TDSPG
 // INTEGRANTES:
-//   1. Enzo Okuizumi                    - RM: 561432
-//   2. Gustavo Okada                    - RM: 563428
+//   1. Enzo Okuizumi Miranda de Souza   - RM: 561432
+//   2. Gustavo Keiji Okada              - RM: 563428
 //   3. Lucas Barros Gouveia             - RM: 566422
 //   4. Luna de Carvalho Guimarães       - RM: 562290
 //   5. Milton Jakson de Sousa Marcelino - RM: 564836
@@ -154,8 +154,10 @@ imprimirTabela(
 const relatorio3 = db.chamados.aggregate([
   {
     $group: {
-      _id: "$localizacao.bairro",
-      cidade: { $first: "$localizacao.cidade" },
+      _id: {
+        bairro: "$localizacao.bairro",
+        cidade: "$localizacao.cidade"
+      },
       total_chamados: { $sum: 1 },
       votos_totais: { $sum: "$total_votos" },
       chamados_pendentes: {
@@ -173,8 +175,8 @@ const relatorio3 = db.chamados.aggregate([
   {
     $project: {
       _id: 0,
-      bairro: "$_id",
-      cidade: 1,
+      bairro: "$_id.bairro",
+      cidade: "$_id.cidade",
       total_chamados: 1,
       votos_totais: 1,
       chamados_pendentes: 1,

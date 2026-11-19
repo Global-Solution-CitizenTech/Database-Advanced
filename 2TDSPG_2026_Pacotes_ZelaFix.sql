@@ -5,8 +5,8 @@
 -- PROJETO: ZelaFix — Zeladoria Urbana Colaborativa
 -- TURMA: 2TDSPG
 -- INTEGRANTES:
---   1. Enzo Okuizumi                    - RM: 561432
---   2. Gustavo Okada                    - RM: 563428
+--   1. Enzo Okuizumi Miranda de Souza   - RM: 561432
+--   2. Gustavo Keiji Okada              - RM: 563428
 --   3. Lucas Barros Gouveia             - RM: 566422
 --   4. Luna de Carvalho Guimarães       - RM: 562290
 --   5. Milton Jakson de Sousa Marcelino - RM: 564836
@@ -64,7 +64,7 @@ CREATE OR REPLACE PACKAGE pkg_chamado_gestao AS
         p_id_chamado_gerado OUT NUMBER
     );
 
-    -- 1.2 Procedimento de Transição e Atualização de Status da Zeladoria (Exclusivo GESTOR)
+    -- 1.2 Procedimento de Transição e Atualização de Status da Zeladoria (Exclusivo GESTOR/ADMIN)
     PROCEDURE pr_atualizar_status_chamado (
         p_id_chamado        IN NUMBER,
         p_id_status         IN NUMBER,
@@ -247,7 +247,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
         );
     EXCEPTION
         WHEN e_parametro_invalido THEN
-            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros obrigatórios inválidos ou observação acima de 255 caracteres.');
+            RAISE_APPLICATION_ERROR(-20001, 'Parâmetros obrigatórios inválidos ou observação acima de 255 bytes.');
         WHEN e_chamado_inexistente THEN
             RAISE_APPLICATION_ERROR(-20002, 'Chamado ID ' || p_id_chamado || ' não encontrado.');
         WHEN e_status_inexistente THEN
@@ -428,6 +428,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_chamado_gestao AS
             IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
             RETURN '{"erro": "Chamado sem histórico de status válido"}';
         WHEN OTHERS THEN
+            IF c_chamado%ISOPEN THEN CLOSE c_chamado; END IF;
             IF v_json IS NOT NULL AND DBMS_LOB.ISTEMPORARY(v_json) = 1 THEN DBMS_LOB.FREETEMPORARY(v_json); END IF;
             RETURN '{"erro": "Falha na conversão manual para JSON: ' || fn_escapar_json(SQLERRM) || '"}';
     END fn_converter_chamado_json;
@@ -696,7 +697,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_engajamento_cidadao AS
                 v_nome_cidade_ant := v_reg.nm_cidade;
                 DBMS_OUTPUT.PUT_LINE('[BAIRRO: ' || UPPER(v_reg.nm_bairro) || ' (' || v_reg.nm_cidade || ')]');
                 DBMS_OUTPUT.PUT_LINE('  ID   | TÍTULO                              | CATEGORIA              | STATUS       | APOIOS');
-                DBMS_OUTPUT.PUT_LINE('  ----+-------------------------------------+------------------------+--------------+-------');
+                DBMS_OUTPUT.PUT_LINE('  -----+-------------------------------------+------------------------+--------------+-------');
             END IF;
 
             DBMS_OUTPUT.PUT_LINE('  ' || LPAD(v_reg.id_chamado, 4) || ' | ' ||
@@ -828,7 +829,7 @@ END trg_audit_chamado;
 -- 3.2 Trigger de Validação Cívica de Voto
 -- Garante no nível do SGBD a proibição de autovoto e de votos em chamados encerrados
 CREATE OR REPLACE TRIGGER trg_valida_voto_chamado
-BEFORE INSERT ON voto_chamado
+BEFORE INSERT OR UPDATE OF chamado_id_chamado, usuario_id_usuario ON voto_chamado
 FOR EACH ROW
 DECLARE
     v_autor_chamado NUMBER;
